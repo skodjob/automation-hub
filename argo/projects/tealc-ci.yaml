@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/obabec/tealc
-    targetRevision: entrypoint
+    repoURL: https://github.com/ExcelentProject/tealc
+    targetRevision: HEAD
     path: pipelines
   syncPolicy:
     automated:
@@ -17,4 +17,4 @@ spec:
     - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc
-    namespace: kafka
+    namespace: tealc-ci
