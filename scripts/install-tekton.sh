@@ -12,21 +12,27 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 function install_tekton_kube() {
+    echo "[INFO] installing tekton operator on kubernetes cluster"
     kubectl apply -f https://storage.googleapis.com/tekton-releases/operator/latest/release.yaml
     kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/all/operator_v1alpha1_config_cr.yaml
 }
 
 function install_tekton_ocp() {
-    apiVersion: operators.coreos.com/v1alpha1
-    kind: Subscription
-    metadata:
-        name: openshift-pipelines-operator
-        namespace: openshift-operators
-    spec:
-        channel: stable
-        name: openshift-pipelines-operator-rh
-        source: redhat-operators
-        sourceNamespace: openshift-marketplace
+    echo "[INFO] installing tekton operator on openshift cluster using OLM"
+    cat << EOF | kubectl apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+    name: openshift-pipelines-operator
+    namespace: openshift-operators
+spec:
+    channel: stable
+    name: openshift-pipelines-operator-rh
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+EOF
+    sleep 60
+    kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml
 }
 
 #Test requrements
