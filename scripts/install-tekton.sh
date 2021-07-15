@@ -2,19 +2,12 @@
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="${DIR}/../"
-SED=sed
-GREP=grep
-DATE=date
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SED=gsed
-    GREP=ggrep
-    DATE=gdate
-fi
 
 function install_tekton_kube() {
     echo "[INFO] installing tekton operator on kubernetes cluster"
     kubectl apply -f https://storage.googleapis.com/tekton-releases/operator/latest/release.yaml
     kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/all/operator_v1alpha1_config_cr.yaml
+    echo "[INFO] tekton is installed on kubernetes cluster"
 }
 
 function install_tekton_ocp() {
@@ -31,8 +24,9 @@ spec:
     source: redhat-operators
     sourceNamespace: openshift-marketplace
 EOF
-    sleep 60
+    kubectl wait pod -l name=openshift-pipelines-operator -n openshift-operators --for condition=ready
     kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml
+    echo "[INFO] tekton is installed on openshift cluster"
 }
 
 #Test requrements
@@ -48,4 +42,3 @@ if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
 else
     install_tekton_kube
 fi
-
