@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tealc-ci
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/tealc
+    targetRevision: HEAD
+    path: pipelines
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tealc-ci
