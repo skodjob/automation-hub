@@ -43,6 +43,10 @@ jobs:
           echo "--------------------------------------"
           kubectl get events --all-namespaces
           echo "--------------------------------------"
-          kubectl get tektonconfig config -o yaml
+          kubectl get pipelinerun --allnamespaces
           echo "--------------------------------------"
-          kubectl logs deployment/tekton-operator -n tekton-operator
+          kubectl get taskrun --allnamespaces
+          echo "--------------------------------------"
+          kubectl get pipeline --allnamespaces
+          echo "--------------------------------------"
+          kubectl get task --allnamespaces
