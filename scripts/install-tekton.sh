@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="${DIR}/../"
 
@@ -73,3 +74,4 @@ if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
 else
     install_tekton_kube
 fi
+sleep 120
