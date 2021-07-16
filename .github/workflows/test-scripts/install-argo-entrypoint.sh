@@ -5,7 +5,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="${DIR}/../../.."
 
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
 kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
 kubectl apply -f "${REPO_ROOT}/argo/projects/tealc-ci.yaml"
 
@@ -25,4 +25,4 @@ for i in {1..100}; do
     fi
 done
 
-kubectl wait taskrun cluster-install -n teal-ci --for condition=Succeeded --timeout 120s
+kubectl wait taskrun cluster-install -n tealc-ci --for condition=Succeeded --timeout 120s
