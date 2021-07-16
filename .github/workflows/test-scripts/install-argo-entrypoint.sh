@@ -25,4 +25,4 @@ for i in {1..100}; do
     fi
 done
 
-kubectl wait taskrun cluster-install -n tealc-ci --for condition=Succeeded --timeout 120s
+kubectl wait pipelinerun pipeline-run-test -n tealc-ci --for condition=Succeeded --timeout 120s
