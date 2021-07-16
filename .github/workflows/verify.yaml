@@ -14,6 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: Unlock
+        uses: sliteteam/github-action-git-crypt-unlock@1.2.0
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
+
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
@@ -25,6 +30,10 @@ jobs:
         run: |
           ./.github/workflows/test-scripts/run-test-pipeline.sh
 
+      - name: Deploy argo entrypoint
+        run: |
+          ./.github/workflows/test-scripts/install-argo-entrypoint.sh
+
       - name: Print kube status
         if: failure()
         run: |
@@ -34,6 +43,10 @@ jobs:
           echo "--------------------------------------"
           kubectl get events --all-namespaces
           echo "--------------------------------------"
-          kubectl get tektonconfig config -o yaml
+          kubectl get pipelinerun --allnamespaces
           echo "--------------------------------------"
-          kubectl logs deployment/tekton-operator -n tekton-operator
+          kubectl get taskrun --allnamespaces
+          echo "--------------------------------------"
+          kubectl get pipeline --allnamespaces
+          echo "--------------------------------------"
+          kubectl get task --allnamespaces
