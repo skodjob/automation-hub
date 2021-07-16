@@ -74,4 +74,5 @@ if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
 else
     install_tekton_kube
 fi
+echo "[INFO] waiting 120s for tekton warmup"
 sleep 120
