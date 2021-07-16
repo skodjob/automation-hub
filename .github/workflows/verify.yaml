@@ -21,6 +21,10 @@ jobs:
         run: |
           ./scripts/install-tekton.sh
 
+      - name: Try test pipeline
+        run: |
+          ./.github/workflows/test-scripts/run-test-pipeline.sh
+
       - name: Print kube status
         if: failure()
         run: |
