@@ -26,7 +26,7 @@ function install_tekton_kube() {
     wait_pod_exists "app=tekton-operator" "tekton-operator"
     kubectl wait pod -l app=tekton-operator -n tekton-operator --for condition=ready --timeout 120s
 
-    kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/basic/operator_v1alpha1_config_cr.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/all/operator_v1alpha1_config_cr.yaml
 
     wait_pod_exists "app=tekton-pipelines-controller" "tekton-pipelines"
     kubectl wait pod -l app=tekton-pipelines-controller -n tekton-pipelines --for condition=ready --timeout 120s
