@@ -3,11 +3,21 @@
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="${DIR}/../../.."
+TEALC_CONFIG=${REPO_ROOT}/tealc-ci-test.yaml
+if [ -z "$GITHUB_HEAD_REF" ]
+then
+    BRANCH="HEAD"
+else
+    BRANCH=$GITHUB_HEAD_REF
+fi
+echo $BRANCH
 
 kubectl create namespace argocd
 kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
 kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
-kubectl apply -f "${REPO_ROOT}/argo/projects/tealc-ci.yaml"
+sed 's@pipelines@pipelines/test@g' argo/projects/tealc-ci.yaml > $TEALC_CONFIG
+sed -i "s@HEAD@$BRANCH@g" $TEALC_CONFIG
+kubectl apply -f $TEALC_CONFIG
 
 sleep 30
 
