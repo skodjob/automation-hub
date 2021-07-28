@@ -1,4 +1,4 @@
-# TEALC CICD tooling
+# TEALC CICD tooling 
 Collection of deployments and tools for continuous testing of applications
 
 [![Verify](https://github.com/ExcelentProject/tealc/actions/workflows/verify.yaml/badge.svg)](https://github.com/ExcelentProject/tealc/actions/workflows/verify.yaml)
