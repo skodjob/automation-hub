@@ -1,18 +1,18 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: test-pipelin2
+  name: test-pipeline-2
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
   tasks:
-    - name: test tekton
+    - name: test-hello-tekton
       taskRef:
         name: test-task
       params:
         - name: name
           value: tekton
-    - name: test pepa
+    - name: test-hello-pepa
       taskRef:
         name: test-task
       params:
