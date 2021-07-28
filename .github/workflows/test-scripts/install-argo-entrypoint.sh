@@ -36,3 +36,4 @@ for i in {1..100}; do
 done
 
 kubectl wait pipelinerun pipeline-run-test -n tealc-ci --for condition=Succeeded --timeout 120s
+kubectl wait pipelinerun pipeline-run-test-2 -n tealc-ci --for condition=Succeeded --timeout 120s
