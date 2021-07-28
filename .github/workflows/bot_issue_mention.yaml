@@ -1,0 +1,22 @@
+name: Tealc bot
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  check-issue:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Notify maintainers for new issue
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Thanks for report!!!\n hey @kornys @Frawless @obabec'
+            })
