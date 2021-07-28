@@ -1,0 +1,14 @@
+pipelines:
+- 'pipelines/**/*'
+
+github_ci:
+- .github/**/*
+
+scripts:
+- scripts/**/*
+
+argo:
+- argo/**/**/*
+
+documentation:
+- doc/**/*
