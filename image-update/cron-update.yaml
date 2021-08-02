@@ -3,14 +3,14 @@ kind: CronJob
 metadata:
   name: image-update-cron
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "0 */12 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
           - name: image-updater
-            image: quay.io/obabec/image-updater:latest
+            image: quay.io/tealc/apophis:latest
             imagePullPolicy: IfNotPresent
             env:
             - name: CURRENT_DEPLOYMENT_REPO
@@ -20,7 +20,7 @@ spec:
             - name: TARGET_ORG_REPO
               value: "quay.io/strimzi"
             - name: BRANCH
-              value: tealc-ci-test
+              value: tealc-ci-test-9
             - name: GITHUB_USERNAME
               valueFrom:
                 secretKeyRef:
