@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: apophis-daily
+spec:
+  schedule: "0 */12 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: image-updater
+            image: quay.io/tealc/apophis:latest
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: CURRENT_DEPLOYMENT_REPO
+              value: "https://github.com/ExcelentProject/test-image-updater.git"
+            - name: YAML_BUNDLE_PATH
+              value: "./"
+            - name: TARGET_ORG_REPO
+              value: "quay.io/strimzi"
+            - name: BRANCH
+              value: tealc-ci-test-9
+            - name: GITHUB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: github-secret
+                  key: USERNAME
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secret
+                  key: TOKEN
+          restartPolicy: OnFailure
