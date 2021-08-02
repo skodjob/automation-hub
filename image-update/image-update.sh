@@ -25,7 +25,14 @@ elif [[ -z "${CURRENT_DEPLOYMENT_REPO}" ]]; then
 elif [[ -z "${TARGET_ORG_REPO}" ]]; then
     echo "Missing target organization link"
     exit 3
+elif [[ -z ${SYNC_CRD_REPO} ]]; then 
+    echo "Missing target CRD sync repo"
+    exit 4
+elif [[ -z ${SYNC_CRD_PATH} ]]; then 
+    echo "Missing target CRD path"
+    exit 5
 fi
+
 
 TARGET_DIR="${PWD}/../current_deployment"
 echo $TARGET_DIR
@@ -36,6 +43,16 @@ git config --global user.name "$GITHUB_USERNAME"
 echo "Cloning repository"
 echo "================================================"
 git clone $CURRENT_DEPLOYMENT_REPO $TARGET_DIR
+
+echo "================================================"
+echo "Cloning target CRD repo for sync"
+SYNC_CRD_DIR="${PWD}/../sync_repo"
+git clone $TARGET_CRD_REPO $SYNC_CRD_DIR
+cp -r $TARGET_DIR/* $TARGET_DIR/$YAML_BUNDLE_PATH/
+echo "================================================"
+echo "Moving into synced deployment repository"
+echo "================================================"
+
 pushd $TARGET_DIR
 CURRENT_DEPLOYMENT_REPO=$(echo $CURRENT_DEPLOYMENT_REPO | cut -d '/' -f3-)
 
