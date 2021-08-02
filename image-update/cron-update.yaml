@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
           - name: apophis-daily
-            image: quay.io/obabec/image-updater:latest #quay.io/tealc/apophis:latest
+            image: quay.io/tealc/apophis:latest
             imagePullPolicy: IfNotPresent
             env:
             - name: CURRENT_DEPLOYMENT_REPO
