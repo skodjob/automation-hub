@@ -1,6 +1,6 @@
-FROM fedora:latest
+FROM registry.fedoraproject.org/fedora-minimal:latest
 
-RUN sudo dnf -y install skopeo git
+RUN microdnf -y install skopeo git
 
 COPY ${PWD}/image-update.sh /tmp/image-update.sh
 
