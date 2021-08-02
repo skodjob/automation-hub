@@ -3,13 +3,13 @@ kind: CronJob
 metadata:
   name: apophis-daily
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "0 */12 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: apophis
+          - name: apophis-daily
             image: quay.io/obabec/image-updater:latest #quay.io/tealc/apophis:latest
             imagePullPolicy: IfNotPresent
             env:
@@ -20,7 +20,7 @@ spec:
             - name: TARGET_ORG_REPO
               value: "quay.io/strimzi"
             - name: BRANCH
-              value: tealc-ci-test-11
+              value: test-example
             - name: SYNC_CRD_REPO
               value: "https://github.com/strimzi/strimzi-kafka-operator"
             - name: SYNC_CRD_PATH
