@@ -18,5 +18,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: Thanks for report!!!\n hey @kornys @Frawless @obabec'
+              body: 'Thanks for report!!!\n hey @kornys @Frawless @obabec'
             })
