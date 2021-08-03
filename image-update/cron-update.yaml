@@ -9,7 +9,7 @@ spec:
       template:
         spec:
           containers:
-          - name: image-updater
+          - name: apophis-daily
             image: quay.io/tealc/apophis:latest
             imagePullPolicy: IfNotPresent
             env:
@@ -20,7 +20,11 @@ spec:
             - name: TARGET_ORG_REPO
               value: "quay.io/strimzi"
             - name: BRANCH
-              value: tealc-ci-test-9
+              value: test-example
+            - name: SYNC_CRD_REPO
+              value: "https://github.com/strimzi/strimzi-kafka-operator"
+            - name: SYNC_CRD_PATH
+              value: "install/cluster-operator"
             - name: GITHUB_USERNAME
               valueFrom:
                 secretKeyRef:
