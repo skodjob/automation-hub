@@ -3,6 +3,7 @@ extends: default
 rules:
   line-length: disable
   new-lines: disable
+  document-start: disable
   new-line-at-end-of-file:
     level: warning
   trailing-spaces:
