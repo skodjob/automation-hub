@@ -21,6 +21,8 @@ jobs:
 
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
+        with:
+        config_file: .yaml-config.yml
 
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
