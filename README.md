@@ -31,7 +31,7 @@ EOF
 
 ### Configuring TEALC-CI project
 ```
-kubectl apply -f ./argo/projects/tealc-ci.yaml
+kubectl apply -f ./argo/projects/
 ```
 With these config, all pipelines from `./pipelines` will be deployed. Be carefull to have all depending configurations in same file with correct sequence.
 
