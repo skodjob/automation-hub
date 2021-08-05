@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  install:
+  yamllint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
