@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tealc-ci
+  namespace: argocd
+spec:
+  project: operator
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: operator
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc #This needs to be appended
+    namespace: strimzi-operator
+  project: kafka
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: kafka
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc #This needs to be appended
+    namespace: strimzi-kafka
+  project: clients
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: clients
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc #This needs to be appended
+    namespace: strimzi-clients
