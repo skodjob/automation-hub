@@ -19,4 +19,4 @@ spec:
       - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc
-    namespace: tealc-ciß
+    namespace: tealc-ci
