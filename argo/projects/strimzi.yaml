@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tealc-ci
+  name: strimzi-operator
   namespace: argocd
 spec:
   project: operator
   source:
     repoURL: https://github.com/ExcelentProject/sokar
     targetRevision: HEAD
-    path: operator
+    path: strimzi-cluster-operator
     directory:
       recurse: true
   syncPolicy:
@@ -20,6 +20,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-operator
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-kafka
+  namespace: argocd
+spec:
   project: kafka
   source:
     repoURL: https://github.com/ExcelentProject/sokar
@@ -36,6 +43,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-kafka
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-clients
+  namespace: argocd
+spec:
   project: clients
   source:
     repoURL: https://github.com/ExcelentProject/sokar
@@ -52,3 +66,26 @@ spec:
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-clients
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-metrics
+  namespace: argocd
+spec:
+  project: clients
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: metrics
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc #This needs to be appended
+    namespace: strimzi-metrics
