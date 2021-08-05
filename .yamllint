@@ -1,11 +1,9 @@
-config_data: |
-  extends: default
-  rules:
-    new-line-at-end-of-file:
-      level: warning
-    trailing-spaces:
-      level: warning
-    line-length:
-      level: warning
-    document-start:
-      level: warning
+extends: default
+
+rules:
+  line-length: disable
+  new-lines: disable
+  new-line-at-end-of-file:
+    level: warning
+  trailing-spaces:
+    level: warning
