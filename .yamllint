@@ -6,6 +6,6 @@ config_data: |
     trailing-spaces:
       level: warning
     line-length:
-      level: disabled
+      level: warning
     document-start:
-      level: disabled
+      level: warning
