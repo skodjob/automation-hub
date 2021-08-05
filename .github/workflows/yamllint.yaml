@@ -22,3 +22,5 @@ jobs:
 
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .github/lint-config.yaml

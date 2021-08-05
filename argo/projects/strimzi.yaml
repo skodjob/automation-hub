@@ -16,7 +16,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-operator
@@ -39,7 +39,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-kafka
@@ -62,7 +62,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-clients
@@ -85,7 +85,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc #This needs to be appended
     namespace: strimzi-metrics
