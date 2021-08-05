@@ -1,14 +1,14 @@
 pipelines:
-- 'pipelines/**/*'
+  - 'pipelines/**/*'
 
 github_ci:
-- .github/**/*
+  - .github/**/*
 
 scripts:
-- scripts/**/*
+  - scripts/**/*
 
 argo:
-- argo/**/**/*
+  - argo/**/**/*
 
 documentation:
-- doc/**/*
+  - doc/**/*
