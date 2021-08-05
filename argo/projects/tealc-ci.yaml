@@ -16,7 +16,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc
-    namespace: tealc-ci
+    namespace: tealc-ciß
