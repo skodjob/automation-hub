@@ -35,4 +35,4 @@ spec:
                     secretKeyRef:
                       name: github-secret
                       key: TOKEN
-            restartPolicy: OnFailure
+              restartPolicy: OnFailure
