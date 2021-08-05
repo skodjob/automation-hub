@@ -16,9 +16,9 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
-    server: https://kubernetes.default.svc #This needs to be appended
+    server: https://kubernetes.default.svc  # This needs to be appended
     namespace: strimzi-operator
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -39,9 +39,9 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
-    server: https://kubernetes.default.svc #This needs to be appended
+    server: https://kubernetes.default.svc  # This needs to be appended
     namespace: strimzi-kafka
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -62,9 +62,9 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
-    server: https://kubernetes.default.svc #This needs to be appended
+    server: https://kubernetes.default.svc  # This needs to be appended
     namespace: strimzi-clients
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -85,7 +85,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
   destination:
-    server: https://kubernetes.default.svc #This needs to be appended
+    server: https://kubernetes.default.svc  # This needs to be appended
     namespace: strimzi-metrics
