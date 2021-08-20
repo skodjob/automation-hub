@@ -34,34 +34,64 @@ elif [[ -z ${SYNC_CRD_PATH} ]]; then
 fi
 
 
+
+
 TARGET_DIR="${PWD}/../current_deployment"
 echo $TARGET_DIR
-
-git config --global user.email "$GITHUB_USERNAME@redhat.com"
-git config --global user.name "$GITHUB_USERNAME"
-
+echo "Cloning"
 echo "Cloning repository"
 echo "================================================"
 git clone $CURRENT_DEPLOYMENT_REPO $TARGET_DIR
 
+FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
 echo "================================================"
 echo "Cloning target CRD repo for sync"
 
 SYNC_CRD_DIR="${PWD}/../sync_repo"
 git clone $SYNC_CRD_REPO $SYNC_CRD_DIR
-cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/* $TARGET_DIR/$YAML_BUNDLE_PATH/
+
+# Storing must have values
+echo "FIRST YQ"
+echo $FILE_NAME
+
+export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+
+# Cyklus pres vsechny a postupny ulozeni - copy - restore
+echo "FOR YQ"
+
+FILE_NAMES=$(ls $SYNC_CRD_DIR/$SYNC_CRD_PATH | tr '\n' ';')
+IFS=';' read -r -a FILES <<< $FILE_NAMES
+for C_FILE in "${FILES[@]}"
+do
+    echo $C_FILE
+    export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE") 
+
+    cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
+
+    echo "HAHA"
+    yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+done
+
+
+
+yq e -i '.spec.template.spec.containers[0].env = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"
 echo "================================================"
 
 pushd $TARGET_DIR
+echo "Configuration"
+git config --global user.email "$GITHUB_USERNAME@redhat.com"
+git config --global user.name "$GITHUB_USERNAME"
+
 CURRENT_DEPLOYMENT_REPO=$(echo $CURRENT_DEPLOYMENT_REPO | cut -d '/' -f3-)
 
 git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@$CURRENT_DEPLOYMENT_REPO"
 git checkout -b $BRANCH
 
-FILE_NAME=$(ls $YAML_BUNDLE_PATH | $GREP Deployment)
 
 # Change floating tags to random digest
 IMAGES_TAGS=$(cat $YAML_BUNDLE_PATH/$FILE_NAME | grep $TARGET_ORG_REPO/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')

@@ -1,7 +1,20 @@
 FROM registry.fedoraproject.org/fedora-minimal:latest
 
-RUN microdnf -y install skopeo git
+RUN microdnf -y install skopeo git wget
 
-COPY ${PWD}/image-update.sh /tmp/image-update.sh
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.11.2/yq_linux_amd64 -O /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
 
-CMD ["/bin/bash", "/tmp/image-update.sh"]
+
+#RUN useradd -ms /bin/bash apophisuser
+#RUN usermod -a -G root apophisuser
+
+#RUN chgrp -R 0 /home/apophisuser && chmod -R g=u /home/apophisuser
+
+#USER apophisuser
+
+RUN mkdir -p /home/apophisuser/tealc/apophis
+
+COPY ${PWD}/image-update.sh /home/apophisuser/tealc/apophis/image-update.sh
+
+CMD ["/bin/bash", "/home/apophisuser/tealc/apophis/image-update.sh"]

@@ -3,24 +3,25 @@ kind: CronJob
 metadata:
   name: apophis-daily
 spec:
-  schedule: "0 */12 * * *"
+  schedule: "* * * * *"
   jobTemplate:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure
           containers:
             - name: apophis-daily
               image: quay.io/tealc/apophis:latest
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: Always
               env:
                 - name: CURRENT_DEPLOYMENT_REPO
-                  value: "https://github.com/ExcelentProject/test-image-updater.git"
+                  value: "https://github.com/ExcelentProject/sokar"
                 - name: YAML_BUNDLE_PATH
-                  value: "./"
+                  value: "./strimzi-cluster-operator/"
                 - name: TARGET_ORG_REPO
                   value: "quay.io/strimzi"
                 - name: BRANCH
-                  value: test-example
+                  value: test-example3
                 - name: SYNC_CRD_REPO
                   value: "https://github.com/strimzi/strimzi-kafka-operator"
                 - name: SYNC_CRD_PATH
@@ -35,4 +36,3 @@ spec:
                     secretKeyRef:
                       name: github-secret
                       key: TOKEN
-              restartPolicy: OnFailure
