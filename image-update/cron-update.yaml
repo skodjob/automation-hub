@@ -1,26 +1,10 @@
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: apophis-volume
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 10Gi
-  accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: "/mnt/data"
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: apophis-claim
 spec:
-  storageClassName: manual
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 3Gi
@@ -52,7 +36,7 @@ spec:
                 - name: TARGET_ORG_REPO
                   value: "quay.io/strimzi"
                 - name: BRANCH
-                  value: test-example3
+                  value: test-example6
                 - name: SYNC_CRD_REPO
                   value: "https://github.com/strimzi/strimzi-kafka-operator"
                 - name: SYNC_CRD_PATH

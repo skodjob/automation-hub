@@ -34,9 +34,9 @@ elif [[ -z ${SYNC_CRD_PATH} ]]; then
 fi
 
 
+pushd ${PWD}/tealc
 
-
-TARGET_DIR="${PWD}/../current_deployment"
+TARGET_DIR="${PWD}/current_deployment"
 echo $TARGET_DIR
 echo "Cloning"
 echo "Cloning repository"
@@ -47,18 +47,16 @@ FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
 echo "================================================"
 echo "Cloning target CRD repo for sync"
 
-SYNC_CRD_DIR="${PWD}/../sync_repo"
+SYNC_CRD_DIR="${PWD}/sync_repo"
 git clone $SYNC_CRD_REPO $SYNC_CRD_DIR
 
 # Storing must have values
-echo "FIRST YQ"
 echo $FILE_NAME
 
 export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
-echo "FOR YQ"
 
 FILE_NAMES=$(ls $SYNC_CRD_DIR/$SYNC_CRD_PATH | tr '\n' ';')
 IFS=';' read -r -a FILES <<< $FILE_NAMES
@@ -66,11 +64,14 @@ for C_FILE in "${FILES[@]}"
 do
     echo $C_FILE
     export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE") 
+    export SUBJECTS=$(yq e '.subjects' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
 
     cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
 
-    echo "HAHA"
     yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+    if [[ $SUBJECTS != null ]]; then
+        yq e -i '.subjects = env(SUBJECTS)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+    fi
 done
 
 
@@ -84,8 +85,8 @@ echo "================================================"
 
 pushd $TARGET_DIR
 echo "Configuration"
-git config --global user.email "$GITHUB_USERNAME@redhat.com"
-git config --global user.name "$GITHUB_USERNAME"
+git config user.email "$GITHUB_USERNAME@redhat.com"
+git config user.name "$GITHUB_USERNAME"
 
 CURRENT_DEPLOYMENT_REPO=$(echo $CURRENT_DEPLOYMENT_REPO | cut -d '/' -f3-)
 
@@ -123,7 +124,6 @@ do
         PREFIX=$(echo $ELEMENT | cut -d '=' -f1)
         LATEST_DIGEST=$(skopeo inspect docker://$TARGET_ORG_REPO/$IMAGE:latest-kafka-$PREFIX  --format "{{ .Digest }}")
     elif [[ $ELEMENT == *"kafka@"* ]]; then
-
         continue
     else
         LATEST_DIGEST=$(skopeo inspect docker://$TARGET_ORG_REPO/$IMAGE --format "{{ .Digest }}")
