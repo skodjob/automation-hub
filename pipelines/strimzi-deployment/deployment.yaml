@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: strimzi-deployment-task
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  params:
+    - name: name
+      type: string
+  steps:
+    - name: Client setup
+      image: quay.io/openshift/origin-cli:latest
+      env:
+      — name: REG_PWD
+        valueFrom:
+        secretKeyRef:
+        name: myphonebook-tekton-deployer-secret
+        key: token
+      script: |
+        echo "Hello $(inputs.params.name)"
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: strimzi-deployment-pipeline
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  tasks:
+    - name: test
+      taskRef:
+        name: strimzi-deployment-task
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: strimzi-deployment-pipeline-run
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: strimzi-deployment-pipeline
