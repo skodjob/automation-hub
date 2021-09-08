@@ -29,6 +29,7 @@ stringData:
 EOF
 ```
 
+
 ### Configuring TEALC-CI project
 ```
 kubectl apply -f ./argo/projects/
