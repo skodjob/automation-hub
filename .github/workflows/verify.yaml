@@ -26,9 +26,9 @@ jobs:
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
-      - name: Install tekton
+      - name: Install CICD
         run: |
-          ./scripts/install-tekton.sh
+          ./scripts/install-cicd.sh
 
       - name: Try test pipeline
         run: |

@@ -75,6 +75,60 @@ EOF
     oc expose service tekton-dashboard -n openshift-pipelines
 }
 
+function install_argo_ocp() {
+    echo "[INFO] installing argocd operator on openshift cluster using OLM"
+    cat << EOF | kubectl apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+    name: argocd-operator
+    namespace: openshift-operators
+spec:
+    channel: alpha
+    name: argocd-operator
+    source: community-operators
+    sourceNamespace: openshift-marketplace
+EOF
+
+    wait_pod_exists "name=argocd-operator" "openshift-operators"
+    kubectl wait pod -l name=argocd-operator -n openshift-operators --for condition=ready --timeout 120s
+
+    kubectl create namespace argocd
+    cat << EOF | kubectl apply -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: argocd
+  namespace: argocd
+  labels:
+    example: oauth
+spec:
+  dex:
+    openShiftOAuth: true
+  rbac:
+    defaultPolicy: 'role:readonly'
+    policy: |
+      g, system:cluster-admins, role:admin
+    scopes: '[groups]'
+  server:
+    route:
+      enabled: true
+EOF
+
+    wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
+    kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
+}
+
+function install_argo_kube() {
+    echo "[INFO] installing argocd operator on kubernetes cluster"
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+    kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
+
+    wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
+    kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
+}
+
 #Test requirements
 TEST=$(which kubectl)
 if [ $? -gt 0 ]; then
@@ -85,8 +139,10 @@ fi
 #Test if cluster is openshift or kubernetes
 if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
     install_tekton_ocp
+    install_argo_ocp
 else
     install_tekton_kube
+    install_argo_kube
 fi
 echo "[INFO] waiting 120s for tekton warmup"
 sleep 120
