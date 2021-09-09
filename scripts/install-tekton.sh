@@ -71,9 +71,11 @@ EOF
     kubectl wait pod -l app=tekton-dashboard -n openshift-pipelines --for condition=ready --timeout 120s
 
     echo "[INFO] tekton dashboard is installed on openshift cluster"
+    echo "[INFO] expose tekton dahsboard service on openshift cluster"
+    oc expose service tekton-dashboard -n openshift-pipelines
 }
 
-#Test requrements
+#Test requirements
 TEST=$(which kubectl)
 if [ $? -gt 0 ]; then
     echo "[ERROR] kubectl command not found"
