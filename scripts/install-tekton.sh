@@ -33,6 +33,12 @@ function install_tekton_kube() {
     kubectl wait pod -l app=tekton-pipelines-controller -n tekton-pipelines --for condition=ready --timeout 120s
 
     echo "[INFO] tekton is installed on kubernetes cluster"
+
+    kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+    wait_pod_exists "app=tekton-dashboard" "tekton-pipelines"
+    kubectl wait pod -l app=tekton-dashboard -n tekton-pipelines --for condition=ready --timeout 120s
+
+    echo "[INFO] tekton dashboard is installed on kubernetes cluster"
 }
 
 function install_tekton_ocp() {
@@ -59,6 +65,12 @@ EOF
     kubectl wait pod -l app=tekton-pipelines-controller -n openshift-pipelines --for condition=ready --timeout 120s
 
     echo "[INFO] tekton is installed on openshift cluster"
+
+    kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml --validate=false
+    wait_pod_exists "app=tekton-dashboard" "openshift-pipelines"
+    kubectl wait pod -l app=tekton-dashboard -n openshift-pipelines --for condition=ready --timeout 120s
+
+    echo "[INFO] tekton dashboard is installed on openshift cluster"
 }
 
 #Test requrements
