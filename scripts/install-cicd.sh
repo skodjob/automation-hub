@@ -117,6 +117,7 @@ EOF
 
     wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
     kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
+    oc adm policy add-cluster-role-to-user cluster-admin -z argocd-argocd-application-controller -n argocd
 }
 
 function install_argo_kube() {
