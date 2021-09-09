@@ -98,7 +98,7 @@ EOF
 apiVersion: argoproj.io/v1alpha1
 kind: ArgoCD
 metadata:
-  name: argocd-server
+  name: argocd
   namespace: argocd
   labels:
     example: oauth
