@@ -5,21 +5,100 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
-  params:
-    - name: name
-      type: string
+  workspaces:
+    - name: task-ws
   steps:
-    - name: Client setup
+    - name: kafka-route
       image: quay.io/openshift/origin-cli:latest
       env:
-      — name: REG_PWD
-        valueFrom:
-        secretKeyRef:
-        name: myphonebook-tekton-deployer-secret
-        key: token
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: username
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: password
+        - name: SERVER
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: server
       script: |
-        echo "Hello $(inputs.params.name)"
-
+        oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
+        export ROUTE=$(oc get route -n strimzi-kafka anubis-kafka-automation-bootstrap  | grep anubis-kafka-automation-bootstrap | tr -s ' ' | cut -d " " -f2)
+        echo $ROUTE >> $(workspaces.task-ws.path)/route.txt
+        cat $(workspaces.task-ws.path)/route.txt
+    - name: deployment-clone
+      image: alpine/git:v2.30.2
+      env:
+        - name: GITHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: USERNAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: TOKEN
+      script: |
+        export CURRENT_DIR=$(workspaces.task-ws.path)/deployment
+        git clone https://github.com/ExcelentProject/sokar.git $CURRENT_DIR
+    - name: deployment-update
+      image: mikefarah/yq:latest
+      script: |
+        export ROUTE=$(cat $(workspaces.task-ws.path)/route.txt):443
+        yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/deployment/clients/00-external-clients.yaml
+        cat $(workspaces.task-ws.path)/deployment/clients/00-external-clients.yaml
+    - name: config-grafana
+      image: quay.io/openshift/origin-cli:latest
+      env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: username
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: password
+        - name: SERVER
+          valueFrom:
+            secretKeyRef:
+              name: tealc-aws
+              key: server
+      script: |
+        oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
+        export GRAFANA_TOKEN=$(oc serviceaccounts get-token grafana-serviceaccount -n strimzi-monitoring)
+        echo $GRAFANA_TOKEN
+        sed -i "s/Bearer .*\"/Bearer ${GRAFANA_TOKEN}\"/g" $(workspaces.task-ws.path)/deployment/metrics/grafana-config-map.yaml
+    - name: deployment-push
+      image: alpine/git:v2.30.2
+      env:
+        - name: GITHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: USERNAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: TOKEN
+      script: |
+        export CURRENT_DIR=$(workspaces.task-ws.path)/deployment
+        cd $CURRENT_DIR
+        git config user.email "$GITHUB_USERNAME@redhat.com"
+        git config user.name "$GITHUB_USERNAME"
+        git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/sokar"
+        git remote get-url origin
+        git add .
+        git commit -m "Deployment update: $(date "+%Y-%m-%d %T")"
+        git push origin HEAD:test
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -28,11 +107,15 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
+  workspaces:
+    - name: pipeline-ws
   tasks:
-    - name: test
+    - name: strimzi
       taskRef:
         name: strimzi-deployment-task
-
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -41,5 +124,17 @@ metadata:
   labels:
     app: tealc
 spec:
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: pipeline-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
   pipelineRef:
     name: strimzi-deployment-pipeline
+  serviceAccountName: default

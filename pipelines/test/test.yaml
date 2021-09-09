@@ -29,7 +29,6 @@ spec:
       params:
         - name: name
           value: tekton
-
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -40,3 +39,4 @@ metadata:
 spec:
   pipelineRef:
     name: test-pipeline
+  serviceAccountName: default
