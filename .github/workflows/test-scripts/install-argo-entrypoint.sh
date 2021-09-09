@@ -12,9 +12,6 @@ else
 fi
 echo $BRANCH
 
-kubectl create namespace argocd
-kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
-kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
 sed 's@pipelines@pipelines/test@g' argo/projects/tealc-ci.yaml > $TEALC_CONFIG
 sed -i "s@HEAD@$BRANCH@g" $TEALC_CONFIG
 kubectl apply -f $TEALC_CONFIG
