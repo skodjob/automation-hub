@@ -75,7 +75,7 @@ spec:
         oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
         export GRAFANA_TOKEN=$(oc serviceaccounts get-token grafana-serviceaccount -n strimzi-monitoring)
         echo $GRAFANA_TOKEN
-        sed -i "s/Bearer .*\"/Bearer ${GRAFANA_TOKEN}\"/g" $(workspaces.task-ws.path)/deployment/metrics/grafana-config-map.yaml
+        sed -i "s/Bearer .*\"/Bearer ${GRAFANA_TOKEN}\"/g" $(workspaces.task-ws.path)/deployment/metrics/grafana-data-source.yaml
     - name: deployment-push
       image: alpine/git:v2.30.2
       env:
