@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/ExcelentProject/tealc
     targetRevision: HEAD
-    path: pipelines/test
+    path: pipelines
     directory:
       recurse: true
   syncPolicy:
