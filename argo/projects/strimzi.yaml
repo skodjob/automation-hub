@@ -102,7 +102,7 @@ spec:
   ignoreDifferences:
     - kind: ServiceAccount
       jsonPointers:
-      - /metadata
+        - /metadata
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
