@@ -85,7 +85,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ExcelentProject/sokar
-    targetRevision: test-dash
+    targetRevision: HEAD
     path: metrics
     directory:
       recurse: true
@@ -99,6 +99,10 @@ spec:
   destination:
     name: tealc-access
     namespace: strimzi-monitoring
+  ignoreDifferences:
+    - kind: ServiceAccount
+      jsonPointers:
+      - /metadata
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
