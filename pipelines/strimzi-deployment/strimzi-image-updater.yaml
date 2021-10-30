@@ -1,0 +1,85 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: strimzi-deployment-image-update-task
+  namespace: tealc-ci
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: task-ws
+  steps:
+    - name: tealc-clone
+      image: alpine/git:v2.30.2
+      script: |
+        export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
+        git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
+    - name: clients-update
+      env:
+        - name: CURRENT_DEPLOYMENT_REPO
+          value: "https://github.com/ExcelentProject/sokar"
+        - name: YAML_BUNDLE_PATH
+          value: "./strimzi-cluster-operator/"
+        - name: TARGET_ORG_REPO
+          value: "quay.io/strimzi"
+        - name: BRANCH
+          value: main
+        - name: SYNC_CRD_REPO
+          value: "https://github.com/strimzi/strimzi-kafka-operator"
+        - name: SYNC_CRD_PATH
+          value: "packaging/install/cluster-operator"
+        - name: GITHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: USERNAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: TOKEN
+      image: quay.io/tealc/apophis:latest
+      script: |
+        $(workspaces.task-ws.path)/tealc/image-update/image-update.sh
+        echo "[INFO] Done!"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: strimzi-deployment-image-update-pipeline
+  namespace: tealc-ci
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: strimzi
+      taskRef:
+        name: strimzi-deployment-image-update-task
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: strimzi-deployment-image-update-pipeline-run
+  namespace: tealc-ci
+  labels:
+    app: tealc
+spec:
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: pipeline-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+  pipelineRef:
+    name: strimzi-deployment-image-update-pipeline
+  serviceAccountName: default

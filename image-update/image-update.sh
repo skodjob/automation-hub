@@ -16,44 +16,57 @@ then
     DATE=gdate
 fi
 
+TEST=$(which kubectl)
+if [ $? -gt 0 ]; then
+    echo "[ERROR] kubectl command not found"
+    exit 1
+fi
+
 if [[ -z "${YAML_BUNDLE_PATH}" ]]; then
-    echo "Missing yaml bundle path"
+    echo "Missing yaml bundle path: YAML_BUNDLE_PATH"
     exit 1
 elif [[ -z "${CURRENT_DEPLOYMENT_REPO}" ]]; then
-    echo "Missing deployment repo"
+    echo "Missing deployment repo: CURRENT_DEPLOYMENT_REPO"
     exit 2
 elif [[ -z "${TARGET_ORG_REPO}" ]]; then
-    echo "Missing target organization link"
+    echo "Missing target organization link: TARGET_ORG_REPO"
     exit 3
-elif [[ -z ${SYNC_CRD_REPO} ]]; then 
-    echo "Missing target CRD sync repo"
+elif [[ -z ${SYNC_CRD_REPO} ]]; then
+    echo "Missing target CRD sync repo: SYNC_CRD_REPO"
     exit 4
 elif [[ -z ${SYNC_CRD_PATH} ]]; then 
-    echo "Missing target CRD path"
+    echo "Missing target CRD path: SYNC_CRD_PATH"
+    exit 5
+elif [[ -z ${BRANCH} ]]; then
+    echo "Missing branch name: BRANCH"
     exit 5
 fi
 
+WORKING_DIR=/tmp/tealc
 
-pushd ${PWD}/tealc
+echo "[INFO] Clearing ${WORKING_DIR}"
+rm -rf ${WORKING_DIR}
 
-TARGET_DIR="${PWD}/current_deployment"
+echo "[INFO] Creating ${WORKING_DIR}"
+mkdir -p ${WORKING_DIR}
+pushd ${WORKING_DIR}
+
+TARGET_DIR="${WORKING_DIR}/current_deployment"
 echo $TARGET_DIR
-echo "Cloning"
-echo "Cloning repository"
+echo "Cloning repository: ${CURRENT_DEPLOYMENT_REPO}"
 echo "================================================"
-git clone $CURRENT_DEPLOYMENT_REPO $TARGET_DIR
+git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
 
 FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
+echo "[INFO] Deployment filename: ${FILE_NAME}"
 echo "================================================"
-echo "Cloning target CRD repo for sync"
+echo "Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
 
-SYNC_CRD_DIR="${PWD}/sync_repo"
-git clone $SYNC_CRD_REPO $SYNC_CRD_DIR
+SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
+git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
 
 # Storing must have values
-echo $FILE_NAME
-
-export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
@@ -74,9 +87,9 @@ do
     fi
 done
 
-
-
-yq e -i '.spec.template.spec.containers[0].env = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+# We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
+yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+# We need to keep resources configuration as well
 yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 
 echo "================================================"
@@ -84,15 +97,19 @@ echo "Moving into synced deployment repository"
 echo "================================================"
 
 pushd $TARGET_DIR
-echo "Configuration"
-git config user.email "$GITHUB_USERNAME@redhat.com"
-git config user.name "$GITHUB_USERNAME"
+#echo "Git configuration"
+#git config user.email "$GITHUB_USERNAME@redhat.com"
+#git config user.name "$GITHUB_USERNAME"
 
-CURRENT_DEPLOYMENT_REPO=$(echo $CURRENT_DEPLOYMENT_REPO | cut -d '/' -f3-)
+CURRENT_DEPLOYMENT_REPO=$(echo "$CURRENT_DEPLOYMENT_REPO" | cut -d '/' -f3-)
 
-git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@$CURRENT_DEPLOYMENT_REPO"
-git checkout -b $BRANCH
+#git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@$CURRENT_DEPLOYMENT_REPO"
 
+if [[ $(git branch) == *${BRANCH}* ]]; then
+  git checkout "$BRANCH"
+else
+  git checkout -b "$BRANCH"
+fi
 
 # Change floating tags to random digest
 IMAGES_TAGS=$(cat $YAML_BUNDLE_PATH/$FILE_NAME | grep $TARGET_ORG_REPO/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
@@ -137,13 +154,12 @@ done
 
 echo "================================================"
 echo "Adding changes to repository"
-git add $YAML_BUNDLE_PATH/*
+git add "$YAML_BUNDLE_PATH"/*
 git commit -m "Image update: $($DATE "+%Y-%m-%d %T")"
-git push origin $BRANCH
+git push origin "$BRANCH"
 popd
 echo "================================================"
-echo "Cleaning"
-rm -rf $TARGET_DIR
-rm -rf $SYNC_CRD_DIR
+echo "Cleaning ${WORKING_DIR}"
+rm -rf ${WORKING_DIR}
 echo "================================================"
 exit 0

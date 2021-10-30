@@ -18,7 +18,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-aws  # This needs to be appended
+    name: tealc-access
     namespace: strimzi-operator
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -41,7 +41,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-aws  # This needs to be appended
+    name: tealc-access
     namespace: strimzi-kafka
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -64,7 +64,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-aws  # This needs to be appended
+    name: tealc-access
     namespace: strimzi-clients
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -87,5 +87,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-aws  # This needs to be appended
+    name: tealc-access
     namespace: strimzi-monitoring

@@ -4,6 +4,19 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="${DIR}/../"
 
+SED=sed
+GREP=grep
+DATE=date
+
+UNAME_S=$(uname -s)
+if [ $UNAME_S = "Darwin" ];
+then
+    # MacOS GNU versions which can be installed through Homebrew
+    SED=gsed
+    GREP=ggrep
+    DATE=gdate
+fi
+
 function wait_pod_exists() {
     LABEL=$1
     NAMESPACE=$2
@@ -59,20 +72,27 @@ EOF
     wait_pod_exists "name=openshift-pipelines-operator" "openshift-operators"
     kubectl wait pod -l name=openshift-pipelines-operator -n openshift-operators --for condition=ready --timeout 120s
 
-    kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml --validate=false
 
     wait_pod_exists "app=tekton-pipelines-controller" "openshift-pipelines"
     kubectl wait pod -l app=tekton-pipelines-controller -n openshift-pipelines --for condition=ready --timeout 120s
 
     echo "[INFO] tekton is installed on openshift cluster"
 
-    kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml --validate=false
+    kubectl apply -f https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml --validate=false
     wait_pod_exists "app=tekton-dashboard" "openshift-pipelines"
     kubectl wait pod -l app=tekton-dashboard -n openshift-pipelines --for condition=ready --timeout 120s
 
     echo "[INFO] tekton dashboard is installed on openshift cluster"
     echo "[INFO] expose tekton dahsboard service on openshift cluster"
     oc expose service tekton-dashboard -n openshift-pipelines
+}
+
+function teardown_tekton() {
+    oc delete subscription openshift-pipelines-operator -n openshift-operators || true
+    oc delete -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml  || true
+    oc delete -f https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml  || true
+    oc delete route tekton-dashboard -n openshift-pipelines  || true
 }
 
 function install_argo_ocp() {
@@ -123,11 +143,22 @@ EOF
 function install_argo_kube() {
     echo "[INFO] installing argocd operator on kubernetes cluster"
     kubectl create namespace argocd
-    kubectl apply -n argocd -f "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+    ${SED} "s#ROUTE_HOST_PLACEHOLDER#argocd-server-argocd.apps.${CLUSTER_NAME}.${DOMAIN}#" "${REPO_ROOT}/argo/install/argo-install.yaml" | kubectl apply -n argocd -f -
     kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
 
     wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
     kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
+}
+
+function teardown_argo() {
+    kubectl delete -f "${REPO_ROOT}/argo/install/argo-install.yaml"  || true
+    kubectl delete namespace argocd  || true
+}
+
+usage() {
+  echo "Setup usage: $0 [-d domain_name] [-c cluster_name] " 1>&2;
+  echo "Teardown usage: $0 [-t ]" 1>&2;
+  exit 1;
 }
 
 #Test requirements
@@ -137,13 +168,52 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-#Test if cluster is openshift or kubernetes
-if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
-    install_tekton_ocp
-    install_argo_ocp
-else
-    install_tekton_kube
-    install_argo_kube
+while getopts ":hd:c:t" o; do
+    case "${o}" in
+        d)
+            DOMAIN=${OPTARG}
+            ;;
+        c)
+            CLUSTER_NAME=${OPTARG}
+            ;;
+        t)
+            TEARDOWN=TRUE
+            ;;
+        h | *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if { [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ] ;} && [ -z "${TEARDOWN}" ]; then
+    echo "kunda"
+    usage
 fi
-echo "[INFO] waiting 120s for tekton warmup"
-sleep 120
+if [ -z "${TEARDOWN}" ]; then
+  if [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ]; then
+      echo "pica"
+      usage
+  fi
+fi
+echo "DOMAIN: ${DOMAIN}"
+echo "CLUSTER_NAME: ${CLUSTER_NAME}"
+echo "TEARDOWN: ${TEARDOWN}"
+
+if [ -n "${TEARDOWN}" ]; then
+  echo "[INFO] Deleting ArgoCD and Tekton"
+  teardown_tekton
+  teardown_argo
+else
+  #Test if cluster is openshift or kubernetes
+  if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
+      install_tekton_ocp
+      # For now should install argo now via OLM since there is not argo there yet
+#      install_argo_kube
+  else
+      install_tekton_kube
+      install_argo_kube
+  fi
+  echo "[INFO] waiting 120s for tekton warmup"
+  sleep 120
+fi

@@ -14,7 +14,7 @@ kind: CronJob
 metadata:
   name: apophis-daily
 spec:
-  schedule: "0 */12 * * *"
+  schedule: "*/5 * * * *"
   jobTemplate:
     spec:
       template:
@@ -36,7 +36,7 @@ spec:
                 - name: TARGET_ORG_REPO
                   value: "quay.io/strimzi"
                 - name: BRANCH
-                  value: test-example
+                  value: main
                 - name: SYNC_CRD_REPO
                   value: "https://github.com/strimzi/strimzi-kafka-operator"
                 - name: SYNC_CRD_PATH

@@ -1,7 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: strimzi-deployment-task
+  name: strimzi-clients-task
+  namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -14,24 +15,30 @@ spec:
         - name: USERNAME
           valueFrom:
             secretKeyRef:
-              name: tealc-aws
+              name: tealc-worker
               key: username
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
-              name: tealc-aws
+              name: tealc-worker
               key: password
         - name: SERVER
           valueFrom:
             secretKeyRef:
-              name: tealc-aws
+              name: tealc-worker
               key: server
       script: |
         oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
-        export ROUTE=$(oc get route -n strimzi-kafka anubis-kafka-automation-bootstrap  | grep anubis-kafka-automation-bootstrap | tr -s ' ' | cut -d " " -f2)
+        export ROUTE=$(oc get kafka -n strimzi-kafka anubis -o=jsonpath='{.status.listeners[?(@.type=="automation")].bootstrapServers}')
+
+        if [ -z "${ROUTE}" ]; then
+            echo "[ERROR] Route is not available!"
+            exit 1
+        fi
+
         echo $ROUTE >> $(workspaces.task-ws.path)/route.txt
         cat $(workspaces.task-ws.path)/route.txt
-    - name: deployment-clone
+    - name: sokar-clone
       image: alpine/git:v2.30.2
       env:
         - name: GITHUB_USERNAME
@@ -45,38 +52,15 @@ spec:
               name: github-secret
               key: TOKEN
       script: |
-        export CURRENT_DIR=$(workspaces.task-ws.path)/deployment
+        export CURRENT_DIR=$(workspaces.task-ws.path)/sokar
         git clone https://github.com/ExcelentProject/sokar.git $CURRENT_DIR
-    - name: deployment-update
+    - name: clients-update
       image: mikefarah/yq:latest
       script: |
-        export ROUTE=$(cat $(workspaces.task-ws.path)/route.txt):443
-        yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/deployment/clients/00-external-clients.yaml
-        cat $(workspaces.task-ws.path)/deployment/clients/00-external-clients.yaml
-    - name: config-grafana
-      image: quay.io/openshift/origin-cli:latest
-      env:
-        - name: USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: tealc-aws
-              key: username
-        - name: PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: tealc-aws
-              key: password
-        - name: SERVER
-          valueFrom:
-            secretKeyRef:
-              name: tealc-aws
-              key: server
-      script: |
-        oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
-        export GRAFANA_TOKEN=$(oc serviceaccounts get-token grafana-serviceaccount -n strimzi-monitoring)
-        echo $GRAFANA_TOKEN
-        sed -i "s/Bearer .*\"/Bearer ${GRAFANA_TOKEN}\"/g" $(workspaces.task-ws.path)/deployment/metrics/grafana-data-source.yaml
-    - name: deployment-push
+        export ROUTE=$(cat $(workspaces.task-ws.path)/route.txt)
+        yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/sokar/clients/00-external-clients.yaml
+        cat $(workspaces.task-ws.path)/sokar/clients/00-external-clients.yaml
+    - name: sokar-push
       image: alpine/git:v2.30.2
       env:
         - name: GITHUB_USERNAME
@@ -90,20 +74,21 @@ spec:
               name: github-secret
               key: TOKEN
       script: |
-        export CURRENT_DIR=$(workspaces.task-ws.path)/deployment
+        export CURRENT_DIR=$(workspaces.task-ws.path)/sokar
         cd $CURRENT_DIR
         git config user.email "$GITHUB_USERNAME@redhat.com"
         git config user.name "$GITHUB_USERNAME"
         git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/sokar"
         git remote get-url origin
         git add .
-        git commit -m "Deployment update: $(date "+%Y-%m-%d %T")"
-        git push origin HEAD:test
+        git diff --staged --quiet || git commit -m "sokar update: $(date "+%Y-%m-%d %T")"
+        git push origin HEAD:main
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: strimzi-deployment-pipeline
+  name: strimzi-clients-pipeline
+  namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -112,7 +97,7 @@ spec:
   tasks:
     - name: strimzi
       taskRef:
-        name: strimzi-deployment-task
+        name: strimzi-clients-task
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
@@ -120,7 +105,8 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: strimzi-deployment-pipeline-run
+  name: strimzi-clients-pipeline-run
+  namespace: tealc-ci
   labels:
     app: tealc
 spec:
@@ -136,5 +122,5 @@ spec:
             requests:
               storage: 1Gi
   pipelineRef:
-    name: strimzi-deployment-pipeline
+    name: strimzi-clients-pipeline
   serviceAccountName: default
