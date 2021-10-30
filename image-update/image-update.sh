@@ -97,13 +97,13 @@ echo "Moving into synced deployment repository"
 echo "================================================"
 
 pushd $TARGET_DIR
-#echo "Git configuration"
-#git config user.email "$GITHUB_USERNAME@redhat.com"
-#git config user.name "$GITHUB_USERNAME"
+echo "[INFO] Git configuration with username: ${GITHUB_USERNAME}"
+git config user.email "$GITHUB_USERNAME@redhat.com"
+git config user.name "$GITHUB_USERNAME"
 
 CURRENT_DEPLOYMENT_REPO=$(echo "$CURRENT_DEPLOYMENT_REPO" | cut -d '/' -f3-)
 
-#git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@$CURRENT_DEPLOYMENT_REPO"
+git remote set-url origin "https://$GITHUB_USERNAME:$GITHUB_TOKEN@$CURRENT_DEPLOYMENT_REPO"
 
 if [[ $(git branch) == *${BRANCH}* ]]; then
   git checkout "$BRANCH"
@@ -147,7 +147,7 @@ do
     fi
     
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
-        echo "Found outdated digest for image $IMAGE"
+        echo "[INFO] Found outdated digest for image $IMAGE"
         $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' $YAML_BUNDLE_PATH/$FILE_NAME
     fi
 done
