@@ -112,9 +112,9 @@ else
 fi
 
 # Change floating tags to random digest
-IMAGES_TAGS=$(cat $YAML_BUNDLE_PATH/$FILE_NAME | grep $TARGET_ORG_REPO/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
-echo $IMAGES_TAGS
-IFS=';' read -r -a IMGS <<< $IMAGES_TAGS
+IMAGES_TAGS=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
+echo "$IMAGES_TAGS"
+IFS=';' read -r -a IMGS <<< "$IMAGES_TAGS"
 T=11111
 for ELEMENT_O in "${IMGS[@]}"
 do
@@ -123,11 +123,11 @@ do
     IMAGE_NAME=$(echo $ELEMENT_O | cut -d ':' -f1)
     NEW_DIGEST="$IMAGE_NAME@sha:$T"
     T=$((T+1))
-    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' $YAML_BUNDLE_PATH/$FILE_NAME
+    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
 done
 
-IMAGES_PLAIN=$(cat $YAML_BUNDLE_PATH/$FILE_NAME | $GREP $TARGET_ORG_REPO/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
-IFS=';' read -r -a IMAGES <<< $IMAGES_PLAIN
+IMAGES_PLAIN=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
+IFS=';' read -r -a IMAGES <<< "$IMAGES_PLAIN"
 
 echo "================================================"
 echo "Replacing image digests"
@@ -139,16 +139,16 @@ do
     #Parse image with prefix = kafka
     if [[ $ELEMENT == *"="* ]]; then
         PREFIX=$(echo $ELEMENT | cut -d '=' -f1)
-        LATEST_DIGEST=$(skopeo inspect docker://$TARGET_ORG_REPO/$IMAGE:latest-kafka-$PREFIX  --format "{{ .Digest }}")
+        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE":latest-kafka-"$PREFIX"  --format "{{ .Digest }}")
     elif [[ $ELEMENT == *"kafka@"* ]]; then
         continue
     else
-        LATEST_DIGEST=$(skopeo inspect docker://$TARGET_ORG_REPO/$IMAGE --format "{{ .Digest }}")
+        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
     fi
     
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
-        echo "[INFO] Found outdated digest for image $IMAGE"
-        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' $YAML_BUNDLE_PATH/$FILE_NAME
+        echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
+        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
     fi
 done
 
