@@ -155,7 +155,7 @@ done
 echo "================================================"
 echo "Adding changes to repository"
 git add "$YAML_BUNDLE_PATH"/*
-git diff --staged --quiet || git commit -m "Image update: $($DATE "+%Y-%m-%d %T")"
+git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd
 echo "================================================"

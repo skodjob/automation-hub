@@ -14,7 +14,12 @@ spec:
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
         git clone -b update-deployment https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
-    - name: clients-update
+    # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
+    - name: wait-for-push
+      image: quay.io/tealc/apophis:latest
+      script: |
+        sleep 5m
+    - name: images-update
       env:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
@@ -60,26 +65,122 @@ spec:
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
+
+# Triggers
 ---
-apiVersion: tekton.dev/v1beta1
-kind: PipelineRun
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: strimzi-deployment-image-update-pipeline-run
+  name: tekton-triggers
+rules:
+# Permissions for every EventListener deployment to function
+- apiGroups: ["triggers.tekton.dev"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates", "clusterinterceptors", "triggers"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: [""]
+  # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
+  resources: ["configmaps", "secrets", "serviceaccounts"]
+  verbs: ["get", "list", "watch"]
+# Permissions to create resources in associated TriggerTemplates
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-service-account
   namespace: tealc-ci
   labels:
-    app: tealc
+    app: strimzi-tekton
+    namespace: tealc-ci
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-binding
+  labels:
+    app: strimzi-tekton
+subjects:
+  - kind: ServiceAccount
+    name: tekton-service-account
+    namespace: tealc-ci
+roleRef:
+  kind: ClusterRole
+  name: tekton-triggers
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: strimzi-deployment-image-update-trigger-template
 spec:
-  workspaces:
-    - name: pipeline-ws
-      volumeClaimTemplate:
-        metadata:
-          name: pipeline-pvc
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 1Gi
-  pipelineRef:
-    name: strimzi-deployment-image-update-pipeline
-  serviceAccountName: default
+  params:
+    - name: message
+      description: Message from quay.io
+      default: empty
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: strimzi-deployment-image-update-
+        namespace: tealc-ci
+        labels:
+          app: tealc
+      spec:
+        pipelineRef:
+          name: strimzi-deployment-image-update-pipeline
+        serviceAccountName: tekton-service-account
+        workspaces:
+          - name: pipeline-ws
+            volumeClaimTemplate:
+              metadata:
+                name: pipeline-pvc
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: strimzi-deployment-image-update-triggerbinding
+spec:
+  params:
+    - name: message
+      value: $(body)
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: strimzi-deployment-image-update-event-listener
+spec:
+  serviceAccountName: tekton-service-account
+  triggers:
+    - name: strimzi-deployment-image-update-webhook
+      bindings:
+        - ref: strimzi-deployment-image-update-triggerbinding
+      template:
+        ref: strimzi-deployment-image-update-trigger-template
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: el-strimzi-deployment-image-update-event-listener
+  namespace: tealc-ci
+spec:
+  to:
+    kind: Service
+    name: el-strimzi-deployment-image-update-event-listener
+    weight: 100
+  port:
+    targetPort: http-listener
