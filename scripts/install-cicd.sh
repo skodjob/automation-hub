@@ -187,12 +187,10 @@ done
 shift $((OPTIND-1))
 
 if { [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ] ;} && [ -z "${TEARDOWN}" ]; then
-    echo "kunda"
     usage
 fi
 if [ -z "${TEARDOWN}" ]; then
   if [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ]; then
-      echo "pica"
       usage
   fi
 fi
