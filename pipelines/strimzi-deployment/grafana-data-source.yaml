@@ -1,0 +1,96 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: grafana-datasource-task
+  namespace: tealc-ci
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: task-ws
+  steps:
+    - name: sokar-clone
+      image: alpine/git:v2.30.2
+      env:
+        - name: GITHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: USERNAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: TOKEN
+      script: |
+        git clone https://github.com/ExcelentProject/sokar.git $(workspaces.task-ws.path)/sokar
+    - name: create-grafana-datasource
+      image: quay.io/openshift/origin-cli:latest
+      env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker
+              key: username
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker
+              key: password
+        - name: SERVER
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker
+              key: server
+      script: |
+        oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
+        export GRAFANA_TOKEN=$(oc serviceaccounts get-token grafana-serviceaccount -n strimzi-monitoring)
+        echo "Grafana token: $GRAFANA_TOKEN"
+
+        if [ -z "${GRAFANA_TOKEN}" ]; then
+            echo "[ERROR] Grafana token is empty!"
+            exit 1
+        fi
+        ls $(workspaces.task-ws.path)/sokar/metrics
+        sed "s/Bearer .*\"/Bearer ${GRAFANA_TOKEN}\"/g" $(workspaces.task-ws.path)/sokar/metrics/grafana-data-source.yaml | oc apply -f -
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: grafana-datasource-pipeline
+  namespace: tealc-ci
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: strimzi
+      taskRef:
+        name: grafana-datasource-task
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: grafana-datasource-pipeline-run
+  namespace: tealc-ci
+  labels:
+    app: tealc
+spec:
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: pipeline-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+  pipelineRef:
+    name: grafana-datasource-pipeline
+  serviceAccountName: default
