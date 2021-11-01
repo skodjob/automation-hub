@@ -150,6 +150,11 @@ function install_argo_kube() {
     kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
 }
 
+function install_argo_route() {
+  echo "[INFO] Install Argo route"
+  kubectl apply -f "${REPO_ROOT}/argo/install/argo-route.yaml" -n argocd
+}
+
 function teardown_argo() {
     kubectl delete -f "${REPO_ROOT}/argo/install/argo-install.yaml"  || true
     kubectl delete namespace argocd  || true
@@ -207,7 +212,8 @@ else
   if [[ "$(kubectl api-versions)" == *"openshift.io"* ]]; then
       install_tekton_ocp
       # For now should install argo now via OLM since there is not argo there yet
-#      install_argo_kube
+      install_argo_kube
+      install_argo_route
   else
       install_tekton_kube
       install_argo_kube
