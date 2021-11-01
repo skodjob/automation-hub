@@ -6,6 +6,6 @@ metadata:
     app: myapp
 spec:
   containers:
-  - name: myapp-container
-    image: docker.io/fedora
-    command: ['sh', '-c', 'sleep 1d']
+    - name: myapp-container
+      image: docker.io/fedora
+      command: ['sh', '-c', 'sleep 1d']
