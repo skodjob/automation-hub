@@ -13,7 +13,7 @@ spec:
       image: alpine/git:v2.30.2
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
-        git clone -b update-deployment https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
+        git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
     # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
     - name: wait-for-push
       image: quay.io/tealc/apophis:latest
