@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: strimzi-operator
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/hook: Sync
 spec:
   project: default
   source:
@@ -28,8 +26,6 @@ kind: Application
 metadata:
   name: strimzi-kafka
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/hook: Sync
 spec:
   project: default
   source:
@@ -53,8 +49,6 @@ kind: Application
 metadata:
   name: strimzi-clients
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/hook: Sync
 spec:
   project: default
   source:
@@ -78,9 +72,6 @@ kind: Application
 metadata:
   name: strimzi-monitoring
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/sync-options: Replace=true
 spec:
   project: default
   source:
@@ -95,34 +86,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - Replace=true
   destination:
     name: tealc-access
     namespace: strimzi-monitoring
-  ignoreDifferences:
-    - kind: ServiceAccount
-      jsonPointers:
-        - /metadata
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: strimzi-update
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/ExcelentProject/tealc
-    targetRevision: docs
-    path: pipelines/strimzi-deployment
-    directory:
-      recurse: true
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: tealc-ci
