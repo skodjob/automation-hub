@@ -54,28 +54,4 @@ kubectl apply -f ./argo/projects/
 ```
 With these config, all pipelines from `./pipelines` will be deployed. Be carefull to have all depending configurations in same file with correct sequence.
 
-
-
-### Automatic image update and deployment sync
-To keep your deployment latest as possible, there is a cronjob prepared with custom container names `apophis`. This container
-fetch current deployment from repo stored int `CURRENT_DEPLOYMENT_REPO` env and path specified by `YAML_BUNDLE_PATH`.
-You also need to specify `TARGET_ORG_REPO` as repository where container will try to find new images. Last 2 configurations are
-`SYNC_CRD_REPO` and `SYNC_CRD_PATH` with these you can specify repository with which will `apophis` try sync crds.
-
-With everything specified in `cron-update.yaml` you can start cron job using:
-`kubectl apply -f apophis/cron-update.yaml`
-
-Keep in mind that you need to have `github-secret.yaml` set for your repo and created in namespace where apophis runs.
-Github should look like this:
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: github-secret
-type: Opaque
-stringData:
-  USERNAME: "EXAMPLE-USER"
-  TOKEN: "EXAMPLE-TOKEN"
-```
-
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
