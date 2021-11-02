@@ -47,6 +47,29 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: strimzi-canary
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: strimzi-canary
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: tealc-access
+    namespace: strimzi-kafka
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: strimzi-clients
   namespace: argocd
 spec:
