@@ -31,11 +31,11 @@ elif [[ -z "${CURRENT_DEPLOYMENT_REPO}" ]]; then
 elif [[ -z "${TARGET_ORG_REPO}" ]]; then
     echo "Missing target organization link: TARGET_ORG_REPO"
     exit 3
-elif [[ -z ${SYNC_CRD_REPO} ]]; then
-    echo "Missing target CRD sync repo: SYNC_CRD_REPO"
+elif [[ -z ${SYNC_DEPLOYMENT_REPO} ]]; then
+    echo "Missing target Deployment sync repo: SYNC_DEPLOYMENT_REPO"
     exit 4
-elif [[ -z ${SYNC_CRD_PATH} ]]; then 
-    echo "Missing target CRD path: SYNC_CRD_PATH"
+elif [[ -z ${SYNC_DEPLOYMENT_PATH} ]]; then
+    echo "Missing target Deployment path: SYNC_DEPLOYMENT_PATH"
     exit 5
 elif [[ -z ${BRANCH} ]]; then
     echo "Missing branch name: BRANCH"
@@ -60,37 +60,33 @@ git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
 FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
 echo "[INFO] Deployment filename: ${FILE_NAME}"
 echo "================================================"
-echo "Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
+echo "Cloning target Deployment repo for sync: ${SYNC_DEPLOYMENT_REPO}"
 
-SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
-git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
+SYNC_DEPLOYMENT_DIR="${WORKING_DIR}/sync_repo"
+git clone "$SYNC_DEPLOYMENT_REPO" $SYNC_DEPLOYMENT_DIR
 
 # Storing must have values
-export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
-export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export VOLUME_MOUNTS=$(yq e '.spec.template.spec.containers[0].volumeMounts' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export VOLUMES=$(yq e '.spec.template.spec.volumes' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
 
-FILE_NAMES=$(ls $SYNC_CRD_DIR/$SYNC_CRD_PATH | tr '\n' ';')
+FILE_NAMES=$(ls $SYNC_DEPLOYMENT_DIR/$SYNC_DEPLOYMENT_PATH | tr '\n' ';')
 IFS=';' read -r -a FILES <<< $FILE_NAMES
 for C_FILE in "${FILES[@]}"
 do
     echo $C_FILE
     export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE") 
-    export SUBJECTS=$(yq e '.subjects' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
 
-    cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
+    cp -r $SYNC_DEPLOYMENT_DIR/$SYNC_DEPLOYMENT_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
 
     yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
-    if [[ $SUBJECTS != null ]]; then
-        yq e -i '.subjects = env(SUBJECTS)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
-    fi
 done
 
-# We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
-# We need to keep resources configuration as well
-yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0] = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0].volumeMounts = env(VOLUME_MOUNTS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.volumes = env(VOLUMES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"
@@ -136,16 +132,8 @@ do
     CURRENT_DIGEST=$(echo $ELEMENT | cut -d '@' -f2)
     IMAGE=$(echo $ELEMENT | rev | cut -d '@' -f2 | cut -d '/' -f1 | rev)
 
-    #Parse image with prefix = kafka
-    if [[ $ELEMENT == *"="* ]]; then
-        PREFIX=$(echo $ELEMENT | cut -d '=' -f1)
-        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE":latest-kafka-"$PREFIX"  --format "{{ .Digest }}")
-    elif [[ $ELEMENT == *"kafka@"* ]]; then
-        continue
-    else
-        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
-    fi
-    
+    LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
+
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
         echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
         $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
