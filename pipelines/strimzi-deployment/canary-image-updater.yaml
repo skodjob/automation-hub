@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: strimzi-deployment-image-update-task
+  name: canary-deployment-image-update-task
   namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
@@ -24,15 +24,15 @@ spec:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
         - name: YAML_BUNDLE_PATH
-          value: "./strimzi-cluster-operator/"
+          value: "./strimzi-canary/"
         - name: TARGET_ORG_REPO
           value: "quay.io/strimzi"
         - name: BRANCH
           value: main
-        - name: SYNC_CRD_REPO
-          value: "https://github.com/strimzi/strimzi-kafka-operator"
-        - name: SYNC_CRD_PATH
-          value: "packaging/install/cluster-operator"
+        - name: SYNC_DEPLOYMENT_REPO
+          value: "https://github.com/strimzi/strimzi-canary"
+        - name: SYNC_DEPLOYMENT_PATH
+          value: "packaging/install"
         - name: GITHUB_USERNAME
           valueFrom:
             secretKeyRef:
@@ -45,13 +45,13 @@ spec:
               key: TOKEN
       image: quay.io/tealc/apophis:latest
       script: |
-        $(workspaces.task-ws.path)/tealc/image-update/strimzi-image-update.sh
+        $(workspaces.task-ws.path)/tealc/image-update/canary-image-update.sh
         echo "[INFO] Done!"
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: strimzi-deployment-image-update-pipeline
+  name: canary-deployment-image-update-pipeline
   namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
@@ -116,7 +116,7 @@ roleRef:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: strimzi-deployment-image-update-trigger-template
+  name: canary-deployment-image-update-trigger-template
 spec:
   params:
     - name: message
@@ -126,13 +126,13 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: strimzi-deployment-image-update-
+        generateName: canary-deployment-image-update-
         namespace: tealc-ci
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: strimzi-deployment-image-update-pipeline
+          name: canary-deployment-image-update-pipeline
         serviceAccountName: tekton-service-account
         workspaces:
           - name: pipeline-ws
@@ -151,7 +151,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: strimzi-deployment-image-update-triggerbinding
+  name: canary-deployment-image-update-triggerbinding
 spec:
   params:
     - name: message
@@ -161,26 +161,26 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: strimzi-deployment-image-update-event-listener
+  name: canary-deployment-image-update-event-listener
 spec:
   serviceAccountName: tekton-service-account
   triggers:
-    - name: strimzi-deployment-image-update-webhook
+    - name: canary-deployment-image-update-webhook
       bindings:
-        - ref: strimzi-deployment-image-update-triggerbinding
+        - ref: canary-deployment-image-update-triggerbinding
       template:
-        ref: strimzi-deployment-image-update-trigger-template
+        ref: canary-deployment-image-update-trigger-template
 
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-strimzi-deployment-image-update-event-listener
+  name: el-canary-deployment-image-update-event-listener
   namespace: tealc-ci
 spec:
   to:
     kind: Service
-    name: el-strimzi-deployment-image-update-event-listener
+    name: el-canary-deployment-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener
