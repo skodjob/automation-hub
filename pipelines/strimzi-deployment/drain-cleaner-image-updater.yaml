@@ -170,12 +170,12 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-drain-cleaner-deployment-image-update-event-listener
+  name: el-dc-deployment-image-update-event-listener
   namespace: tealc-ci
 spec:
   to:
     kind: Service
-    name: el-drain-cleaner-deployment-image-update-event-listener
+    name: el-dc-deployment-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener
