@@ -57,7 +57,7 @@ echo "Cloning repository: ${CURRENT_DEPLOYMENT_REPO}"
 echo "================================================"
 git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
 
-FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
+FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP -i Deployment)
 echo "[INFO] Deployment filename: ${FILE_NAME}"
 echo "================================================"
 echo "Cloning target Deployment repo for sync: ${SYNC_DEPLOYMENT_REPO}"
