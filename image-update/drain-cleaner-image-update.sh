@@ -134,7 +134,7 @@ done
 echo "================================================"
 echo "Adding changes to repository"
 git add "$YAML_BUNDLE_PATH"/*
-git diff --staged --quiet || git commit -m "Canary images update: $($DATE "+%Y-%m-%d %T")"
+git diff --staged --quiet || git commit -m "Drain cleaner images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd
 echo "================================================"
