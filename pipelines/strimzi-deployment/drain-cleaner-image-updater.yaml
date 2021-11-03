@@ -175,7 +175,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: el-dc-deployment-image-update-event-listener
+    name: el-drain-cleaner-deployment-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener
