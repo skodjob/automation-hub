@@ -84,7 +84,7 @@ do
     yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
 done
 
-yq e -i '.spec.template.spec.containers[0] = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0].env = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.containers[0].volumeMounts = env(VOLUME_MOUNTS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.volumes = env(VOLUMES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 
