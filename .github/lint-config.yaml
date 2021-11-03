@@ -13,3 +13,4 @@ rules:
   indentation:
     ignore: |
       argo/install/*
+      argo/install/metrics/*
