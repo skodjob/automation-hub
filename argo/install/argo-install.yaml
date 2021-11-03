@@ -3049,7 +3049,7 @@ spec:
         - -n
         - /usr/local/bin/argocd
         - /shared/argocd-dex
-        image: quay.io/argoproj/argocd:v2.1.5
+        image: quay.io/argoproj/argocd:v2.1.6
         imagePullPolicy: Always
         name: copyutil
         volumeMounts:

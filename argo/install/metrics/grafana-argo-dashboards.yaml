@@ -1,0 +1,13 @@
+apiVersion: integreatly.org/v1alpha1
+kind: GrafanaDashboard
+metadata:
+  labels:
+    app: tealc
+    monitoring-key: middleware
+  name: argo-monitoring
+  namespace: tealc-monitoring
+spec:
+  json: ""
+  configMapRef:
+    name: grafana-dashboard-argo-config
+    key: argo
