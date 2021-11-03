@@ -14,11 +14,6 @@ spec:
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
         git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
-    # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
-    - name: wait-for-push
-      image: quay.io/tealc/apophis:latest
-      script: |
-        sleep 5m
     - name: images-update
       env:
         - name: CURRENT_DEPLOYMENT_REPO
