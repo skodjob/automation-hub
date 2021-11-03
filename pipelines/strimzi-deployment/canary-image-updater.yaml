@@ -133,7 +133,7 @@ spec:
           - name: pipeline-ws
             volumeClaimTemplate:
               metadata:
-                name: pipeline-pvc
+                name: canary-pvc
               spec:
                 accessModes:
                   - ReadWriteOnce
