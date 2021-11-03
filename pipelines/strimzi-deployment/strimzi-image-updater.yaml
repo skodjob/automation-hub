@@ -138,7 +138,7 @@ spec:
           - name: pipeline-ws
             volumeClaimTemplate:
               metadata:
-                name: pipeline-pvc
+                name: strimzi-pvc
               spec:
                 accessModes:
                   - ReadWriteOnce
