@@ -56,7 +56,7 @@ spec:
   tasks:
     - name: strimzi
       taskRef:
-        name: strimzi-deployment-image-update-task
+        name: canary-deployment-image-update-task
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
