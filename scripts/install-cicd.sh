@@ -143,8 +143,8 @@ EOF
 function install_argo_kube() {
     echo "[INFO] installing argocd operator on kubernetes cluster"
     kubectl create namespace argocd
-    ${SED} "s#ROUTE_HOST_PLACEHOLDER#argocd-server-argocd.apps.${CLUSTER_NAME}.${DOMAIN}#" "${REPO_ROOT}/argo/install/argo-install.yaml" | kubectl apply -n argocd -f -
     kubectl apply -n argocd -f "${REPO_ROOT}/secrets/argo-secret.yaml"
+    kubectl apply -n argocd -f "${REPO_ROOT}/argo/install/argo-install.yaml"
 
     wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
     kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
@@ -161,7 +161,6 @@ function teardown_argo() {
 }
 
 usage() {
-  echo "Setup usage: $0 [-d domain_name] [-c cluster_name] " 1>&2;
   echo "Teardown usage: $0 [-t ]" 1>&2;
   exit 1;
 }
@@ -175,12 +174,6 @@ fi
 
 while getopts ":hd:c:t" o; do
     case "${o}" in
-        d)
-            DOMAIN=${OPTARG}
-            ;;
-        c)
-            CLUSTER_NAME=${OPTARG}
-            ;;
         t)
             TEARDOWN=TRUE
             ;;
@@ -191,16 +184,6 @@ while getopts ":hd:c:t" o; do
 done
 shift $((OPTIND-1))
 
-if { [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ] ;} && [ -z "${TEARDOWN}" ]; then
-    usage
-fi
-if [ -z "${TEARDOWN}" ]; then
-  if [ -z "${DOMAIN}" ] || [ -z "${CLUSTER_NAME}" ]; then
-      usage
-  fi
-fi
-echo "DOMAIN: ${DOMAIN}"
-echo "CLUSTER_NAME: ${CLUSTER_NAME}"
 echo "TEARDOWN: ${TEARDOWN}"
 
 if [ -n "${TEARDOWN}" ]; then

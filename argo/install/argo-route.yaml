@@ -5,7 +5,6 @@ metadata:
   name: argocd-server
   namespace: argocd
 spec:
-  host: ROUTE_HOST_PLACEHOLDER
   to:
     kind: Service
     name: argocd-server

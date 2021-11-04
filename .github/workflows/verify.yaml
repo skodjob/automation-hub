@@ -28,7 +28,7 @@ jobs:
 
       - name: Install CICD
         run: |
-          ./scripts/install-cicd.sh -d local.nip.io -c minikube
+          ./scripts/install-cicd.sh
 
       - name: Try test pipeline
         run: |
