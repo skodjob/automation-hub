@@ -95,7 +95,7 @@ function teardown_tekton() {
     oc delete route tekton-dashboard -n openshift-pipelines  || true
 }
 
-function install_argo_ocp() {
+function install_argo_ocp_olm() {
     echo "[INFO] installing argocd operator on openshift cluster using OLM"
     cat << EOF | kubectl apply -f -
 apiVersion: operators.coreos.com/v1alpha1
@@ -153,6 +153,16 @@ function install_argo_kube() {
 function install_argo_route() {
   echo "[INFO] Install Argo route"
   kubectl apply -f "${REPO_ROOT}/argo/install/argo-route.yaml" -n argocd
+
+  kubectl patch deployment argocd-dex-server -n argocd  -p '{"spec": {"template": {"spec": {"containers": [{"name": "dex","image": "quay.io/redhat-cop/dex:v2.22.0-openshift"}]}}}}'
+
+  ROUTE="https://$(oc get routes argocd-server -o=jsonpath='{ .spec.host }')"
+
+  kubectl patch serviceaccount argocd-dex-server --type='json' -p="[{\"op\": \"add\", \"path\": \"/metadata/annotations/serviceaccounts.openshift.io~1oauth-redirecturi.argocd\", \"value\":\"${ROUTE}/api/dex/callback\"}]"
+
+  SECRET="$(oc serviceaccounts get-token argocd-dex-server -n argocd)"
+  ${SED} -e "s#ROUTE_PLACEHOLDER#${ROUTE}#" -e "s#TOKEN_PLACEHOLDER#${SECRET}#" "${REPO_ROOT}/argo/install/argocd-cm.yaml" | kubectl apply -n argocd -f -
+  kubectl apply -f "${REPO_ROOT}/argo/install/argocd-rbac-cm.yaml" -n argocd
 }
 
 function teardown_argo() {
