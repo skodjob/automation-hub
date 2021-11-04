@@ -1,0 +1,45 @@
+---
+- name: Set facts from workers
+  set_fact: worker="{{ item }}"
+
+- name: Create ServiceAccount for remote access
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ worker.name }}"
+    state: present
+    src: ../scripts/remote_access_sa.yaml
+
+- name: Export access token
+  shell: "KUBECONFIG=../kubeconfig/{{ worker.name }} oc serviceaccounts get-token access-serviceaccount -n default"
+  register: "access_token"
+
+- name: Check that token exists
+  fail:
+    msg: "Token is not properly stored!\n{{ access_token }}"
+  when: access_token | length == 0
+
+- name: Create Github access secret
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "{{ item }}"
+    state: present
+    src: ../secrets/github-secret.yaml
+  loop:
+    - "tealc-ci"
+    - "openshift-pipelines"
+
+- name: Create Tekton secret
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "{{ item }}"
+    state: present
+    template: ../secrets-templates/tekton-secret.yaml.j2
+  loop:
+    - "tealc-ci"
+    - "openshift-pipelines"
+
+- name: Create Argo cluster access secret
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "argocd"
+    state: present
+    template: ../secrets-templates/cluster-secret.yaml.j2
