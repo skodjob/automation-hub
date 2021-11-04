@@ -1,0 +1,50 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: argo-cd-rules
+  namespace: argocd
+  labels:
+    prometheus: k8s
+    role: alert-rules
+    app: tealc
+spec:
+  groups:
+    - name: argo-apps
+      rules:
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 7
+          alert: ArgoCdNotEnoughApplications
+          for: 1m
+          labels:
+            severity: major
+            app: tealc
+          annotations:
+            summary: 'Argo Applications are down'
+            description: 'There are some Argo applications which are not created!'
+        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 2
+          alert: ArgoCdNotEnoughClusters
+          for: 1m
+          labels:
+            severity: major
+            app: tealc
+          annotations:
+            summary: 'Argo lost some of the external cluster access'
+            description: 'There are cluster access configurations which are deleted, but should be available!'
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (health_status) < 7
+          alert: ArgoCdApplicationNotHealthy
+          for: 1m
+          labels:
+            severity: major
+            app: tealc
+          annotations:
+            summary: 'Some Argo applications are nto healthy'
+            description: 'Some Argo application are not healthy and should be checked why is this happening!'
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 7
+          alert: ArgoCdApplicationIsOutOfSync
+          for: 1m
+          labels:
+            severity: major
+            app: tealc
+          annotations:
+            summary: 'Some Argo applications are out of sync'
+            description: 'Some Argo application are out of sync and should be checked why is this happening!'
