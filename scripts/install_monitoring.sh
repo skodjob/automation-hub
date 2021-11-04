@@ -71,7 +71,7 @@ oc apply -f "${DIR}/../argo/install/metrics/grafana-argo-dashboards.yaml"
 oc apply -f "${DIR}/../argo/install/alerts/"
 
 echo "[INFO] Apply configuration for Alertmanager to manage properly tealc alerts"
-$SED "s/AUTH_USERNAME\"/${SMTP_AUTH_USERNAME}/g" "${DIR}/../argo/install/alert-manager-configuration.yaml" > /tmp/alert-manager-configuration.yaml
-$SED "s/AUTH_PASSWORD\"/${SMTP_AUTH_PASSWORD}/g" "/tmp/alert-manager-configuration.yaml" | oc apply -f -
+$SED "s/AUTH_USERNAME/${SMTP_AUTH_USERNAME}/g" "${DIR}/../argo/install/alert-manager-configuration.yaml" > /tmp/alert-manager-configuration.yaml
+$SED "s/AUTH_PASSWORD/${SMTP_AUTH_PASSWORD}/g" "/tmp/alert-manager-configuration.yaml" | oc apply -f -
 rm -rf /tmp/alert-manager-configuration.yaml
 
