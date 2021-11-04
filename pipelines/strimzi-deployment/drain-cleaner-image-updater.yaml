@@ -60,53 +60,6 @@ spec:
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
-
-# Triggers
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: tekton-triggers
-rules:
-  # Permissions for every EventListener deployment to function
-  - apiGroups: ["triggers.tekton.dev"]
-    resources: ["eventlisteners", "triggerbindings", "triggertemplates", "clusterinterceptors", "triggers"]
-    verbs: ["get", "watch", "list"]
-  - apiGroups: [""]
-    # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
-    resources: ["configmaps", "secrets", "serviceaccounts"]
-    verbs: ["get", "list", "watch"]
-  # Permissions to create resources in associated TriggerTemplates
-  - apiGroups: ["tekton.dev"]
-    resources: ["pipelineruns", "pipelineresources", "taskruns"]
-    verbs: ["create"]
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tekton-service-account
-  namespace: tealc-ci
-  labels:
-    app: strimzi-tekton
-    namespace: tealc-ci
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: tekton-binding
-  labels:
-    app: strimzi-tekton
-subjects:
-  - kind: ServiceAccount
-    name: tekton-service-account
-    namespace: tealc-ci
-roleRef:
-  kind: ClusterRole
-  name: tekton-triggers
-  apiGroup: rbac.authorization.k8s.io
-
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
@@ -140,8 +93,6 @@ spec:
                 resources:
                   requests:
                     storage: 1Gi
-
-
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -151,7 +102,6 @@ spec:
   params:
     - name: message
       value: $(body)
-
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
@@ -165,7 +115,6 @@ spec:
         - ref: drain-cleaner-deployment-image-update-triggerbinding
       template:
         ref: drain-cleaner-deployment-image-update-trigger-template
-
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
