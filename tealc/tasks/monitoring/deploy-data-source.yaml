@@ -1,0 +1,16 @@
+---
+- name: Export access token
+  shell: "KUBECONFIG=../kubeconfig/{{ item.name }} oc serviceaccounts get-token grafana-serviceaccount -n {{ item.monitoring_namespace }}"
+  register: "access_token"
+
+- name: Check that token exists
+  fail:
+    msg: "Token is not properly stored!\n{{ access_token }}"
+  when: access_token | length == 0
+
+- name: Create Grafana data-source
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    template: templates/grafana-data-source.yaml.j2

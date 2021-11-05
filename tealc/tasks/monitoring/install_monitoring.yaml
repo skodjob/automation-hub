@@ -1,0 +1,122 @@
+---
+- name: Enable user-workload on infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "openshift-monitoring"
+    state: present
+    src: files/user-workload-cm.yaml
+
+- name: Enable user-workload on worker cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "openshift-monitoring"
+    state: present
+    src: files/user-workload-cm.yaml
+  loop: "{{ workers }}"
+
+- name: Setup Grafana access on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "tealc-monitoring"
+    state: present
+    src: files/grafana/grafana-setup.yaml
+
+- name: Setup Grafana access on Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: files/grafana/grafana-setup.yaml
+  loop: "{{ workers }}"
+
+- name: Install Grafana operator on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "tealc-monitoring"
+    state: present
+    src: files/grafana/grafana-operator.yaml
+
+- name: Install Grafana operator on Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: files/grafana/grafana-operator.yaml
+  loop: "{{ workers }}"
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: Wait for Grafana operator on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "tealc-monitoring"
+    kind: Deployment
+    name:  grafana-operator-controller-manager
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Wait for Grafana operator Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    kind: Deployment
+    name:  grafana-operator-controller-manager
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  loop: "{{ workers }}"
+
+- name: Deploy Grafana instance on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "tealc-monitoring"
+    state: present
+    src: files/grafana/grafana.yaml
+
+- name: Deploy Grafana instance on Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: files/grafana/grafana.yaml
+  loop: "{{ workers }}"
+
+
+- name: Create data-sources on Worker clusters
+  include_tasks: deploy-data-source.yaml
+  loop:
+   - { name: "{{ infra_context_name }}" , monitoring_namespace: 'tealc-monitoring' }
+
+- name: Create data-sources on Worker clusters
+  include_tasks: deploy-data-source.yaml
+  loop: "{{ workers }}"
+
+- name: Configure Alertmanager to for sending alerts on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    template: templates/alert-manager-configuration.yaml.j2
+
+- name: Configure Alertmanager to for sending alerts on Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ item.name }}"
+    state: present
+    template: templates/alert-manager-configuration.yaml.j2
+  loop: "{{ workers }}"
+
+- name: Configure Grafana dashboards and Prometheus alerts
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    src: "files/argo/metrics/{{ item }}"
+  loop:
+    - alerts.yaml
+    - argo-dashboard-cm.yaml
+    - grafana-argo-dashboards.yaml

@@ -1,0 +1,60 @@
+---
+- name: Create Tekton subscription
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    src: files/tekton/install/tekton-subscription.yaml
+
+- name: Wait for Tekton operator on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "openshift-operators"
+    kind: Deployment
+    name: openshift-pipelines-operator
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Create Tekton config
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    src: files/tekton/install/tekton-config.yaml
+
+- name: Wait for Tekton pipelines controler on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "openshift-pipelines"
+    kind: Deployment
+    name: tekton-pipelines-controller
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Create Tekton dashboard
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    src: files/tekton/install/tekton-dashboard.yaml
+
+- name: Wait for Tekton dashboard on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "openshift-pipelines"
+    kind: Deployment
+    name: tekton-dashboard
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Expose Tekton dashboard
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    state: present
+    src: files/tekton/install/tekton-dashboard-route.yaml

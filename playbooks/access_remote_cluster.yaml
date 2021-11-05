@@ -1,8 +1,0 @@
----
-- name: Create secrets for access to other services
-  hosts: localhost
-  tasks:
-    - include_vars: ../secrets/clusters.yaml
-
-    - include_tasks: tasks/prepare_access.yaml
-      loop: "{{ workers }}"

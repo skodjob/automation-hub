@@ -1,0 +1,126 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: drain-cleaner-deployment-image-update-task
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: task-ws
+  steps:
+    - name: tealc-clone
+      image: alpine/git:v2.30.2
+      script: |
+        export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
+        git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
+    - name: images-update
+      env:
+        - name: CURRENT_DEPLOYMENT_REPO
+          value: "https://github.com/ExcelentProject/sokar"
+        - name: YAML_BUNDLE_PATH
+          value: "./strimzi-drain-cleaner/"
+        - name: TARGET_ORG_REPO
+          value: "quay.io/strimzi"
+        - name: BRANCH
+          value: main
+        - name: SYNC_DEPLOYMENT_REPO
+          value: "https://github.com/strimzi/drain-cleaner"
+        - name: SYNC_DEPLOYMENT_PATH
+          value: "packaging/install/openshift"
+        - name: GITHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: USERNAME
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-secret
+              key: TOKEN
+      image: quay.io/tealc/apophis:latest
+      script: |
+        $(workspaces.task-ws.path)/tealc/image-update/drain-cleaner-image-update.sh
+        echo "[INFO] Done!"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: drain-cleaner-deployment-image-update-pipeline
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: drain
+      taskRef:
+        name: drain-cleaner-deployment-image-update-task
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: drain-cleaner-deployment-image-update-trigger-template
+spec:
+  params:
+    - name: message
+      description: Message from quay.io
+      default: empty
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: drain-cleaner-deployment-image-update-
+        labels:
+          app: tealc
+      spec:
+        pipelineRef:
+          name: drain-cleaner-deployment-image-update-pipeline
+        serviceAccountName: tekton-service-account
+        workspaces:
+          - name: pipeline-ws
+            volumeClaimTemplate:
+              metadata:
+                name: drain-cleaner-pvc
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: drain-cleaner-deployment-image-update-triggerbinding
+spec:
+  params:
+    - name: message
+      value: $(body)
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: drain-cleaner-deployment-image-update-event-listener
+spec:
+  serviceAccountName: tekton-service-account
+  triggers:
+    - name: drain-cleaner-deployment-image-update-webhook
+      bindings:
+        - ref: drain-cleaner-deployment-image-update-triggerbinding
+      template:
+        ref: drain-cleaner-deployment-image-update-trigger-template
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: el-dc-deployment-image-update-event-listener
+spec:
+  to:
+    kind: Service
+    name: el-drain-cleaner-deployment-image-update-event-listener
+    weight: 100
+  port:
+    targetPort: http-listener

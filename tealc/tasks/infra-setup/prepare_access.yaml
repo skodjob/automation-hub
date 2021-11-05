@@ -32,7 +32,7 @@
     kubeconfig: "../kubeconfig/{{ infra_context_name }}"
     namespace: "{{ item }}"
     state: present
-    template: ../secrets-templates/tekton-secret.yaml.j2
+    template: templates/tekton-secret.yaml.j2
   loop:
     - "tealc-ci"
     - "openshift-pipelines"
@@ -42,4 +42,4 @@
     kubeconfig: "../kubeconfig/{{ infra_context_name }}"
     namespace: "argocd"
     state: present
-    template: ../secrets-templates/cluster-secret.yaml.j2
+    template: templates/cluster-secret.yaml.j2

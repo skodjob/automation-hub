@@ -1,0 +1,23 @@
+---
+- name: Create Test Tekton pipelines
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: tealc-ci
+    state: present
+    src: "files/tekton/pipelines/test/{{ item }}"
+  loop:
+    - test.yaml
+    - test2.yaml
+
+- name: Create Strimzi related Tekton pipelines
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: tealc-ci
+    state: present
+    src: "files/tekton/pipelines/strimzi-deployment/{{ item }}"
+  loop:
+    - canary-image-updater.yaml
+    - clients-update.yaml
+    - drain-cleaner-image-updater.yaml
+    - grafana-data-source.yaml
+    - strimzi-image-updater.yaml

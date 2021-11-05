@@ -1,0 +1,68 @@
+---
+- name: Install Argo
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: argocd
+    state: present
+    src: files/argo/install/argo-install.yaml
+
+- name: Wait for Argo readiness
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: "argocd"
+    kind: Deployment
+    name: argocd-server
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Install Argo route
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: argocd
+    state: present
+    src: files/argo/install/argo-route.yaml
+
+- name: Patch argocd-dex-server to enable oauth login
+  shell: "kubectl patch deployment argocd-dex-server -n argocd  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"
+  environment:
+    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+
+- name: Get Argo route host
+  shell: "oc get routes argocd-server -o=jsonpath='{ .spec.host }' -n argocd"
+  environment:
+    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+  register: "route_host"
+
+- name: Set facts for route host
+  set_fact: route="https://{{ route_host.stdout }}"
+
+- name: Patch argocd-dex-server service account to enable oauth login
+  shell: "kubectl patch serviceaccount argocd-dex-server -n argocd --type='json' -p='[{\"op\": \"add\", \"path\": \"/metadata/annotations/serviceaccounts.openshift.io~1oauth-redirecturi.argocd\", \"value\":\"{{ route }}/api/dex/callback\"}]'"
+  environment:
+    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+
+- name: Export access token for argocd-dex-server
+  shell: "oc serviceaccounts get-token argocd-dex-server -n argocd"
+  environment:
+    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+  register: "access_token_out"
+
+- name: Set facts for route host
+  set_fact: access_token="{{ access_token_out.stdout }}"
+
+- name: Apply Argo config map
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: argocd
+    state: present
+    template: templates/argocd-cm.yaml.j2
+
+- name: Apply Argo rbac
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: argocd
+    state: present
+    src: files/argo/install/argocd-rbac-cm.yaml

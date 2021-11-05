@@ -88,57 +88,7 @@ EOF
     oc expose service tekton-dashboard -n openshift-pipelines
 }
 
-function teardown_tekton() {
-    oc delete subscription openshift-pipelines-operator -n openshift-operators || true
-    oc delete -f https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/openshift/config/all/operator_v1alpha1_config_cr.yaml  || true
-    oc delete -f https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml  || true
-    oc delete route tekton-dashboard -n openshift-pipelines  || true
-}
 
-function install_argo_ocp_olm() {
-    echo "[INFO] installing argocd operator on openshift cluster using OLM"
-    cat << EOF | kubectl apply -f -
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-    name: argocd-operator
-    namespace: openshift-operators
-spec:
-    channel: alpha
-    name: argocd-operator
-    source: community-operators
-    sourceNamespace: openshift-marketplace
-EOF
-
-    wait_pod_exists "name=argocd-operator" "openshift-operators"
-    kubectl wait pod -l name=argocd-operator -n openshift-operators --for condition=ready --timeout 120s
-
-    kubectl create namespace argocd
-    cat << EOF | kubectl apply -f -
-apiVersion: argoproj.io/v1alpha1
-kind: ArgoCD
-metadata:
-  name: argocd
-  namespace: argocd
-  labels:
-    example: oauth
-spec:
-  dex:
-    openShiftOAuth: true
-  rbac:
-    defaultPolicy: 'role:admin'
-    policy: |
-      g, system:cluster-admins, role:admin
-    scopes: '[groups]'
-  server:
-    route:
-      enabled: true
-EOF
-
-    wait_pod_exists "app.kubernetes.io/name=argocd-server" "argocd"
-    kubectl wait pod -l app.kubernetes.io/name=argocd-server -n argocd --for condition=ready --timeout 120s
-    oc adm policy add-cluster-role-to-user cluster-admin -z argocd-argocd-application-controller -n argocd
-}
 
 function install_argo_kube() {
     echo "[INFO] installing argocd operator on kubernetes cluster"

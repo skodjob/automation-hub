@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: test-task
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  params:
+    - name: name
+      type: string
+  steps:
+    - name: hello
+      image: gcr.io/google-containers/busybox:latest
+      script: |
+        echo "Hello $(inputs.params.name)"
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: test-pipeline
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  tasks:
+    - name: test
+      taskRef:
+        name: test-task
+      params:
+        - name: name
+          value: tekton
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipeline-run-test
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: test-pipeline
+  serviceAccountName: default

@@ -1,0 +1,10 @@
+---
+- name: Create Argo applications
+  community.kubernetes.k8s:
+    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    namespace: argocd
+    state: present
+    src: "files/argo/projects/{{ item }}"
+  loop:
+    - strimzi.yaml
+    - tealc-ci.yaml
