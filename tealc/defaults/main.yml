@@ -1,2 +1,11 @@
 ---
 # defaults file for tealc
+infra_monitoring_namespace: tealc-monitoring
+infra_ci_namespace: tealc-ci
+infra_argo_namespace: argocd
+
+openshift_pipelines_namespace: openshift-pipelines
+openshift_operators_namespace: openshift-operators
+
+route: empty
+access_token: empty

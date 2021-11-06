@@ -1,14 +1,26 @@
 ---
+- name: Create Tekton namespace on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ infra_ci_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
 - name: Create Tekton subscription
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     src: files/tekton/install/tekton-subscription.yaml
 
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
 - name: Wait for Tekton operator on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "openshift-operators"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_operators_namespace }}"
     kind: Deployment
     name: openshift-pipelines-operator
     wait: true
@@ -19,14 +31,26 @@
 
 - name: Create Tekton config
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-config.yaml
 
-- name: Wait for Tekton pipelines controler on Infra cluster
+- name: Create Tekton dashboard
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "openshift-pipelines"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
+    state: present
+    src: files/tekton/install/tekton-dashboard.yaml
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+
+- name: Wait for Tekton pipelines controller on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
     kind: Deployment
     name: tekton-pipelines-controller
     wait: true
@@ -35,16 +59,10 @@
       status: True
       reason: MinimumReplicasAvailable
 
-- name: Create Tekton dashboard
-  community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    state: present
-    src: files/tekton/install/tekton-dashboard.yaml
-
 - name: Wait for Tekton dashboard on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "openshift-pipelines"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
     kind: Deployment
     name: tekton-dashboard
     wait: true
@@ -55,6 +73,7 @@
 
 - name: Expose Tekton dashboard
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-dashboard-route.yaml

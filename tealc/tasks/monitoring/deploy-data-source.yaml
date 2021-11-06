@@ -1,7 +1,12 @@
 ---
 - name: Export access token
-  shell: "KUBECONFIG=../kubeconfig/{{ item.name }} oc serviceaccounts get-token grafana-serviceaccount -n {{ item.monitoring_namespace }}"
-  register: "access_token"
+  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ item.monitoring_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ item.name }}"
+  register: "access_token_out"
+
+- name: Set facts for route host
+  set_fact: access_token="{{ access_token_out.stdout }}"
 
 - name: Check that token exists
   fail:
@@ -10,7 +15,7 @@
 
 - name: Create Grafana data-source
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
     template: templates/grafana-data-source.yaml.j2

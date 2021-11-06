@@ -1,15 +1,23 @@
 ---
+- name: Create Argo namespace on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ infra_argo_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
 - name: Install Argo
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: argocd
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     state: present
     src: files/argo/install/argo-install.yaml
 
 - name: Wait for Argo readiness
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "argocd"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
     name: argocd-server
     wait: true
@@ -20,34 +28,38 @@
 
 - name: Install Argo route
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: argocd
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     state: present
     src: files/argo/install/argo-route.yaml
 
 - name: Patch argocd-dex-server to enable oauth login
-  shell: "kubectl patch deployment argocd-dex-server -n argocd  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"
+  shell: "kubectl patch deployment argocd-dex-server -n {{ infra_argo_namespace }}  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"
   environment:
-    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
 - name: Get Argo route host
-  shell: "oc get routes argocd-server -o=jsonpath='{ .spec.host }' -n argocd"
+  shell: "oc get routes argocd-server -o=jsonpath='{ .spec.host }' -n {{ infra_argo_namespace }}"
   environment:
-    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "route_host"
 
 - name: Set facts for route host
   set_fact: route="https://{{ route_host.stdout }}"
 
-- name: Patch argocd-dex-server service account to enable oauth login
-  shell: "kubectl patch serviceaccount argocd-dex-server -n argocd --type='json' -p='[{\"op\": \"add\", \"path\": \"/metadata/annotations/serviceaccounts.openshift.io~1oauth-redirecturi.argocd\", \"value\":\"{{ route }}/api/dex/callback\"}]'"
-  environment:
-    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+- name: Patch argocd-dex-server service account
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: templates/argo/install/argocd-dex-server-sa.yaml.j2
+  vars:
+    redirect_uri: "{{ route }}/api/dex/callback"
 
 - name: Export access token for argocd-dex-server
-  shell: "oc serviceaccounts get-token argocd-dex-server -n argocd"
+  shell: "oc serviceaccounts get-token argocd-dex-server -n {{ infra_argo_namespace }}"
   environment:
-    kubeconfig: ../kubeconfig/{{ infra_context_name }}
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "access_token_out"
 
 - name: Set facts for route host
@@ -55,14 +67,14 @@
 
 - name: Apply Argo config map
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: argocd
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     state: present
-    template: templates/argocd-cm.yaml.j2
+    template: templates/argo/install/argocd-cm.yaml.j2
 
 - name: Apply Argo rbac
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: argocd
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     state: present
     src: files/argo/install/argocd-rbac-cm.yaml

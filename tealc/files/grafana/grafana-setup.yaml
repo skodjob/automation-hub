@@ -5,7 +5,6 @@ metadata:
   name: grafana-serviceaccount
   labels:
     app: tealc
-    namespace: tealc-monitoring
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
 ---

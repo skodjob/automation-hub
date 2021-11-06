@@ -2,15 +2,33 @@
 - name: Set facts from workers
   set_fact: worker="{{ item }}"
 
+- name: Create Argo namespace on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ item }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  loop:
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
+    - "{{ infra_argo_namespace }}"
+
 - name: Create ServiceAccount for remote access
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ worker.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "default"
     state: present
-    src: ../scripts/remote_access_sa.yaml
+    src: files/remote_access_sa.yaml
 
 - name: Export access token
-  shell: "KUBECONFIG=../kubeconfig/{{ worker.name }} oc serviceaccounts get-token access-serviceaccount -n default"
-  register: "access_token"
+  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "access_token_out"
+
+- name: Set facts for route host
+  set_fact: access_token="{{ access_token_out.stdout }}"
 
 - name: Check that token exists
   fail:
@@ -19,27 +37,27 @@
 
 - name: Create Github access secret
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ item }}"
     state: present
-    src: ../secrets/github-secret.yaml
+    src: "{{ github_secret_path }}"
   loop:
-    - "tealc-ci"
-    - "openshift-pipelines"
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
 
 - name: Create Tekton secret
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ item }}"
     state: present
-    template: templates/tekton-secret.yaml.j2
+    template: templates/tekton/install/tekton-secret.yaml.j2
   loop:
-    - "tealc-ci"
-    - "openshift-pipelines"
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
 
 - name: Create Argo cluster access secret
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "argocd"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
     state: present
     template: templates/cluster-secret.yaml.j2

@@ -2,7 +2,6 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: strimzi-clients-task
-  namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -15,12 +14,12 @@ spec:
         - name: USERNAME
           valueFrom:
             secretKeyRef:
-              name: tealc-worker
+              name: {{ worker_secret_prefix }}-tekton
               key: username
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
-              name: tealc-worker
+              name: {{ worker_secret_prefix }}-tekton
               key: password
         - name: SERVER
           valueFrom:
@@ -88,7 +87,6 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: strimzi-clients-pipeline
-  namespace: tealc-ci
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -106,7 +104,6 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: strimzi-clients-pipeline-run
-  namespace: tealc-ci
   labels:
     app: tealc
 spec:

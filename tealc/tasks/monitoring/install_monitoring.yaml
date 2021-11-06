@@ -1,14 +1,31 @@
 ---
+- name: Create monitoring namespace on Infra cluster
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ infra_monitoring_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Create monitoring namespaces on Worker clusters
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
+    name: "{{ item.monitoring_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  loop: "{{ workers }}"
+
 - name: Enable user-workload on infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
 
 - name: Enable user-workload on worker cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
@@ -16,14 +33,14 @@
 
 - name: Setup Grafana access on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "tealc-monitoring"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-setup.yaml
 
 - name: Setup Grafana access on Worker clusters
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-setup.yaml
@@ -31,14 +48,14 @@
 
 - name: Install Grafana operator on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "tealc-monitoring"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-operator.yaml
 
 - name: Install Grafana operator on Worker clusters
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-operator.yaml
@@ -50,8 +67,8 @@
 
 - name: Wait for Grafana operator on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "tealc-monitoring"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
     kind: Deployment
     name:  grafana-operator-controller-manager
     wait: true
@@ -62,7 +79,7 @@
 
 - name: Wait for Grafana operator Worker clusters
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     kind: Deployment
     name:  grafana-operator-controller-manager
@@ -75,24 +92,23 @@
 
 - name: Deploy Grafana instance on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: "tealc-monitoring"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana.yaml
 
 - name: Deploy Grafana instance on Worker clusters
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
     src: files/grafana/grafana.yaml
   loop: "{{ workers }}"
 
-
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
   loop:
-   - { name: "{{ infra_context_name }}" , monitoring_namespace: 'tealc-monitoring' }
+   - { name: "{{ infra_context_name }}" , monitoring_namespace: "{{ infra_monitoring_namespace }}" }
 
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
@@ -100,20 +116,21 @@
 
 - name: Configure Alertmanager to for sending alerts on Infra cluster
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
 
 - name: Configure Alertmanager to for sending alerts on Worker clusters
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
   loop: "{{ workers }}"
 
 - name: Configure Grafana dashboards and Prometheus alerts
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: "files/argo/metrics/{{ item }}"
   loop:

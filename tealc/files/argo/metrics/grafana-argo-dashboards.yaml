@@ -5,7 +5,6 @@ metadata:
     app: tealc
     monitoring-key: middleware
   name: argo-monitoring
-  namespace: tealc-monitoring
 spec:
   json: ""
   configMapRef:

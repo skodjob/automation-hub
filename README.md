@@ -17,3 +17,10 @@ kubectl apply -f ./argo/projects/
 With these config, all pipelines from `./pipelines` will be deployed. Be carefull to have all depending configurations in same file with correct sequence.
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
+# TODO
+- remove tealc-ci app
+- check if oc/kubectl are installed and install if needed
+- add example fo clusters nad github secret
+- check what clusters.yaml and gh secret path are configured properly and fail if not

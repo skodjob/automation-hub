@@ -2,7 +2,6 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: argocd-cm
-  namespace: argocd
   labels:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
@@ -14,7 +13,7 @@ data:
   repositories: ''
   ga.anonymizeusers: 'false'
   help.chatUrl: ''
-  url: ROUTE_PLACEHOLDER
+  url: {{ route }}
   help.chatText: ''
   kustomize.buildOptions: ''
   resource.inclusions: ''
@@ -23,10 +22,10 @@ data:
     connectors:
     - config:
         clientID: system:serviceaccount:argocd:argocd-dex-server
-        clientSecret: TOKEN_PLACEHOLDER
+        clientSecret: {{ access_token }}
         insecureCA: true
         issuer: https://kubernetes.default.svc
-        redirectURI: ROUTE_PLACEHOLDER/api/dex/callback
+        redirectURI: {{ route }}/api/dex/callback
       id: openshift
       name: OpenShift
       type: openshift

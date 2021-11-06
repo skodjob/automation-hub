@@ -1,8 +1,8 @@
 ---
 - name: Create Test Tekton pipelines
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: tealc-ci
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "files/tekton/pipelines/test/{{ item }}"
   loop:
@@ -11,13 +11,21 @@
 
 - name: Create Strimzi related Tekton pipelines
   community.kubernetes.k8s:
-    kubeconfig: "../kubeconfig/{{ infra_context_name }}"
-    namespace: tealc-ci
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "files/tekton/pipelines/strimzi-deployment/{{ item }}"
   loop:
     - canary-image-updater.yaml
-    - clients-update.yaml
     - drain-cleaner-image-updater.yaml
-    - grafana-data-source.yaml
     - strimzi-image-updater.yaml
+
+- name: Create Strimzi-clients Tekton pipeline
+  community.kubernetes.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: "templates/tekton/pipelines/clients-update.yaml.j2"
+  vars:
+    worker_secret_prefix: "{{ workers[0].name }}"
+

@@ -13,10 +13,19 @@
   tags: [argo]
 
 - import_tasks: monitoring/install_monitoring.yaml
-  tags: [monitoring,grafana]
+  tags: [monitoring, grafana]
 
 - import_tasks: scenario-deployment/create-argo-applications.yaml
   tags: [argo-apps]
 
 - import_tasks: scenario-deployment/create-tekton-pipelines.yaml
   tags: [tekton-pipelines]
+
+- import_tasks: infra-setup/delete_argo.yaml
+  tags: [never, teardown, teardown-argo]
+
+- import_tasks: infra-setup/delete_tekton.yaml
+  tags: [never, teardown, teardown-tekton]
+
+- import_tasks: monitoring/delete_monitoring.yaml
+  tags: [never, teardown, teardown-monitoring]

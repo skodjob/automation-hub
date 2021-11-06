@@ -2,7 +2,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-operator
-  namespace: argocd
 spec:
   project: default
   source:
@@ -18,14 +17,13 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-operator
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-kafka
-  namespace: argocd
 spec:
   project: default
   source:
@@ -41,14 +39,13 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-kafka
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-canary
-  namespace: argocd
 spec:
   project: default
   source:
@@ -64,14 +61,13 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-kafka
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-drain-cleaner
-  namespace: argocd
 spec:
   project: default
   source:
@@ -87,14 +83,13 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-drain-cleaner
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-clients
-  namespace: argocd
 spec:
   project: default
   source:
@@ -110,14 +105,13 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-clients
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: strimzi-monitoring
-  namespace: argocd
 spec:
   project: default
   source:
@@ -133,5 +127,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: tealc-access
+    name: {{ worker_cluster_connection }}
     namespace: strimzi-monitoring
