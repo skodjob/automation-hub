@@ -26,9 +26,19 @@ jobs:
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
+      - name: Create admin user and replace token
+        run: |
+          kubectl -n kube-system create serviceaccount pepa
+          kubectl create clusterrolebinding pepa-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:pepa
+
+          export TOKENNAME=`kubectl -n kube-system get serviceaccount/pepa -o jsonpath='{.secrets[0].name}'`
+          export TOKEN=`kubectl -n kube-system get secret $TOKENNAME -o jsonpath='{.data.token}'| base64 --decode`
+
+          sed -i "s#placeholder#$TOKEN#g" examples/clusters.yaml
+
       - name: Install CICD
         run: |
-          ./scripts/install-cicd.sh
+          ansible-playbook playbooks/configure-tealc-environment.yaml
 
       - name: Try test pipeline
         run: |

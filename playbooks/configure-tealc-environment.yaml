@@ -2,7 +2,7 @@
 - hosts: localhost
   pre_tasks:
     - name: Include configuration
-      include_vars: ../secrets/clusters.yaml
+      include_vars: ../examples/clusters.yaml
       tags:
         - always
   roles:

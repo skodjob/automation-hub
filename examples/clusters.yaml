@@ -6,9 +6,8 @@ smtp_server:  smtp.server.com:538
 smtp_email: pepa@zdepa.cz
 
 #  Infra cluster configuration
-infra_username: pepa
-infra_password: zdepa
-infra_api_url: https://api.my-infra-cluster.tealc.net:6443
+infra_access_token: placeholder
+infra_api_url: https://localhost:6443
 infra_context_name: tealc-infra
 
 # Paths info
@@ -18,7 +17,6 @@ github_secret_path: /home/tealc/secrets/github-secret.yaml
 # Workers
 workers:
   - name: tealc-worker
-    api_url: https://api.my-worker-cluster.tealc.net:6443
-    username: pepa
-    password: zdepa
+    api_url: https://localhost:6443
+    access_token: placeholder
     monitoring_namespace: strimzi-monitoring
