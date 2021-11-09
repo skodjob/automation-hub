@@ -35,6 +35,7 @@ jobs:
           export TOKEN=`kubectl -n kube-system get secret $TOKENNAME -o jsonpath='{.data.token}'| base64 --decode`
 
           sed -i "s#placeholder#$TOKEN#g" examples/clusters.yaml
+          cat examples/clusters.yaml
 
       - name: Install CICD
         run: |
