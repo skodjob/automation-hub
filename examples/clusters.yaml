@@ -11,7 +11,7 @@ infra_api_url: server_api_url
 infra_context_name: tealc-infra
 
 # Paths info
-kubeconfig_path: /home/tealc/kubeconfig
+kubeconfig_path: ~/kubeconfig
 github_secret_path: /home/tealc/secrets/github-secret.yaml
 
 # Workers
