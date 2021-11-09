@@ -1,0 +1,29 @@
+---
+- name: Check of kubectl is installed
+  command: kubectl
+  register: kubectl_output
+  ignore_errors: true
+
+- name: Check of oc is installed
+  command: oc
+  register: oc_output
+  ignore_errors: true
+
+- name: Download & Install oc & kubectl
+  ansible.builtin.unarchive:
+    src: "{{ oc_url }}"
+    dest: /usr/bin
+    remote_src: yes
+  when: kubectl_output.rc != 0 or oc_output.rc != 0
+
+- name: Set proper mode for oc
+  ansible.builtin.file:
+    path: /usr/bin/oc
+    mode: 0755
+  when: kubectl_output.rc != 0 or oc_output.rc != 0
+
+- name: Set proper mode for kubectl
+  ansible.builtin.file:
+    path: /usr/bin/kubectl
+    mode: 0755
+  when: kubectl_output.rc != 0 or oc_output.rc != 0

@@ -20,7 +20,4 @@ With these config, all pipelines from `./pipelines` will be deployed. Be careful
 
 
 # TODO
-- remove tealc-ci app
-- check if oc/kubectl are installed and install if needed
-- add example fo clusters nad github secret
-- check what clusters.yaml and gh secret path are configured properly and fail if not
+- add example fo clusters and github secret

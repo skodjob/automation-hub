@@ -1,14 +1,4 @@
 ---
-# Pipelines are deloyed by ansible based on workers configuration
-# - name: Create Argo applications for tealc-ci
-#   community.kubernetes.k8s:
-#     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-#     namespace: "{{ infra_argo_namespace }}"
-#     state: present
-#     src: "files/argo/projects/{{ item }}"
-#   loop:
-#     - tealc-ci.yaml
-
 - name: Create Argo applications for Strimzi
   community.kubernetes.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
