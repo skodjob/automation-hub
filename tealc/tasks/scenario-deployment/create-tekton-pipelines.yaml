@@ -28,4 +28,3 @@
     template: "templates/tekton/pipelines/clients-update.yaml.j2"
   vars:
     worker_secret_prefix: "{{ workers[0].name }}"
-

@@ -70,7 +70,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     kind: Deployment
-    name:  grafana-operator-controller-manager
+    name: grafana-operator-controller-manager
     wait: true
     wait_condition:
       type: Available
@@ -108,7 +108,7 @@
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
   loop:
-   - { name: "{{ infra_context_name }}" , monitoring_namespace: "{{ infra_monitoring_namespace }}" }
+   - {name: "{{ infra_context_name }}", monitoring_namespace: "{{ infra_monitoring_namespace }}"}
 
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
