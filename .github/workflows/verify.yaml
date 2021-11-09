@@ -37,6 +37,8 @@ jobs:
           sed -i "s#placeholder#$TOKEN#g" examples/clusters.yaml
           cat examples/clusters.yaml
 
+          cat ~/.kube/config
+
       - name: Install CICD
         run: |
           ansible-playbook playbooks/configure-tealc-environment.yaml
