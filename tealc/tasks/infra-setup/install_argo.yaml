@@ -38,15 +38,18 @@
   shell: "kubectl patch deployment argocd-dex-server -n {{ infra_argo_namespace }}  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  when: not is_kubernetes
 
 - name: Get Argo route host
   shell: "oc get routes argocd-server -o=jsonpath='{ .spec.host }' -n {{ infra_argo_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "route_host"
+  when: not is_kubernetes
 
 - name: Set facts for route host
   set_fact: route="https://{{ route_host.stdout }}"
+  when: not is_kubernetes
 
 - name: Patch argocd-dex-server service account
   kubernetes.core.k8s:
@@ -56,15 +59,18 @@
     template: templates/argo/install/argocd-dex-server-sa.yaml.j2
   vars:
     redirect_uri: "{{ route }}/api/dex/callback"
+  when: not is_kubernetes
 
 - name: Export access token for argocd-dex-server
   shell: "oc serviceaccounts get-token argocd-dex-server -n {{ infra_argo_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "access_token_out"
+  when: not is_kubernetes
 
 - name: Set facts for route host
   set_fact: access_token="{{ access_token_out.stdout }}"
+  when: not is_kubernetes
 
 - name: Apply Argo config map
   kubernetes.core.k8s:
@@ -72,6 +78,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     template: templates/argo/install/argocd-cm.yaml.j2
+  when: not is_kubernetes
 
 - name: Apply Argo rbac
   kubernetes.core.k8s:
