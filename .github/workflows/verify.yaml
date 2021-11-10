@@ -62,16 +62,16 @@ jobs:
       - name: Print kube status
         if: failure()
         run: |
-          kubectl get ns
+          oc get ns
           echo "--------------------------------------"
-          kubectl get po --all-namespaces
+          oc get po --all-namespaces
           echo "--------------------------------------"
-          kubectl get events --all-namespaces
+          oc get events --all-namespaces
           echo "--------------------------------------"
-          kubectl get pipelinerun --allnamespaces
+          oc get pipelinerun --allnamespaces
           echo "--------------------------------------"
-          kubectl get taskrun --allnamespaces
+          oc get taskrun --allnamespaces
           echo "--------------------------------------"
-          kubectl get pipeline --allnamespaces
+          oc get pipeline --allnamespaces
           echo "--------------------------------------"
-          kubectl get task --allnamespaces
+          oc get task --allnamespaces

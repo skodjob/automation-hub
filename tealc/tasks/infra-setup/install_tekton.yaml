@@ -113,7 +113,7 @@
     wait_condition:
       type: Available
       status: True
-      reason: MinimumReplicasvailable
+      reason: MinimumReplicasAvailable
   when: is_kubernetes
 
 - name: Install Tekton CR
