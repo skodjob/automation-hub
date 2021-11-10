@@ -20,7 +20,7 @@
 
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana]
-  when: not is_Kubernetes
+  when: not is_kubernetes
 
 - import_tasks: scenario-deployment/create-argo-applications.yaml
   tags: [argo-apps]
