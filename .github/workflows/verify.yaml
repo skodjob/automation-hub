@@ -23,10 +23,6 @@ jobs:
         env:
           GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
 
-      - name: smazat
-        run: |
-          ansible --version
-
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
@@ -45,18 +41,15 @@ jobs:
 
           cat examples/clusters.yaml
 
+      - name: Install ansible dependencies
+        run: |
           ansible-galaxy collection install kubernetes.core
-
           /opt/pipx/venvs/ansible-core/bin/python -m pip install openshift pyyaml kubernetes
 
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: playbooks/github-actions-configure-tealc-environment.yaml
-#           options: |
-#             -e ansible_python_interpreter=/usr/lib/python3
-
-
 
       - name: Try test pipeline
         run: |
