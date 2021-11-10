@@ -1,0 +1,40 @@
+---
+# tasks file for tealc
+- import_tasks: common/check_parameters.yaml
+  tags: [always, check-params]
+
+- import_tasks: common/check_clients.yaml
+  tags: [always, check-clients]
+
+- import_tasks: common/prepare_kubeconfigs.yaml
+  tags: [kubeconfigs]
+
+- import_tasks: infra-setup/access_remote_cluster.yaml
+  tags: [setup-workers-access]
+
+- import_tasks: infra-setup/install_tekton.yaml
+  tags: [tekton]
+
+- import_tasks: infra-setup/install_argo.yaml
+  tags: [argo]
+
+- import_tasks: monitoring/install_monitoring.yaml
+  tags: [monitoring, grafana]
+  when: not is_kubernetes
+
+- import_tasks: scenario-deployment/create-argo-applications.yaml
+  tags: [argo-apps]
+
+- import_tasks: scenario-deployment/create-tekton-pipelines.yaml
+  tags: [tekton-pipelines]
+  when: not is_kubernetes
+
+- import_tasks: infra-setup/delete_argo.yaml
+  tags: [never, teardown, teardown-argo]
+
+- import_tasks: infra-setup/delete_tekton.yaml
+  tags: [never, teardown, teardown-tekton]
+
+- import_tasks: monitoring/delete_monitoring.yaml
+  tags: [never, teardown, teardown-monitoring]
+  when: not is_kubernetes

@@ -1,0 +1,5 @@
+---
+- include_tasks: prepare_access.yaml
+  loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker

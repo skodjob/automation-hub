@@ -17,3 +17,7 @@ kubectl apply -f ./argo/projects/
 With these config, all pipelines from `./pipelines` will be deployed. Be carefull to have all depending configurations in same file with correct sequence.
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
+# TODO
+- add example fo clusters and github secret

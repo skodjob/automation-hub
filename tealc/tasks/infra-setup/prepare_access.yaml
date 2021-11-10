@@ -1,0 +1,60 @@
+---
+- name: Create Argo namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ item }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  loop:
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
+    - "{{ infra_argo_namespace }}"
+
+- name: Create ServiceAccount for remote access
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "default"
+    state: present
+    src: files/remote_access_sa.yaml
+
+- name: Export access token
+  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "access_token_out"
+
+- name: Set facts for route host
+  set_fact: access_token="{{ access_token_out.stdout }}"
+
+- name: Check that token exists
+  fail:
+    msg: "Token is not properly stored!\n{{ access_token }}"
+  when: access_token | length == 0
+
+- name: Create Github access secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ item }}"
+    state: present
+    src: "{{ github_secret_path }}"
+  loop:
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
+
+- name: Create Tekton secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ item }}"
+    state: present
+    template: templates/tekton/install/tekton-secret.yaml.j2
+  loop:
+    - "{{ infra_ci_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
+
+- name: Create Argo cluster access secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: templates/cluster-secret.yaml.j2

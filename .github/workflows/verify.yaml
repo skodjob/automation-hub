@@ -26,31 +26,52 @@ jobs:
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
-      - name: Install CICD
+      - name: Create admin user and replace token
         run: |
-          ./scripts/install-cicd.sh
+          kubectl -n kube-system create serviceaccount pepa
+          kubectl create clusterrolebinding pepa-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:pepa
+
+          export TOKENNAME=`kubectl -n kube-system get serviceaccount/pepa -o jsonpath='{.secrets[0].name}'`
+          export TOKEN=`kubectl -n kube-system get secret $TOKENNAME -o jsonpath='{.data.token}'| base64 --decode`
+
+          cat ~/.kube/config
+
+          export API_URL=`awk '/server/{print $NF}' ~/.kube/config`
+          sed -i -e "s#server_api_url#$API_URL#g" -e "s#placeholder#$TOKEN#g" -e "s#configpath#$GITHUB_WORKSPACE#g" examples/clusters.yaml
+
+          cat examples/clusters.yaml
+
+      - name: Install Prometheus
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+
+      - name: Install ansible dependencies
+        run: |
+          ansible-galaxy collection install kubernetes.core
+          /opt/pipx/venvs/ansible-core/bin/python -m pip install openshift pyyaml kubernetes
+
+      - name: Install CICD
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: playbooks/github-actions-configure-tealc-environment.yaml
 
       - name: Try test pipeline
         run: |
           ./.github/workflows/test-scripts/run-test-pipeline.sh
 
-      - name: Deploy argo entrypoint
-        run: |
-          ./.github/workflows/test-scripts/install-argo-entrypoint.sh
+      - name: Delete CICD
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: playbooks/github-actions-configure-tealc-environment.yaml
+          options: |
+            --tags ["teardown"]
 
       - name: Print kube status
         if: failure()
         run: |
-          kubectl get ns
+          oc get ns
           echo "--------------------------------------"
-          kubectl get po --all-namespaces
+          oc get po --all-namespaces
           echo "--------------------------------------"
-          kubectl get events --all-namespaces
+          oc get events --all-namespaces
           echo "--------------------------------------"
-          kubectl get pipelinerun --allnamespaces
-          echo "--------------------------------------"
-          kubectl get taskrun --allnamespaces
-          echo "--------------------------------------"
-          kubectl get pipeline --allnamespaces
-          echo "--------------------------------------"
-          kubectl get task --allnamespaces

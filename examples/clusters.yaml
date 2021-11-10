@@ -1,0 +1,26 @@
+---
+# SMTP configurations for alerts
+smtp_username: pepa
+smtp_password: zdepa
+smtp_server: smtp.server.com:538
+smtp_email: pepa@zdepa.cz
+
+#  Infra cluster configuration
+infra_access_token: placeholder
+infra_api_url: server_api_url
+infra_context_name: tealc-infra
+infra_username: pepa
+infra_password: zdepa
+
+# Paths info
+kubeconfig_path: configpath
+github_secret_path: configpath/examples/github-secret.yaml
+
+# Workers
+workers:
+  - name: tealc-worker
+    api_url: server_api_url
+    access_token: placeholder
+    username: pepa
+    password: zdepa
+    monitoring_namespace: strimzi-monitoring
