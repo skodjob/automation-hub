@@ -47,6 +47,8 @@ jobs:
 
           ansible-galaxy collection install kubernetes.core
 
+          /opt/pipx/venvs/ansible-core/bin/python -m pip install openshift pyyaml kubernetes
+
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
