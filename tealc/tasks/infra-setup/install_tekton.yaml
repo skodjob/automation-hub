@@ -96,7 +96,7 @@
     name: "{{ tekton_operator_namespace }}"
     api_version: v1
     kind: Namespace
-    state: absent
+    state: present
   when: is_kubernetes
 
 - name: Create Tekton pipelines namespace on Infra cluster
@@ -105,7 +105,7 @@
     name: "{{ tekton_pipelines_namespace }}"
     api_version: v1
     kind: Namespace
-    state: absent
+    state: present
   when: is_kubernetes
 
 - name: Install Tekton
