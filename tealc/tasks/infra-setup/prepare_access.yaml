@@ -1,7 +1,4 @@
 ---
-- name: Set facts from workers
-  set_fact: worker="{{ item }}"
-
 - name: Create Argo namespace on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

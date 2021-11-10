@@ -95,7 +95,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ tekton_operator_namespace }}"
     state: present
-    src: https://storage.googleapis.com/tekton-releases/operator/latest/release.yaml
+    src: files/tekton/install/tekton-release.yaml
   when: is_kubernetes
 
 - name: Sleep for 10 seconds and continue with play
@@ -121,7 +121,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ tekton_operator_namespace }}"
     state: present
-    src: https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/all/operator_v1alpha1_config_cr.yaml
+    src: files/tekton/install/tekton-config-kube.yaml
   when: is_kubernetes
 
 - name: Install Tekton dashboard
@@ -129,7 +129,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ tekton_operator_namespace }}"
     state: present
-    src: https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+    src: files/tekton/install/tekton-dashboard-kube.yaml
   when: is_kubernetes
 
 - name: Sleep for 10 seconds and continue with play
