@@ -32,6 +32,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     src: files/argo/install/argo-route.yaml
+  when: not is_kubernetes
 
 - name: Patch argocd-dex-server to enable oauth login
   shell: "kubectl patch deployment argocd-dex-server -n {{ infra_argo_namespace }}  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"

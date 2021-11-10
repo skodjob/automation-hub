@@ -12,6 +12,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: absent
     src: files/argo/install/argo-route.yaml
+  when: not is_kubernetes
 
 - name: Delete Argo config map
   kubernetes.core.k8s:

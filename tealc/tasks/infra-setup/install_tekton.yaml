@@ -90,6 +90,24 @@
 ######################################################################################
 ######################################################################################
 ######################################################################################
+- name: Create Tekton operator namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ tekton_operator_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: absent
+  when: is_kubernetes
+
+- name: Create Tekton pipelines namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ tekton_pipelines_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: absent
+  when: is_kubernetes
+
 - name: Install Tekton
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
