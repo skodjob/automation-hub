@@ -12,7 +12,7 @@ infra_context_name: tealc-infra
 
 # Paths info
 kubeconfig_path: configpath
-github_secret_path: tealc/examples/github-secret.yaml
+github_secret_path: examples/github-secret.yaml
 
 # Workers
 workers:
