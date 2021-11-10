@@ -41,6 +41,8 @@ jobs:
 
           cat examples/clusters.yaml
 
+          pip install openshift
+
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
