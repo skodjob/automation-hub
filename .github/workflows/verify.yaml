@@ -42,8 +42,9 @@ jobs:
           cat examples/clusters.yaml
 
       - name: Install CICD
-        run: |
-          ansible-playbook playbooks/github-actions-configure-tealc-environment.yaml
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: playbooks/github-actions-configure-tealc-environment.yaml
 
       - name: Try test pipeline
         run: |
