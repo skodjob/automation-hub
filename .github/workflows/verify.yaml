@@ -59,9 +59,12 @@ jobs:
         run: |
           ./.github/workflows/test-scripts/run-test-pipeline.sh
 
-      - name: Deploy argo entrypoint
-        run: |
-          ./.github/workflows/test-scripts/install-argo-entrypoint.sh
+      - name: Delete CICD
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: playbooks/github-actions-configure-tealc-environment.yaml
+          options: |
+            --tags ["teardown"]
 
       - name: Print kube status
         if: failure()

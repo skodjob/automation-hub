@@ -27,6 +27,7 @@
 
 - import_tasks: scenario-deployment/create-tekton-pipelines.yaml
   tags: [tekton-pipelines]
+  when: not is_kubernetes
 
 - import_tasks: infra-setup/delete_argo.yaml
   tags: [never, teardown, teardown-argo]
@@ -36,3 +37,4 @@
 
 - import_tasks: monitoring/delete_monitoring.yaml
   tags: [never, teardown, teardown-monitoring]
+  when: not is_kubernetes
