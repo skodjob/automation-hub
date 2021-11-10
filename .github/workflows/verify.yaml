@@ -41,14 +41,14 @@ jobs:
 
           cat examples/clusters.yaml
 
-          pip install openshift pyyaml --user
+          ansible-galaxy collection install community.kubernetes
 
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: playbooks/github-actions-configure-tealc-environment.yaml
-          options: |
-            -e ansible_python_interpreter=/usr/lib/python3
+#           options: |
+#             -e ansible_python_interpreter=/usr/lib/python3
 
 
 
