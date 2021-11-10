@@ -47,6 +47,9 @@ jobs:
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: playbooks/github-actions-configure-tealc-environment.yaml
+          options: |
+            -e ansible_python_interpreter=/usr/lib/python3
+
 
       - name: Try test pipeline
         run: |
