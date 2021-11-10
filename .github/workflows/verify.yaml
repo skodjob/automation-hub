@@ -68,10 +68,10 @@ jobs:
           echo "--------------------------------------"
           oc get events --all-namespaces
           echo "--------------------------------------"
-          oc get pipelinerun --allnamespaces
+          oc get pipelinerun --all-namespaces
           echo "--------------------------------------"
-          oc get taskrun --allnamespaces
+          oc get taskrun --all-namespaces
           echo "--------------------------------------"
-          oc get pipeline --allnamespaces
+          oc get pipeline --all-namespaces
           echo "--------------------------------------"
-          oc get task --allnamespaces
+          oc get task --all-namespaces
