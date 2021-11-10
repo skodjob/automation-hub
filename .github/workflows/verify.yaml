@@ -23,6 +23,10 @@ jobs:
         env:
           GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
 
+      - name: smazat
+        run: |
+          ansible --version
+
       - name: Setup Kind
         uses: helm/kind-action@v1.2.0
 
