@@ -41,14 +41,13 @@ jobs:
 
           cat examples/clusters.yaml
 
-          sudo pip install openshift pyyaml
+          pip install openshift pyyaml --user
 
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: playbooks/github-actions-configure-tealc-environment.yaml
-          options: |
-            -e ansible_python_interpreter=/usr/lib/python3
+
 
 
       - name: Try test pipeline
