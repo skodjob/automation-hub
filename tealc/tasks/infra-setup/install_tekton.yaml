@@ -1,6 +1,6 @@
 ---
 - name: Create Tekton namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_ci_namespace }}"
     api_version: v1
@@ -8,7 +8,7 @@
     state: present
 
 - name: Create Tekton subscription
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     src: files/tekton/install/tekton-subscription.yaml
@@ -18,7 +18,7 @@
     timeout: 10
 
 - name: Wait for Tekton operator on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_operators_namespace }}"
     kind: Deployment
@@ -30,14 +30,14 @@
       reason: MinimumReplicasAvailable
 
 - name: Create Tekton config
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-config.yaml
 
 - name: Create Tekton dashboard
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present
@@ -48,7 +48,7 @@
     timeout: 10
 
 - name: Wait for Tekton pipelines controller on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     kind: Deployment
@@ -60,7 +60,7 @@
       reason: MinimumReplicasAvailable
 
 - name: Wait for Tekton dashboard on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     kind: Deployment
@@ -72,7 +72,7 @@
       reason: MinimumReplicasAvailable
 
 - name: Expose Tekton dashboard
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present

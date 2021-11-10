@@ -1,6 +1,6 @@
 ---
 - name: Create Argo applications for Strimzi
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present

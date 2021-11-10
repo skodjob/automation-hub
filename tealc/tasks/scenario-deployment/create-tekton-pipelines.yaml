@@ -1,6 +1,6 @@
 ---
 - name: Create Test Tekton pipelines
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
@@ -10,7 +10,7 @@
     - test2.yaml
 
 - name: Create Strimzi related Tekton pipelines
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
@@ -21,7 +21,7 @@
     - strimzi-image-updater.yaml
 
 - name: Create Strimzi-clients Tekton pipeline
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present

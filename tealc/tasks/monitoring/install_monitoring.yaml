@@ -1,6 +1,6 @@
 ---
 - name: Create monitoring namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_monitoring_namespace }}"
     api_version: v1
@@ -8,7 +8,7 @@
     state: present
 
 - name: Create monitoring namespaces on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     name: "{{ item.monitoring_namespace }}"
     api_version: v1
@@ -17,14 +17,14 @@
   loop: "{{ workers }}"
 
 - name: Enable user-workload on infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
 
 - name: Enable user-workload on worker cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "openshift-monitoring"
     state: present
@@ -32,14 +32,14 @@
   loop: "{{ workers }}"
 
 - name: Setup Grafana access on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-setup.yaml
 
 - name: Setup Grafana access on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
@@ -47,14 +47,14 @@
   loop: "{{ workers }}"
 
 - name: Install Grafana operator on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-operator.yaml
 
 - name: Install Grafana operator on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
@@ -66,7 +66,7 @@
     timeout: 10
 
 - name: Wait for Grafana operator on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     kind: Deployment
@@ -78,7 +78,7 @@
       reason: MinimumReplicasAvailable
 
 - name: Wait for Grafana operator Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     kind: Deployment
@@ -91,14 +91,14 @@
   loop: "{{ workers }}"
 
 - name: Deploy Grafana instance on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     src: files/grafana/grafana.yaml
 
 - name: Deploy Grafana instance on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
@@ -115,20 +115,20 @@
   loop: "{{ workers }}"
 
 - name: Configure Alertmanager to for sending alerts on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
 
 - name: Configure Alertmanager to for sending alerts on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
   loop: "{{ workers }}"
 
 - name: Configure Grafana dashboards and Prometheus alerts
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present

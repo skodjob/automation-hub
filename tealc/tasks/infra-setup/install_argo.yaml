@@ -1,6 +1,6 @@
 ---
 - name: Create Argo namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_argo_namespace }}"
     api_version: v1
@@ -8,14 +8,14 @@
     state: present
 
 - name: Install Argo
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
     src: files/argo/install/argo-install.yaml
 
 - name: Wait for Argo readiness
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
@@ -27,7 +27,7 @@
       reason: MinimumReplicasAvailable
 
 - name: Install Argo route
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
@@ -48,7 +48,7 @@
   set_fact: route="https://{{ route_host.stdout }}"
 
 - name: Patch argocd-dex-server service account
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
@@ -66,14 +66,14 @@
   set_fact: access_token="{{ access_token_out.stdout }}"
 
 - name: Apply Argo config map
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
     template: templates/argo/install/argocd-cm.yaml.j2
 
 - name: Apply Argo rbac
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present

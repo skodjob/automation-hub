@@ -41,7 +41,7 @@ jobs:
 
           cat examples/clusters.yaml
 
-          ansible-galaxy collection install community.kubernetes
+          ansible-galaxy collection install kubernetes.core
 
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2

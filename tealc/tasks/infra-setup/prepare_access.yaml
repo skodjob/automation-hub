@@ -3,7 +3,7 @@
   set_fact: worker="{{ item }}"
 
 - name: Create Argo namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ item }}"
     api_version: v1
@@ -15,7 +15,7 @@
     - "{{ infra_argo_namespace }}"
 
 - name: Create ServiceAccount for remote access
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "default"
     state: present
@@ -36,7 +36,7 @@
   when: access_token | length == 0
 
 - name: Create Github access secret
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ item }}"
     state: present
@@ -46,7 +46,7 @@
     - "{{ openshift_pipelines_namespace }}"
 
 - name: Create Tekton secret
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ item }}"
     state: present
@@ -56,7 +56,7 @@
     - "{{ openshift_pipelines_namespace }}"
 
 - name: Create Argo cluster access secret
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present

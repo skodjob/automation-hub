@@ -1,34 +1,34 @@
 ---
 - name: Delete Tekton subscription
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_operators_namespace }}"
     state: absent
     src: files/tekton/install/tekton-subscription.yaml
 
 - name: Delete Tekton config
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: absent
     src: files/tekton/install/tekton-config.yaml
 
 - name: Delete Tekton dashboard
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: absent
     src: files/tekton/install/tekton-dashboard.yaml
 
 - name: Delete Tekton dashboard route
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_pipelines_namespace }}"
     state: absent
     src: files/tekton/install/tekton-dashboard-route.yaml
 
 - name: Delete Tekton namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_ci_namespace }}"
     api_version: v1

@@ -14,7 +14,7 @@
   when: access_token | length == 0
 
 - name: Create Grafana data-source
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present

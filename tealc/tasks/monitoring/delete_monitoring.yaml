@@ -1,20 +1,20 @@
 ---
 - name: Delete Grafana access on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
     src: files/grafana/grafana-setup.yaml
 
 - name: Delete Grafana operator on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
     src: files/grafana/grafana-operator.yaml
 
 - name: Delete Grafana operator on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: absent
@@ -22,14 +22,14 @@
   loop: "{{ workers }}"
 
 - name: Delete Grafana instance on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
     src: files/grafana/grafana.yaml
 
 - name: Delete Grafana instance on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: absent
@@ -37,20 +37,20 @@
   loop: "{{ workers }}"
 
 - name: Remove Alertmanager  configuration for sending alerts on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
 
 - name: Remove Alertmanager configuration for sending alerts on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
   loop: "{{ workers }}"
 
 - name: Delete Grafana dashboards and Prometheus alerts
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
@@ -61,14 +61,14 @@
     - grafana-argo-dashboards.yaml
 
 - name: Delete Grafana data-source on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
     template: templates/grafana-data-source.yaml.j2
 
 - name: Delete Grafana data-source on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: absent
@@ -76,7 +76,7 @@
   loop: "{{ workers }}"
 
 - name: Delete monitoring namespace on Infra cluster
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_monitoring_namespace }}"
     api_version: v1
@@ -84,7 +84,7 @@
     state: absent
 
 - name: Delete monitoring namespaces on Worker clusters
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     name: "{{ item.monitoring_namespace }}"
     api_version: v1
