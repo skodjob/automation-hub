@@ -6,6 +6,9 @@ infra_argo_namespace: argocd
 
 openshift_pipelines_namespace: openshift-pipelines
 openshift_operators_namespace: openshift-operators
+tekton_operator_namespace: tekton-operator
+
+is_kubernetes: false
 
 route: empty
 access_token: empty

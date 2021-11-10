@@ -12,10 +12,12 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     src: files/tekton/install/tekton-subscription.yaml
+  when: not is_kubernetes
 
 - name: Sleep for 10 seconds and continue with play
   wait_for:
     timeout: 10
+  when: not is_kubernetes
 
 - name: Wait for Tekton operator on Infra cluster
   kubernetes.core.k8s:
@@ -28,6 +30,7 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  when: not is_kubernetes
 
 - name: Create Tekton config
   kubernetes.core.k8s:
@@ -35,6 +38,7 @@
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-config.yaml
+  when: not is_kubernetes
 
 - name: Create Tekton dashboard
   kubernetes.core.k8s:
@@ -42,10 +46,12 @@
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-dashboard.yaml
+  when: not is_kubernetes
 
 - name: Sleep for 10 seconds and continue with play
   wait_for:
     timeout: 10
+  when: not is_kubernetes
 
 - name: Wait for Tekton pipelines controller on Infra cluster
   kubernetes.core.k8s:
@@ -58,6 +64,7 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  when: not is_kubernetes
 
 - name: Wait for Tekton dashboard on Infra cluster
   kubernetes.core.k8s:
@@ -70,6 +77,7 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  when: not is_kubernetes
 
 - name: Expose Tekton dashboard
   kubernetes.core.k8s:
@@ -77,3 +85,80 @@
     namespace: "{{ openshift_pipelines_namespace }}"
     state: present
     src: files/tekton/install/tekton-dashboard-route.yaml
+  when: not is_kubernetes
+
+######################################################################################
+######################################################################################
+######################################################################################
+- name: Install Tekton
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    state: present
+    src: https://storage.googleapis.com/tekton-releases/operator/latest/release.yaml
+  when: is_kubernetes
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+  when: is_kubernetes
+
+- name: Wait for Tekton pipelines operator on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    kind: Deployment
+    name: tekton-operator
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasvailable
+  when: is_kubernetes
+
+- name: Install Tekton CR
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    state: present
+    src: https://raw.githubusercontent.com/tektoncd/operator/main/config/crs/kubernetes/config/all/operator_v1alpha1_config_cr.yaml
+  when: is_kubernetes
+
+- name: Install Tekton dashboard
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    state: present
+    src: https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+  when: is_kubernetes
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+  when: is_kubernetes
+
+- name: Wait for Tekton pipelines controller on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    kind: Deployment
+    name: tekton-pipelines-controller
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  when: is_kubernetes
+
+- name: Wait for Tekton pipelines dashboard on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ tekton_operator_namespace }}"
+    kind: Deployment
+    name: tekton-dashboard
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  when: is_kubernetes
