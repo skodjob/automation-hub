@@ -1,8 +1,10 @@
+
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: grafana-serviceaccount
+  namespace: tealc-monitoring
   labels:
     app: tealc
   annotations:
@@ -17,8 +19,44 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: grafana-serviceaccount
-    namespace: tealc-monitoring
 roleRef:
   kind: ClusterRole
   name: cluster-monitoring-view
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grafana-proxy
+rules:
+  - verbs:
+      - create
+    apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+  - verbs:
+      - create
+    apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+---
+apiVersion: authorization.openshift.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-proxy
+roleRef:
+  kind: ClusterRole
+  name: grafana-proxy
+subjects:
+  - kind: ServiceAccount
+    name: grafana-serviceaccount
+    namespace: tealc-monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    config.openshift.io/inject-trusted-cabundle: "true"
+  name: ocp-injected-certs
