@@ -1,10 +1,14 @@
-
+{% if item is defined %} 
+{% set namespace = item.monitoring_namespace %}
+{% else %} 
+{% set namespace = infra_monitoring_namespace %} 
+{% endif %}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: grafana-serviceaccount
-  namespace: tealc-monitoring
+  namespace: {{ namespace }}
   labels:
     app: tealc
   annotations:
@@ -14,10 +18,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: grafana-cluster-monitoring-binding
+  namespace: {{ namespace }}
   labels:
     app: tealc
 subjects:
   - kind: ServiceAccount
+    namespace: {{ namespace }}
     name: grafana-serviceaccount
 roleRef:
   kind: ClusterRole
@@ -27,6 +33,7 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  namespace: {{ namespace }}
   name: grafana-proxy
 rules:
   - verbs:
@@ -45,6 +52,7 @@ rules:
 apiVersion: authorization.openshift.io/v1
 kind: ClusterRoleBinding
 metadata:
+  namespace: {{ namespace }}
   name: grafana-proxy
 roleRef:
   kind: ClusterRole
@@ -52,7 +60,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-serviceaccount
-    namespace: tealc-monitoring
+    namespace: {{ namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -60,3 +68,4 @@ metadata:
   labels:
     config.openshift.io/inject-trusted-cabundle: "true"
   name: ocp-injected-certs
+  namespace: {{ namespace }}

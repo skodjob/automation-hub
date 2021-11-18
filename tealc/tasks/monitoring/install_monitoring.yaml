@@ -31,19 +31,39 @@
     src: files/user-workload-cm.yaml
   loop: "{{ workers }}"
 
+- name: Create grafana session secret on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
+    state: present
+    src: "{{ grafana_session_secret_path }}"
+
+- name: Create grafana session secret on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: "{{ grafana_session_secret_path }}"
+  loop: "{{ workers }}"
+
+- name: Sleep for 10 seconds and continue with play
+  wait_for:
+    timeout: 10
+  when: not is_kubernetes
+
 - name: Setup Grafana access on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana-setup.yaml
+    template: templates/grafana/grafana-setup.yaml.j2
 
 - name: Setup Grafana access on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana-setup.yaml
+    template: templates/grafana/grafana-setup.yaml.j2
   loop: "{{ workers }}"
 
 - name: Install Grafana operator on Infra cluster
@@ -51,14 +71,14 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana-operator.yaml
+    template: templates/grafana/grafana-operator.yaml.j2
 
 - name: Install Grafana operator on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana-operator.yaml
+    template: templates/grafana/grafana-operator.yaml.j2
   loop: "{{ workers }}"
 
 - name: Sleep for 10 seconds and continue with play
@@ -95,15 +115,32 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana.yaml
+    template: templates/grafana/grafana.yaml.j2
 
 - name: Deploy Grafana instance on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
     namespace: "{{ item.monitoring_namespace }}"
     state: present
-    src: files/grafana/grafana.yaml
+    template: templates/grafana/grafana.yaml.j2
   loop: "{{ workers }}"
+
+- name: Create grafana route on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
+    state: present
+    src: files/grafana/grafana-route.yaml
+
+- name: Create grafana route on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: files/grafana/grafana-route.yaml
+  loop: "{{ workers }}"
+
+
 
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
