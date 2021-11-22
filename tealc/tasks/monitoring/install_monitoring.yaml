@@ -155,8 +155,6 @@
     src: files/grafana/grafana-route.yaml
   loop: "{{ workers }}"
 
-
-
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
   loop:
