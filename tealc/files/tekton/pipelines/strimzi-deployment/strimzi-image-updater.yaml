@@ -9,7 +9,7 @@ spec:
     - name: task-ws
   steps:
     - name: tealc-clone
-      image: alpine/git:v2.30.2
+      image: quay.io/wire/alpine-git
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
         git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR

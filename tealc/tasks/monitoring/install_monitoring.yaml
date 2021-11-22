@@ -31,6 +31,21 @@
     src: files/user-workload-cm.yaml
   loop: "{{ workers }}"
 
+- name: Create image pull secret on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_monitoring_namespace }}"
+    state: present
+    src: "{{ grafana_docker_secret_path }}"
+
+- name: Create image pull secret on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
+    namespace: "{{ item.monitoring_namespace }}"
+    state: present
+    src: "{{ grafana_docker_secret_path }}"
+  loop: "{{ workers }}"
+
 - name: Create grafana session secret on infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
