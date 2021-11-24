@@ -6,13 +6,15 @@
     state: absent
     template: templates/grafana/grafana-setup.yaml.j2
 
-- name: Setup Grafana access on Worker clusters
+- name: Delete Grafana access on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
+    namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana-setup.yaml.j2
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Delete Grafana operator on Infra cluster
   kubernetes.core.k8s:
@@ -23,11 +25,13 @@
 
 - name: Delete Grafana operator on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
-    namespace: "{{ item.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana-operator.yaml.j2
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Delete Grafana instance on Infra cluster
   kubernetes.core.k8s:
@@ -38,11 +42,13 @@
 
 - name: Delete Grafana instance on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
-    namespace: "{{ item.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana.yaml.j2
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Delete grafana session secret on infra cluster
   kubernetes.core.k8s:
@@ -53,11 +59,13 @@
 
 - name: Delete grafana session secret on worker cluster
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
-    namespace: "{{ item.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     src: "{{ grafana_session_secret_path }}"
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Remove Alertmanager  configuration for sending alerts on Infra cluster
   kubernetes.core.k8s:
@@ -67,21 +75,25 @@
 
 - name: Remove Alertmanager configuration for sending alerts on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Delete Grafana dashboards and Prometheus alerts
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
-    src: "files/argo/metrics/{{ item }}"
+    src: "files/argo/metrics/{{ target_file }}"
   loop:
     - alerts.yaml
     - argo-dashboard-cm.yaml
     - grafana-argo-dashboards.yaml
+  loop_control:
+    loop_var: target_file
 
 - name: Delete Grafana data-source on Infra cluster
   kubernetes.core.k8s:
@@ -92,11 +104,13 @@
 
 - name: Delete Grafana data-source on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
-    namespace: "{{ item.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana-data-source.yaml.j2
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Delete monitoring namespace on Infra cluster
   kubernetes.core.k8s:
@@ -108,9 +122,12 @@
 
 - name: Delete monitoring namespaces on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ item.name }}"
-    name: "{{ item.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    name: "{{ worker.monitoring_namespace }}"
     api_version: v1
     kind: Namespace
     state: absent
   loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
+  

@@ -45,12 +45,14 @@
 - name: Create Tekton secret
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ item }}"
+    namespace: "{{ target_namespace }}"
     state: present
     template: templates/tekton/install/tekton-secret.yaml.j2
   loop:
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
+  loop_control:
+    loop_var: target_namespace
 
 - name: Create Argo cluster access secret
   kubernetes.core.k8s:
