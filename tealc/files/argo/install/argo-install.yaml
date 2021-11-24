@@ -2600,6 +2600,8 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+      imagePullSecrets:
+        - name: cfcr
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000

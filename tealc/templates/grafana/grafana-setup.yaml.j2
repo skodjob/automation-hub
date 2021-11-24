@@ -1,0 +1,71 @@
+{% if worker is defined %} 
+{% set namespace = worker.monitoring_namespace %}
+{% else %} 
+{% set namespace = infra_monitoring_namespace %} 
+{% endif %}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-serviceaccount
+  namespace: {{ namespace }}
+  labels:
+    app: tealc
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-cluster-monitoring-binding
+  namespace: {{ namespace }}
+  labels:
+    app: tealc
+subjects:
+  - kind: ServiceAccount
+    namespace: {{ namespace }}
+    name: grafana-serviceaccount
+roleRef:
+  kind: ClusterRole
+  name: cluster-monitoring-view
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: {{ namespace }}
+  name: grafana-proxy
+rules:
+  - verbs:
+      - create
+    apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+  - verbs:
+      - create
+    apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+---
+apiVersion: authorization.openshift.io/v1
+kind: ClusterRoleBinding
+metadata:
+  namespace: {{ namespace }}
+  name: grafana-proxy
+roleRef:
+  kind: ClusterRole
+  name: grafana-proxy
+subjects:
+  - kind: ServiceAccount
+    name: grafana-serviceaccount
+    namespace: {{ namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    config.openshift.io/inject-trusted-cabundle: "true"
+  name: ocp-injected-certs
+  namespace: {{ namespace }}

@@ -9,7 +9,7 @@ spec:
     - name: task-ws
   steps:
     - name: tealc-clone
-      image: alpine/git:v2.30.2
+      image: quay.io/wire/alpine-git
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
         git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
@@ -179,3 +179,26 @@ spec:
     weight: 100
   port:
     targetPort: http-listener
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: strimzi-deployment-image-update-start
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: strimzi-deployment-image-update-pipeline
+  serviceAccountName: tekton-service-account
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

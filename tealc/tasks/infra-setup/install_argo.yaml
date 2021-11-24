@@ -7,6 +7,13 @@
     kind: Namespace
     state: present
 
+- name: Create image pull secret on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    src: "{{ grafana_docker_secret_path }}"
+
 - name: Install Argo
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

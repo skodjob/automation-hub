@@ -1,3 +1,8 @@
+{% if worker is defined %} 
+{% set namespace = worker.monitoring_namespace %}
+{% else %} 
+{% set namespace = infra_monitoring_namespace %} 
+{% endif %}
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
@@ -7,7 +12,7 @@ metadata:
     app: grafana
 spec:
   targetNamespaces:
-    - tealc-monitoring
+    - {{ namespace }}
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
