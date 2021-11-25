@@ -20,6 +20,17 @@
     - drain-cleaner-image-updater.yaml
     - strimzi-image-updater.yaml
 
+- name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
+  wait_for:
+    timeout: 20
+
+- name: Create Strimzi related Tekton pipeline runs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "files/tekton/pipelines/strimzi-deployment/pipeline-runs.yaml"
+
 - name: Create Strimzi-clients Tekton pipeline
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

@@ -2,3 +2,4 @@
 .vscode
 tealc-ci-test.yaml
 kubeconfig/*
+tealc/kubeconfig/*
