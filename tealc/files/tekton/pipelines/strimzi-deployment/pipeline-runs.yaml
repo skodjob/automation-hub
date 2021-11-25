@@ -1,0 +1,68 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: strimzi-deployment-image-update-start
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: strimzi-deployment-image-update-pipeline
+  serviceAccountName: tekton-service-account
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: drain-cleaner-deployment-image-update-start
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: drain-cleaner-deployment-image-update-pipeline
+  serviceAccountName: tekton-service-account
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: canary-deployment-image-update-start
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: canary-deployment-image-update-pipeline
+  serviceAccountName: tekton-service-account
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
