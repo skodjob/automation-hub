@@ -111,13 +111,13 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-monitoring
+  name: strimzi-monitoring-grafana
 spec:
   project: default
   source:
     repoURL: https://github.com/ExcelentProject/sokar
     targetRevision: HEAD
-    path: metrics
+    path: metrics/grafana
     directory:
       recurse: true
   syncPolicy:
@@ -129,3 +129,69 @@ spec:
   destination:
     name: {{ worker_cluster_connection }}
     namespace: strimzi-monitoring
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-kafka
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: metrics/alerts/kafka.yaml
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-kafka
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-cluster-operator
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: metrics/alerts/strimzi-operator.yaml
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-operator
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-drain-cleaner
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: metrics/alerts/strimzi-drain-cleaner.yaml
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-drain-cleaner
