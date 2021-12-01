@@ -209,6 +209,14 @@
     state: present
     src: "files/argo/metrics/{{ item }}"
   loop:
-    - alerts.yaml
     - argo-dashboard-cm.yaml
     - grafana-argo-dashboards.yaml
+
+- name: Configure Prometheus alerts
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    src: "files/argo/metrics/{{ item }}"
+  loop:
+    - alerts.yaml
