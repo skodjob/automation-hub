@@ -20,7 +20,7 @@ spec:
           annotations:
             summary: 'Argo Applications are down'
             description: 'There are some Argo applications which are not created!'
-        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 2
+        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 1
           alert: ArgoCdNotEnoughClusters
           for: 1m
           labels:
@@ -36,7 +36,7 @@ spec:
             severity: major
             app: tealc
           annotations:
-            summary: 'Some Argo applications are nto healthy'
+            summary: 'Some Argo applications are not healthy'
             description: 'Some Argo application are not healthy and should be checked why is this happening!'
         - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 10
           alert: ArgoCdApplicationIsOutOfSync
