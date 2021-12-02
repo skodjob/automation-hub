@@ -78,11 +78,17 @@ IFS=';' read -r -a FILES <<< $FILE_NAMES
 for C_FILE in "${FILES[@]}"
 do
     echo $C_FILE
-    export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE") 
+    if test -f "${C_FILE}"; then
+        export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
+    else
+      echo "File ${C_FILE} does not exists. Skipping metadata backup."
+    fi
 
     cp -r $SYNC_DEPLOYMENT_DIR/$SYNC_DEPLOYMENT_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
 
-    yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+    if test -f "${C_FILE}"; then
+        yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+    fi
 done
 
 yq e -i '.spec.template.spec.containers[0].env = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
