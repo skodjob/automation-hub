@@ -57,8 +57,8 @@ echo "Cloning repository: ${CURRENT_DEPLOYMENT_REPO}"
 echo "================================================"
 git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
 
-FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
-echo "[INFO] Deployment filename: ${FILE_NAME}"
+DEPLOYMENT_FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
+echo "[INFO] Deployment filename: ${DEPLOYMENT_FILE_NAME}"
 echo "================================================"
 echo "Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
 
@@ -66,8 +66,8 @@ SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
 git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
 
 # Storing must have values
-export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
-export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
 
@@ -76,21 +76,28 @@ IFS=';' read -r -a FILES <<< $FILE_NAMES
 for C_FILE in "${FILES[@]}"
 do
     echo $C_FILE
-    export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE") 
-    export SUBJECTS=$(yq e '.subjects' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
+
+    if test -f "${C_FILE}"; then
+        export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
+        export SUBJECTS=$(yq e '.subjects' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
+    else
+      echo "File ${C_FILE} does not exists. Skipping metadata backup."
+    fi
 
     cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
 
-    yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
-    if [[ $SUBJECTS != null ]]; then
-        yq e -i '.subjects = env(SUBJECTS)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+    if test -f "${C_FILE}"; then
+        yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+        if [[ $SUBJECTS != null ]]; then
+            yq e -i '.subjects = env(SUBJECTS)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+        fi
     fi
 done
 
 # We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 # We need to keep resources configuration as well
-yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"
@@ -112,7 +119,7 @@ else
 fi
 
 # Change floating tags to random digest
-IMAGES_TAGS=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
+IMAGES_TAGS=$(cat "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
 echo "$IMAGES_TAGS"
 IFS=';' read -r -a IMGS <<< "$IMAGES_TAGS"
 T=11111
@@ -123,10 +130,10 @@ do
     IMAGE_NAME=$(echo $ELEMENT_O | cut -d ':' -f1)
     NEW_DIGEST="$IMAGE_NAME@sha:$T"
     T=$((T+1))
-    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
+    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
 done
 
-IMAGES_PLAIN=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
+IMAGES_PLAIN=$(cat "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
 IFS=';' read -r -a IMAGES <<< "$IMAGES_PLAIN"
 
 echo "================================================"
@@ -148,7 +155,7 @@ do
     
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
         echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
-        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
+        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
     fi
 done
 
