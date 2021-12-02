@@ -19,6 +19,7 @@
     - canary-image-updater.yaml
     - drain-cleaner-image-updater.yaml
     - strimzi-image-updater.yaml
+    - clients-image-updater.yaml
 
 - name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
   wait_for:
