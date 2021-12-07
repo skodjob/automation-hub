@@ -1,0 +1,8 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: quay-pull-secret
+data:
+  .dockerconfigjson: >-
+    eyJhdXRocyI6eyJxdWF5LmlvIjp7InVzZXJuYW1lIjoicGVwYSIsInBhc3N3b3JkIjoiemRlcGEiLCJlbWFpbCI6InBlcGFAemRlcGEuY29tIiwiYXV0aCI6InR1ZGxlbnVkbGUifX19
+type: kubernetes.io/dockerconfigjson

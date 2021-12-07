@@ -17,7 +17,7 @@ kubeconfig_path: configpath
 github_secret_path: configpath/examples/github-secret.yaml
 grafana_session_secret_path: configpath/examples/grafana-session.yaml
 grafana_docker_secret_path: configpath/examples/docker-secret.yaml
-
+twitter_secret_path: configpath/examples/twitter
 
 # Workers
 workers:
