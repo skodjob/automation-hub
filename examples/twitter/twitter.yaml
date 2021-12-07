@@ -4,8 +4,8 @@ metadata:
   name: credentials
 type: Opaque
 data:
-  consumerKey: CONSUMER_KEY
-  consumerSecret: CONSUMER_SECRET
-  accessToken: ACCESS_TOKEN
-  accessTokenSecret: ACCESS_TOKEN_SECRET
-  telegramToken: TELEGRAM_TOKEN
+  consumerKey: c2VjcmV0
+  consumerSecret: c2VjcmV0
+  accessToken: c2VjcmV0
+  accessTokenSecret: c2VjcmV0
+  telegramToken: c2VjcmV0
