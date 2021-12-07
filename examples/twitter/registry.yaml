@@ -4,5 +4,5 @@ metadata:
   name: quay-pull-secret
 data:
   .dockerconfigjson: >-
-    docker-json-data
+    eyJhdXRocyI6eyJxdWF5LmlvIjp7InVzZXJuYW1lIjoicGVwYSIsInBhc3N3b3JkIjoiemRlcGEiLCJlbWFpbCI6InBlcGFAemRlcGEuY29tIiwiYXV0aCI6InR1ZGxlbnVkbGUifX0=
 type: kubernetes.io/dockerconfigjson
