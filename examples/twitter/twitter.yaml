@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: credentials
+type: Opaque
+data:
+  consumerKey: CONSUMER_KEY
+  consumerSecret: CONSUMER_SECRET
+  accessToken: ACCESS_TOKEN
+  accessTokenSecret: ACCESS_TOKEN_SECRET
+  telegramToken: TELEGRAM_TOKEN
