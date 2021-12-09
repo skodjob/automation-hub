@@ -108,7 +108,7 @@ done
 
 echo "================================================"
 echo "Adding changes to repository"
-git add /*
+git add .
 git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd
