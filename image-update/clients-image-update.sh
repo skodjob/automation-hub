@@ -22,8 +22,8 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-if [[ -z "${YAML_BUNDLE_PATH}" ]]; then
-    echo "Missing yaml bundle path: YAML_BUNDLE_PATH"
+if [[ -z "${FILE_NAME}" ]]; then
+    echo "Missing clients file name: FILE_NAME"
     exit 1
 elif [[ -z "${CURRENT_DEPLOYMENT_REPO}" ]]; then
     echo "Missing deployment repo: CURRENT_DEPLOYMENT_REPO"
@@ -33,9 +33,6 @@ elif [[ -z "${TARGET_ORG_REPO}" ]]; then
     exit 3
 elif [[ -z ${BRANCH} ]]; then
     echo "Missing branch name: BRANCH"
-    exit 4
-elif [[ -z ${DEPLOYMENT_FILE_NAME} ]]; then
-    echo "Missing deployment file name: DEPLOYMENT_FILE_NAME"
     exit 4
 fi
 
@@ -54,7 +51,6 @@ echo "Cloning repository: ${CURRENT_DEPLOYMENT_REPO}"
 echo "================================================"
 git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
 
-FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP -i ${DEPLOYMENT_FILE_NAME})
 echo "[INFO] Deployment filename: ${FILE_NAME}"
 echo "================================================"
 
@@ -78,7 +74,7 @@ else
 fi
 
 # Change floating tags to random digest
-IMAGES_TAGS=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
+IMAGES_TAGS=$(cat "$FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
 echo "$IMAGES_TAGS"
 IFS=';' read -r -a IMGS <<< "$IMAGES_TAGS"
 T=11111
@@ -89,10 +85,10 @@ do
     IMAGE_NAME=$(echo $ELEMENT_O | cut -d ':' -f1)
     NEW_DIGEST="$IMAGE_NAME@sha:$T"
     T=$((T+1))
-    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
+    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$FILE_NAME"
 done
 
-IMAGES_PLAIN=$(cat "$YAML_BUNDLE_PATH"/"$FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
+IMAGES_PLAIN=$(cat "$FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
 IFS=';' read -r -a IMAGES <<< "$IMAGES_PLAIN"
 
 echo "================================================"
@@ -106,13 +102,13 @@ do
 
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
         echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
-        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$FILE_NAME"
+        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$FILE_NAME"
     fi
 done
 
 echo "================================================"
 echo "Adding changes to repository"
-git add "$YAML_BUNDLE_PATH"/*
+git add /*
 git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd
