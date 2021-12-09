@@ -107,14 +107,14 @@ do
     fi
 done
 
-#echo "================================================"
-#echo "Adding changes to repository"
-#git add .
-#git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
-#git push origin "$BRANCH"
-#popd
-#echo "================================================"
-#echo "Cleaning ${WORKING_DIR}"
-#rm -rf ${WORKING_DIR}
-#echo "================================================"
-#exit 0
+echo "================================================"
+echo "Adding changes to repository"
+git add .
+git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
+git push origin "$BRANCH"
+popd
+echo "================================================"
+echo "Cleaning ${WORKING_DIR}"
+rm -rf ${WORKING_DIR}
+echo "================================================"
+exit 0
