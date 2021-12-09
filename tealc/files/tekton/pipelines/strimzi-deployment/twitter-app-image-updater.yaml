@@ -46,7 +46,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: drain
+    - name: twitter-app-image-update
       taskRef:
         name: twitter-app-deployment-image-update-task
       workspaces:

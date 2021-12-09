@@ -52,7 +52,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: drain
+    - name: clients-image-update
       taskRef:
         name: clients-deployment-image-update-task
       workspaces:
