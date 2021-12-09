@@ -11,7 +11,7 @@ spec:
   groups:
     - name: argo-apps
       rules:
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 14
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 15
           alert: ArgoCdNotEnoughApplications
           for: 1m
           labels:
@@ -29,7 +29,7 @@ spec:
           annotations:
             summary: 'Argo lost some of the external cluster access'
             description: 'There are cluster access configurations which are deleted, but should be available!'
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (health_status) < 14
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (health_status) < 15
           alert: ArgoCdApplicationNotHealthy
           for: 1m
           labels:
@@ -38,7 +38,7 @@ spec:
           annotations:
             summary: 'Some Argo applications are not healthy'
             description: 'Some Argo application are not healthy and should be checked why is this happening!'
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 14
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 15
           alert: ArgoCdApplicationIsOutOfSync
           for: 1m
           labels:
