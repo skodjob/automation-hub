@@ -89,14 +89,15 @@ do
 done
 
 IMAGES_PLAIN=$(cat "$FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
+echo ${IMAGES_PLAIN}
 IFS=';' read -r -a IMAGES <<< "$IMAGES_PLAIN"
 
 echo "================================================"
 echo "Replacing image digests"
 for ELEMENT in "${IMAGES[@]}"
 do
-    CURRENT_DIGEST=$(echo $ELEMENT | cut -d '@' -f2)
-    IMAGE=$(echo $ELEMENT | rev | cut -d '@' -f2 | cut -d '/' -f1 | rev)
+    CURRENT_DIGEST=$(echo $ELEMENT | cut -d '@' -f2-)
+    IMAGE=$(echo $ELEMENT | cut -d '@' -f1 | cut -d '/' -f3)
 
     LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
 
@@ -106,14 +107,14 @@ do
     fi
 done
 
-echo "================================================"
-echo "Adding changes to repository"
-git add .
-git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
-git push origin "$BRANCH"
-popd
-echo "================================================"
-echo "Cleaning ${WORKING_DIR}"
-rm -rf ${WORKING_DIR}
-echo "================================================"
-exit 0
+#echo "================================================"
+#echo "Adding changes to repository"
+#git add .
+#git diff --staged --quiet || git commit -m "Clients images update: $($DATE "+%Y-%m-%d %T")"
+#git push origin "$BRANCH"
+#popd
+#echo "================================================"
+#echo "Cleaning ${WORKING_DIR}"
+#rm -rf ${WORKING_DIR}
+#echo "================================================"
+#exit 0
