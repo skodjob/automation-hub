@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: clients-deployment-image-update-task
+  name: twitter-app-deployment-image-update-task
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -22,7 +22,7 @@ spec:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
         - name: TARGET_ORG_REPO
-          value: "quay.io/strimzi-test-clients"
+          value: "quay.io/tealc"
         - name: BRANCH
           value: main
         - name: GITHUB_USERNAME
@@ -37,15 +37,13 @@ spec:
               key: TOKEN
       image: quay.io/tealc/apophis:latest
       script: |
-        FILE_NAME=clients/00-external-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
-        FILE_NAME=clients/01-internal-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
-        FILE_NAME=twitter-connector/clients/01-verification-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
+        FILE_NAME=twitter-connector/twitter/01-twitter-messages-parser.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
         echo "[INFO] Done!"
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: clients-deployment-image-update-pipeline
+  name: twitter-app-deployment-image-update-pipeline
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -54,7 +52,7 @@ spec:
   tasks:
     - name: drain
       taskRef:
-        name: clients-deployment-image-update-task
+        name: twitter-app-deployment-image-update-task
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
@@ -62,7 +60,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: clients-deployment-image-update-trigger-template
+  name: twitter-app-deployment-image-update-trigger-template
 spec:
   params:
     - name: message
@@ -72,12 +70,12 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: clients-deployment-image-update-
+        generateName: twitter-app-deployment-image-update-
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: clients-deployment-image-update-pipeline
+          name: twitter-app-deployment-image-update-pipeline
         serviceAccountName: tekton-service-account
         workspaces:
           - name: pipeline-ws
@@ -94,7 +92,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: clients-deployment-image-update-triggerbinding
+  name: twitter-app-deployment-image-update-triggerbinding
 spec:
   params:
     - name: message
@@ -103,24 +101,24 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: clients-deployment-image-update-event-listener
+  name: twitter-app-deployment-image-update-event-listener
 spec:
   serviceAccountName: tekton-service-account
   triggers:
-    - name: clients-deployment-image-update-webhook
+    - name: twitter-app-deployment-image-update-webhook
       bindings:
-        - ref: clients-deployment-image-update-triggerbinding
+        - ref: twitter-app-deployment-image-update-triggerbinding
       template:
-        ref: clients-deployment-image-update-trigger-template
+        ref: twitter-app-deployment-image-update-trigger-template
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-clients-deployment-image-update-event-listener
+  name: el-twitter-app-deployment-image-update-event-listener
 spec:
   to:
     kind: Service
-    name: el-clients-deployment-image-update-event-listener
+    name: el-twitter-app-deployment-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener
