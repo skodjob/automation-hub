@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-drain-cleaner
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: metrics/alerts/strimzi-drain-cleaner
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-drain-cleaner
