@@ -4,6 +4,8 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
-    template: "templates/argo/projects/strimzi.yaml.j2"
+    template: "{{ item }}"
   vars:
     worker_cluster_connection: "{{ workers[0].name }}"
+  with_fileglob: 'templates/argo/projects/*.j2'
+
