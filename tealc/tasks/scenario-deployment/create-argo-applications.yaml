@@ -8,4 +8,3 @@
   vars:
     worker_cluster_connection: "{{ workers[0].name }}"
   with_fileglob: 'templates/argo/projects/*.j2'
-
