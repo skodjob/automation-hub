@@ -14,9 +14,9 @@
     src: files/tekton/install/tekton-subscription.yaml
   when: not is_kubernetes
 
-- name: Sleep for 20 seconds and continue with play
+- name: Sleep for 60 seconds and continue with play
   wait_for:
-    timeout: 20
+    timeout: 60
   when: not is_kubernetes
 
 - name: Wait for Tekton operator on Infra cluster
@@ -48,9 +48,9 @@
     src: files/tekton/install/tekton-dashboard.yaml
   when: not is_kubernetes
 
-- name: Sleep for 10 seconds and continue with play
+- name: Sleep for 60 seconds and continue with play
   wait_for:
-    timeout: 10
+    timeout: 60
   when: not is_kubernetes
 
 - name: Wait for Tekton pipelines controller on Infra cluster
