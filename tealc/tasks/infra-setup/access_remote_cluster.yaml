@@ -3,3 +3,4 @@
   loop: "{{ workers }}"
   loop_control:
     loop_var: worker
+  no_log: True
