@@ -14,3 +14,5 @@ is_kubernetes: false
 
 route: empty
 access_token: empty
+
+log_sensitive_data: False
