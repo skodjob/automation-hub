@@ -1,5 +1,7 @@
 ---
 # tasks file for tealc
+
+#clusters connections
 - import_tasks: common/check_parameters.yaml
   tags: [always, check-params]
 
@@ -9,26 +11,41 @@
 - import_tasks: common/prepare_kubeconfigs.yaml
   tags: [always, kubeconfigs]
 
+
+#infra installation
 - import_tasks: infra-setup/access_remote_cluster.yaml
-  tags: [setup-workers-access]
+  tags: [setup-workers-access, strimzi-infra]
 
 - import_tasks: infra-setup/install_tekton.yaml
-  tags: [tekton]
+  tags: [tekton, strimzi-infra]
 
 - import_tasks: infra-setup/install_argo.yaml
-  tags: [argo]
+  tags: [argo, strimzi-infra]
 
 - import_tasks: monitoring/install_monitoring.yaml
-  tags: [monitoring, grafana]
+  tags: [monitoring, grafana, strimzi-infra]
   when: not is_kubernetes
 
-- import_tasks: scenario-deployment/create-argo-applications.yaml
-  tags: [argo-apps]
+
+#Scenarios
+- import_tasks: scenario-deployment/argo-deploy-strimzi-infra.yaml
+  tags: [argo-apps, argo-strimzi-infra, strimzi-infra]
+
+- import_tasks: scenario-deployment/argo-deploy-strimzi-clients.yaml
+  tags: [argo-apps, argo-strimzi-clients, strimzi-infra]
+
+- import_tasks: scenario-deployment/argo-deploy-strimzi-monitoring.yaml
+  tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra]
+
+- import_tasks: scenario-deployment/argo-deploy-strimzi-twitter-app.yaml
+  tags: [argo-apps, argo-strimzi-twitter-app, twitter-app]
 
 - import_tasks: scenario-deployment/create-tekton-pipelines.yaml
-  tags: [tekton-pipelines]
+  tags: [tekton-pipelines, strimzi-infra]
   when: not is_kubernetes
 
+
+#Teardown
 - import_tasks: infra-setup/delete_argo.yaml
   tags: [never, teardown, teardown-argo]
 

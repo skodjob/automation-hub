@@ -4,27 +4,20 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    src: "files/tekton/pipelines/test/{{ item }}"
-  loop:
-    - test.yaml
-    - test2.yaml
+    src: "{{ item }}"
+  with_fileglob: 'files/tekton/pipelines/test/*.yaml'
 
 - name: Create Strimzi related Tekton pipelines
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    src: "files/tekton/pipelines/strimzi-deployment/{{ item }}"
-  loop:
-    - canary-image-updater.yaml
-    - drain-cleaner-image-updater.yaml
-    - strimzi-image-updater.yaml
-    - clients-image-updater.yaml
-    - twitter-app-image-updater.yaml
+    src: "{{ item }}"
+  with_fileglob: 'files/tekton/pipelines/strimzi-deployment/*.yaml'
 
-- name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
+- name: Sleep for 60 seconds and continue with play (wait tull everything is setup)
   wait_for:
-    timeout: 20
+    timeout: 60
 
 - name: Create Strimzi related Tekton pipeline runs
   kubernetes.core.k8s:

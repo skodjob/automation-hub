@@ -1,5 +1,5 @@
 ---
-- name: Create Argo applications for Strimzi
+- name: Create Argo applications for Strimzi infra
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -7,4 +7,4 @@
     template: "{{ item }}"
   vars:
     worker_cluster_connection: "{{ workers[0].name }}"
-  with_fileglob: 'templates/argo/projects/*.j2'
+  with_fileglob: 'templates/argo/projects/strimzi-infra/*.j2'

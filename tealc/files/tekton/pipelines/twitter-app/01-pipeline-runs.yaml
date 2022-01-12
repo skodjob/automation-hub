@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: twitter-app-deployment-image-update-start
+  labels:
+    app: tealc
+spec:
+  pipelineRef:
+    name: twitter-app-deployment-image-update-pipeline
+  serviceAccountName: tekton-service-account
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
