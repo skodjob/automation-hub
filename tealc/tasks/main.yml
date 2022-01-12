@@ -1,7 +1,7 @@
 ---
 # tasks file for tealc
 
-#clusters connections
+# clusters connections
 - import_tasks: common/check_parameters.yaml
   tags: [always, check-params]
 
@@ -12,7 +12,7 @@
   tags: [always, kubeconfigs]
 
 
-#infra installation
+# infra installation
 - import_tasks: infra-setup/access_remote_cluster.yaml
   tags: [setup-workers-access, strimzi-infra]
 
@@ -27,7 +27,7 @@
   when: not is_kubernetes
 
 
-#Scenarios
+# Scenarios
 - import_tasks: scenario-deployment/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra]
 
@@ -45,7 +45,7 @@
   when: not is_kubernetes
 
 
-#Teardown
+# Teardown
 - import_tasks: infra-setup/delete_argo.yaml
   tags: [never, teardown, teardown-argo]
 
