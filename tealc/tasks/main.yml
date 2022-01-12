@@ -40,7 +40,7 @@
 - import_tasks: scenario-deployment/argo-deploy-strimzi-twitter-app.yaml
   tags: [argo-apps, argo-strimzi-twitter-app, twitter-app]
 
-- import_tasks: scenario-deployment/create-tekton-pipelines.yaml
+- import_tasks: scenario-deployment/strimzi-infra-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra]
   when: not is_kubernetes
 

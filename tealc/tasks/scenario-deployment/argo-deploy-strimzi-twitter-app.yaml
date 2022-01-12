@@ -16,3 +16,10 @@
     state: present
     src: "{{ item }}"
   with_fileglob: 'files/tekton/pipelines/twitter-app/*.yaml'
+
+- name: Create Twitter app Tekton pipeline runs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "files/tekton/pipelines/twitter-app/run/pipeline-runs.yaml"
