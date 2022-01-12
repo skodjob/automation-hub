@@ -44,7 +44,7 @@
 
 # Teardown
 - import_tasks: infra-setup/delete_argo.yaml
-  tags: [never, teardown, teardown-argo ,never]
+  tags: [never, teardown, teardown-argo , never]
 
 - import_tasks: infra-setup/delete_tekton.yaml
   tags: [never, teardown, teardown-tekton, never]
