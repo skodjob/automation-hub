@@ -17,6 +17,10 @@
     src: "{{ item }}"
   with_fileglob: 'files/tekton/pipelines/twitter-app/*.yaml'
 
+- name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
+  wait_for:
+    timeout: 20
+
 - name: Create Twitter app Tekton pipeline runs
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
