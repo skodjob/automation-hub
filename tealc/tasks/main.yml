@@ -3,55 +3,52 @@
 
 # clusters connections
 - import_tasks: common/check_parameters.yaml
-  tags: [always, check-params]
+  tags: [ always, check-params ]
 
 - import_tasks: common/check_clients.yaml
-  tags: [always, check-clients]
+  tags: [ always, check-clients ]
 
 - import_tasks: common/prepare_kubeconfigs.yaml
-  tags: [always, kubeconfigs]
-
+  tags: [ always, kubeconfigs ]
 
 # infra installation
 - import_tasks: infra-setup/access_remote_cluster.yaml
-  tags: [setup-workers-access, strimzi-infra, never]
+  tags: [ setup-workers-access, strimzi-infra, never ]
 
 - import_tasks: infra-setup/install_tekton.yaml
-  tags: [tekton, strimzi-infra, never]
+  tags: [ tekton, strimzi-infra, never ]
 
 - import_tasks: infra-setup/install_argo.yaml
-  tags: [argo, strimzi-infra, never]
+  tags: [ argo, strimzi-infra, never ]
 
 - import_tasks: monitoring/install_monitoring.yaml
-  tags: [monitoring, grafana, strimzi-infra, never]
+  tags: [ monitoring, grafana, strimzi-infra, never ]
   when: not is_kubernetes
-
 
 # Scenarios
 - import_tasks: scenario-deployment/argo-deploy-strimzi-infra.yaml
-  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
+  tags: [ argo-apps, argo-strimzi-infra, strimzi-infra, never ]
 
 - import_tasks: scenario-deployment/argo-deploy-strimzi-clients.yaml
-  tags: [argo-apps, argo-strimzi-clients, strimzi-infra, never]
+  tags: [ argo-apps, argo-strimzi-clients, strimzi-infra, never ]
 
 - import_tasks: scenario-deployment/argo-deploy-strimzi-monitoring.yaml
-  tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
+  tags: [ argo-apps, argo-strimzi-monitoring, strimzi-infra, never ]
 
 - import_tasks: scenario-deployment/argo-deploy-strimzi-twitter-app.yaml
-  tags: [argo-apps, argo-strimzi-twitter-app, twitter-app, never]
+  tags: [ argo-apps, argo-strimzi-twitter-app, twitter-app, never ]
 
 - import_tasks: scenario-deployment/strimzi-infra-tkn-pipelines.yaml
-  tags: [tekton-pipelines, strimzi-infra, never]
+  tags: [ tekton-pipelines, strimzi-infra, never ]
   when: not is_kubernetes
-
 
 # Teardown
 - import_tasks: infra-setup/delete_argo.yaml
-  tags: [never, teardown, teardown-argo ,never]
+  tags: [ never, teardown, teardown-argo ,never ]
 
 - import_tasks: infra-setup/delete_tekton.yaml
-  tags: [never, teardown, teardown-tekton, never]
+  tags: [ never, teardown, teardown-tekton, never ]
 
 - import_tasks: monitoring/delete_monitoring.yaml
-  tags: [never, teardown, teardown-monitoring, never]
+  tags: [ never, teardown, teardown-monitoring, never ]
   when: not is_kubernetes
