@@ -1,0 +1,10 @@
+---
+- name: Create Argo applications for Strimzi clients
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: "{{ item }}"
+  vars:
+    worker_cluster_connection: "{{ workers[0].name }}"
+  with_fileglob: 'templates/argo/projects/strimzi-clients/*.j2'
