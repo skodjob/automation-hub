@@ -29,7 +29,7 @@
 - name: Create Strimzi-clients Tekton pipeline
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
+    namespace: "{{ infra_ci_namespace }}"
     state: present
     template: "templates/tekton/pipelines/clients-update.yaml.j2"
   vars:
