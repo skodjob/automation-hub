@@ -7,8 +7,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektonconfigs.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -42,8 +42,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektondashboards.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -80,8 +80,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektoninstallersets.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -115,8 +115,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektonpipelines.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -153,8 +153,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektonresults.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -248,8 +248,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tektontriggers.operator.tekton.dev
 spec:
   group: operator.tekton.dev
@@ -281,25 +281,6 @@ spec:
       storage: true
       subresources:
         status: {}
----
-apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
-metadata:
-  labels:
-    app: tekton-operator
-    name: tekton-operator-webhook
-  name: webhook.operator.tekton.dev
-webhooks:
-  - admissionReviewVersions:
-      - v1beta1
-      - v1
-    clientConfig:
-      service:
-        name: tekton-operator-webhook
-        namespace: tekton-operator
-    failurePolicy: Fail
-    name: webhook.operator.tekton.dev
-    sideEffects: None
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -832,7 +813,7 @@ kind: Service
 metadata:
   labels:
     app: tekton-pipelines-controller
-    version: v0.51.2
+    version: v0.53.0
   name: tekton-operator
   namespace: tekton-operator
 spec:
@@ -851,8 +832,8 @@ metadata:
   labels:
     app: tekton-operator
     name: tekton-operator-webhook
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: devel
+    version: devel
   name: tekton-operator-webhook
   namespace: tekton-operator
 spec:
@@ -868,8 +849,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tekton-operator
   namespace: tekton-operator
 spec:
@@ -896,7 +877,7 @@ spec:
             - name: OPERATOR_NAME
               value: tekton-operator
             - name: IMAGE_PIPELINES_PROXY
-              value: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/proxy-webhook:v0.51.2@sha256:cb4d495f726b1b4dd80c0b6e6711897e818a6d6f1721d423d60f85d34ffa3777
+              value: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/proxy-webhook:v0.53.0@sha256:9a8d434ef0299f7bd1ae0c69796a5f410472f9d1c3817296428482abf7f0651c
             - name: IMAGE_JOB_PRUNER_TKN
               value: gcr.io/tekton-releases/dogfooding/tkn@sha256:025de221fb059ca24a3b2d988889ea34bce48dc76c0cf0d6b4499edb8c21325f
             - name: METRICS_DOMAIN
@@ -915,7 +896,7 @@ spec:
                 configMapKeyRef:
                   key: DEFAULT_TARGET_NAMESPACE
                   name: tekton-config-defaults
-          image: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/operator:v0.51.2@sha256:abb492cbd67682a0b05532716803ac34ec75f4473adae1a87c010a5989ada1ae
+          image: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/operator:v0.53.0@sha256:bc2c20bed07ca2ab78ce05525d142019374a4f959c1edc292fe97eb2b27e9c9f
           imagePullPolicy: Always
           name: tekton-operator
       serviceAccountName: tekton-operator
@@ -924,8 +905,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    operator.tekton.dev/release: v0.51.2
-    version: v0.51.2
+    operator.tekton.dev/release: v0.53.0
+    version: v0.53.0
   name: tekton-operator-webhook
   namespace: tekton-operator
 spec:
@@ -953,53 +934,11 @@ spec:
               value: tekton-operator-webhook-certs
             - name: METRICS_DOMAIN
               value: tekton.dev/operator
-          image: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/webhook:v0.51.2@sha256:e029be15cac6ca0488d7975f0a8af671e241bac6cb82165e0403b871893f6610
+          image: gcr.io/tekton-releases/github.com/tektoncd/operator/cmd/kubernetes/webhook:v0.53.0@sha256:88811100723b68540780e0cb2981f04ffc155975629a30691b6108523e413b72
           name: tekton-operator-webhook
           ports:
             - containerPort: 8443
               name: https-webhook
       serviceAccountName: tekton-operator
----
-apiVersion: admissionregistration.k8s.io/v1
-kind: ValidatingWebhookConfiguration
-metadata:
-  labels:
-    app: tekton-operator
-    name: tekton-operator-webhook
-  name: config.webhook.operator.tekton.dev
-webhooks:
-  - admissionReviewVersions:
-      - v1beta1
-      - v1
-    clientConfig:
-      service:
-        name: tekton-operator-webhook
-        namespace: tekton-operator
-    failurePolicy: Fail
-    name: config.webhook.operator.tekton.dev
-    namespaceSelector:
-      matchExpressions:
-        - key: operator.tekton.dev/release
-          operator: Exists
-    sideEffects: None
----
-apiVersion: admissionregistration.k8s.io/v1
-kind: ValidatingWebhookConfiguration
-metadata:
-  labels:
-    app: tekton-operator
-    name: tekton-operator-webhook
-  name: validation.webhook.operator.tekton.dev
-webhooks:
-  - admissionReviewVersions:
-      - v1beta1
-      - v1
-    clientConfig:
-      service:
-        name: tekton-operator-webhook
-        namespace: tekton-operator
-    failurePolicy: Fail
-    name: validation.webhook.operator.tekton.dev
-    sideEffects: None
 
 ---

@@ -20,15 +20,16 @@ spec:
             requests:
               storage: 1Gi
 ---
+
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: twitter-app-copy-secrets-start
+  name: twitter-app-copy-secret-start
   labels:
     app: tealc
 spec:
   pipelineRef:
-    name: twitter-app-copy-secrets-pipeline
+    name: twitter-app-copy-secret-pipeline
   serviceAccountName: tekton-service-account
   workspaces:
     - name: pipeline-ws
