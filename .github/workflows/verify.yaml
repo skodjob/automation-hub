@@ -56,6 +56,7 @@ jobs:
           playbook: playbooks/tealc-play-gh-actions.yaml
           options: |
             --tags strimzi-infra
+            --extra-vars log_sensitive_data=true
 
       - name: Try test pipeline
         run: |
@@ -67,6 +68,7 @@ jobs:
           playbook: playbooks/tealc-play-gh-actions.yaml
           options: |
             --tags teardown
+            --extra-vars log_sensitive_data=true
 
       - name: Print kube status
         if: failure()
