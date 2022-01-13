@@ -77,16 +77,16 @@ for C_FILE in "${FILES[@]}"
 do
     echo $C_FILE
 
-    if test -f "${C_FILE}"; then
+    if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
         export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
         export SUBJECTS=$(yq e '.subjects' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
     else
-      echo "File ${C_FILE} does not exists. Skipping metadata backup."
+      echo "File $TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE does not exists. Skipping metadata backup."
     fi
 
     cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
 
-    if test -f "${C_FILE}"; then
+    if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
         yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
         if [[ $SUBJECTS != null ]]; then
             yq e -i '.subjects = env(SUBJECTS)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
