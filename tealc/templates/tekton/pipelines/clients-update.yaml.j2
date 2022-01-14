@@ -24,7 +24,7 @@ spec:
         - name: SERVER
           valueFrom:
             secretKeyRef:
-              name: tealc-worker
+              name: {{ worker_secret_prefix }}-tekton
               key: server
       script: |
         oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER
