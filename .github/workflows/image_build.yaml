@@ -12,7 +12,7 @@ on:
       - "image-build/Dockerfile"
 
 jobs:
-  install:
+  build_image:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
