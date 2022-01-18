@@ -31,7 +31,7 @@
     src: files/tekton/install/tekton-dashboard-route.yaml
   when: not is_kubernetes
 
-- name: Delete Argo CSV on Infra cluster
+- name: Delete Tekton CSV on Infra cluster
   shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators=''"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
