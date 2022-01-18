@@ -1,85 +1,83 @@
 ---
-- name: Delete Tekton subscription
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ openshift_operators_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-subscription.yaml
-  when: not is_kubernetes
+- name: Delete tekton openshift
+  block:
+    - name: Delete Tekton subscription
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_operators_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-subscription.yaml
 
-- name: Delete Tekton config
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ openshift_pipelines_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-config.yaml
-  when: not is_kubernetes
+    - name: Delete Tekton config
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_pipelines_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-config.yaml
 
-- name: Delete Tekton dashboard
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ openshift_pipelines_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-dashboard.yaml
-  when: not is_kubernetes
+    - name: Delete Tekton dashboard
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_pipelines_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-dashboard.yaml
 
-- name: Delete Tekton dashboard route
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ openshift_pipelines_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-dashboard-route.yaml
-  when: not is_kubernetes
+    - name: Delete Tekton dashboard route
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_pipelines_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-dashboard-route.yaml
 
-- name: Delete Tekton CSV on Infra cluster
-  shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators=''"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    - name: Delete Tekton CSV on Infra cluster
+      shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators=''"
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
   when: not is_kubernetes
 
 ######################################################################################
 ######################################################################################
 ######################################################################################
-- name: Delete Tekton
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ tekton_operator_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-release.yaml
-  when: is_kubernetes
+- name: Delete tekton kubernetes
+  block:
+    - name: Delete Tekton
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ tekton_operator_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-release.yaml
 
-- name: Delete Tekton CR
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ tekton_pipelines_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-config-kube.yaml
-  when: is_kubernetes
+    - name: Delete Tekton CR
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ tekton_pipelines_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-config-kube.yaml
 
-- name: Delete Tekton dashboard
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ tekton_pipelines_namespace }}"
-    state: absent
-    src: files/tekton/install/tekton-dashboard-kube.yaml
-  when: is_kubernetes
+    - name: Delete Tekton dashboard
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ tekton_pipelines_namespace }}"
+        state: absent
+        src: files/tekton/install/tekton-dashboard-kube.yaml
 
-- name: Delete Tekton operator namespace on Infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    name: "{{ tekton_operator_namespace }}"
-    api_version: v1
-    kind: Namespace
-    state: absent
-  when: is_kubernetes
+    - name: Delete Tekton operator namespace on Infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        name: "{{ tekton_operator_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: absent
 
-- name: Delete Tekton pipelines namespace on Infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    name: "{{ tekton_pipelines_namespace }}"
-    api_version: v1
-    kind: Namespace
-    state: absent
+    - name: Delete Tekton pipelines namespace on Infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        name: "{{ tekton_pipelines_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: absent
+
   when: is_kubernetes
 
 - name: Delete Tekton namespace on Infra cluster
