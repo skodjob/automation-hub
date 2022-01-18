@@ -1,37 +1,56 @@
 ---
-- name: Delete Argo
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: absent
-    src: files/argo/install/argo-install.yaml
+- name: Delete agro openshift
+  block:
+    - name: Delete argo config
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: absent
+        src: files/argo/install/openshift/argocd.yaml
 
-- name: Delete Argo route
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: absent
-    src: files/argo/install/argo-route.yaml
+    - name: Delete Argo subscription
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_operators_namespace }}"
+        state: absent
+        src: files/argo/install/openshift/sub.yaml
+
+    - name: Delete Argo namespace on Infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        name: "{{ infra_argo_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: absent
+
+    - name: Delete Argo CSV on Infra cluster
+      shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-gitops-operator.openshift-operators=''"
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
   when: not is_kubernetes
 
-- name: Delete Argo config map
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: absent
-    template: templates/argo/install/argocd-cm.yaml.j2
+- name: Delete agro kubernetes
+  block:
+    - name: Delete Argo
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: absent
+        src: files/argo/install/kubernetes/argo-install.yaml
 
-- name: Delete Argo rbac
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: absent
-    src: files/argo/install/argocd-rbac-cm.yaml
+    - name: Delete Argo rbac
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: absent
+        src: files/argo/install/kubernetes/argocd-rbac-cm.yaml
 
-- name: Delete Argo namespace on Infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    name: "{{ infra_argo_namespace }}"
-    api_version: v1
-    kind: Namespace
-    state: absent
+    - name: Delete Argo namespace on Infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        name: "{{ infra_argo_namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: absent
+  when: is_kubernetes
