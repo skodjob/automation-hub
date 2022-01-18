@@ -14,82 +14,100 @@
     state: present
     src: "{{ grafana_docker_secret_path }}"
 
-- name: Install Argo
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    src: files/argo/install/argo-install.yaml
 
-- name: Wait for Argo readiness
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    kind: Deployment
-    name: argocd-server
-    wait: true
-    wait_condition:
-      type: Available
-      status: True
-      reason: MinimumReplicasAvailable
+#########################################################
+# Openshift
+#########################################################
+- name: Install argo openshift
+  block:
+    - name: Create argo subscription
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        state: present
+        src: files/argo/install/openshift/sub.yaml
 
-- name: Install Argo route
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    src: files/argo/install/argo-route.yaml
+    - name: Sleep for 60 seconds and continue with play
+      wait_for:
+        timeout: 60
+
+    - name: Wait for argo operator on Infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ openshift_operators_namespace }}"
+        kind: Deployment
+        name: gitops-operator-controller-manager
+        wait: true
+        wait_condition:
+          type: Available
+          status: True
+          reason: MinimumReplicasAvailable
+
+    - name: Create argo app
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: present
+        src: files/argo/install/openshift/argocd.yaml
+
+    - name: Sleep for 60 seconds and continue with play
+      wait_for:
+        timeout: 60
+
+    - name: Wait for argo server on infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        kind: Deployment
+        name: argocd-server
+        wait: true
+        wait_condition:
+          type: Available
+          status: True
+          reason: MinimumReplicasAvailable
+
+    - name: Wait for argo dex on infra cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        kind: Deployment
+        name: argocd-dex-server
+        wait: true
+        wait_condition:
+          type: Available
+          status: True
+          reason: MinimumReplicasAvailable
   when: not is_kubernetes
 
-- name: Patch argocd-dex-server to enable oauth login
-  shell: "kubectl patch deployment argocd-dex-server -n {{ infra_argo_namespace }}  -p '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"dex\",\"image\": \"quay.io/redhat-cop/dex:v2.22.0-openshift\"}]}}}}'"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-  when: not is_kubernetes
 
-- name: Get Argo route host
-  shell: "oc get routes argocd-server -o=jsonpath='{ .spec.host }' -n {{ infra_argo_namespace }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-  register: "route_host"
-  when: not is_kubernetes
+#########################################################
+# Kubernetes
+#########################################################
 
-- name: Set facts for route host
-  set_fact: route="https://{{ route_host.stdout }}"
-  when: not is_kubernetes
+- name: Install agro kubernetes
+  block:
+    - name: Install Argo
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: present
+        src: files/argo/install/kubernetes/argo-install.yaml
 
-- name: Patch argocd-dex-server service account
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    template: templates/argo/install/argocd-dex-server-sa.yaml.j2
-  vars:
-    redirect_uri: "{{ route }}/api/dex/callback"
-  when: not is_kubernetes
+    - name: Wait for Argo readiness
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        kind: Deployment
+        name: argocd-server
+        wait: true
+        wait_condition:
+          type: Available
+          status: True
+          reason: MinimumReplicasAvailable
 
-- name: Export access token for argocd-dex-server
-  shell: "oc serviceaccounts get-token argocd-dex-server -n {{ infra_argo_namespace }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-  register: "access_token_out"
-  when: not is_kubernetes
-
-- name: Set facts for route host
-  set_fact: access_token="{{ access_token_out.stdout }}"
-  when: not is_kubernetes
-
-- name: Apply Argo config map
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    template: templates/argo/install/argocd-cm.yaml.j2
-  when: not is_kubernetes
-
-- name: Apply Argo rbac
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    src: files/argo/install/argocd-rbac-cm.yaml
+    - name: Apply Argo rbac
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_argo_namespace }}"
+        state: present
+        src: files/argo/install/kubernetes/argocd-rbac-cm.yaml
+  when: is_kubernetes
