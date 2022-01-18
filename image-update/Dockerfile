@@ -1,6 +1,6 @@
 FROM registry.fedoraproject.org/fedora-minimal:latest
 
-RUN microdnf -y install skopeo git wget which
+RUN microdnf -y install skopeo git wget which maven
 
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" &&\
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
