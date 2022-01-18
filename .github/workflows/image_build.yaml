@@ -2,14 +2,14 @@ name: Apophis Image Build
 on:
   push:
     paths:
-      - "image-build/Dockerfile"
+      - "image-update/Dockerfile"
     branches:
       - "main"
   pull_request:
     branches:
       - "*"
     paths:
-      - "image-build/Dockerfile"
+      - "image-update/Dockerfile"
 
 jobs:
   build_image:

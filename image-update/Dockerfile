@@ -13,5 +13,4 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/o
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.11.2/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
-
 USER root
