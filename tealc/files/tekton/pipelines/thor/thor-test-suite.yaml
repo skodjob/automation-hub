@@ -115,5 +115,5 @@ spec:
               args:
                 - wget
                 - --spider
-                - el-thor-test-suite-event-listener.default.svc.cluster.local:8080
+                - el-thor-test-suite-event-listener.tealc-ci.svc.cluster.local:8080
           restartPolicy: Never
