@@ -81,7 +81,7 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: thor-test-suite-triggerbinding
-spec: { }
+spec: {}
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
@@ -98,7 +98,7 @@ spec:
         ref: thor-test-suite-trigger-template
 
 ---
-#cron job as trigger
+# cron job as trigger
 apiVersion: batch/v1
 kind: CronJob
 metadata:
