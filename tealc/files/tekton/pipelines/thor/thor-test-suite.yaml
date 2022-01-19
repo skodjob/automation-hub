@@ -12,10 +12,10 @@ spec:
       image: quay.io/tealc/thor:latest
       env:
         - name: OC_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: tealc-worker-tekton
-                key: username
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: username
         - name: OC_PASSWORD
           valueFrom:
             secretKeyRef:
