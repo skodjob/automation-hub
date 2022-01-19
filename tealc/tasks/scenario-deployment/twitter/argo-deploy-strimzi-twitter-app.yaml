@@ -1,23 +1,8 @@
 ---
-- name: Create Connector namespace on Worker cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    name: "{{ item }}"
-    api_version: v1
-    kind: Namespace
-    state: present
-  loop:
-    - "{{ strimzi_twitter_connector_namespace }}"
-
-- name: Create Twitter access secret
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ strimzi_twitter_connector_namespace }}"
-    state: present
-    src: "{{ twitter_secret_path }}/{{ item }}"
-  loop:
-    - "registry.yaml"
-    - "twitter.yaml"
+- include_tasks: prepare_access_twitter.yaml
+  loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
 
 - name: Create Argo applications for Strimzi twitter
   kubernetes.core.k8s:
