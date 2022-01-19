@@ -1,4 +1,4 @@
-ENABLE_LOGGING=false
+ENABLE_LOGGING ?= false
 
 all: install_infra twitter_app
 
