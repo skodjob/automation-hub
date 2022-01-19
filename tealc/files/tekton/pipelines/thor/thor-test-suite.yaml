@@ -41,7 +41,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: canary
+    - name: thor
       taskRef:
         name: thor-test-suite-task
       workspaces:
