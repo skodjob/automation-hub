@@ -66,7 +66,7 @@ spec:
       spec:
         pipelineRef:
           name: thor-test-suite-pipeline
-        serviceAccountName: tekton-service-account
+        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -91,7 +91,7 @@ kind: EventListener
 metadata:
   name: thor-test-suite-event-listener
 spec:
-  serviceAccountName: tekton-service-account
+  serviceAccountName: pipeline
   triggers:
     - name: thor-test-suite-webhook
       bindings:
@@ -112,10 +112,13 @@ spec:
       template:
         spec:
           containers:
-            - name: hello
-              image: busybox
+            - name: notify
+              image: quay.io/tealc/apophis:latest
               args:
-                - wget
-                - --spider
+                - curl
+                - -d
+                - "{}"
+                - -H
+                - 'Content-Type: application/json'
                 - el-thor-test-suite-event-listener.tealc-ci.svc.cluster.local:8080
           restartPolicy: Never
