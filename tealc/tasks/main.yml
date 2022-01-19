@@ -54,6 +54,11 @@
   when: not is_kubernetes
   no_log: "{{ not log_sensitive_data|bool  }}"
 
+- import_tasks: scenario-deployment/thor-test-suite-tkn-pipelines.yaml
+  tags: [tekton-pipelines, test-suite, never]
+  when: not is_kubernetes
+  no_log: "{{ not log_sensitive_data|bool  }}"
+
 # Teardown
 - import_tasks: infra-setup/delete_argo.yaml
   tags: [never, teardown, teardown-argo, never]

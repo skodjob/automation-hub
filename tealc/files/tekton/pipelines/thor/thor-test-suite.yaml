@@ -1,0 +1,119 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: thor-test-suite-task
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: task-ws
+  steps:
+    - name: execute-tests
+      image: quay.io/tealc/thor:latest
+      env:
+        - name: OC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: username
+        - name: OC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: password
+        - name: OC_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: server
+      script: |
+        oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true > /dev/null
+        cd /opt/thor
+        mvn test
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: thor-test-suite-pipeline
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: thor
+      taskRef:
+        name: thor-test-suite-task
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: thor-test-suite-trigger-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: thor-test-suite-
+        labels:
+          app: tealc
+      spec:
+        pipelineRef:
+          name: thor-test-suite-pipeline
+        serviceAccountName: tekton-service-account
+        workspaces:
+          - name: pipeline-ws
+            volumeClaimTemplate:
+              metadata:
+                name: thor-pvc
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: thor-test-suite-triggerbinding
+spec: {}
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: thor-test-suite-event-listener
+spec:
+  serviceAccountName: tekton-service-account
+  triggers:
+    - name: thor-test-suite-webhook
+      bindings:
+        - ref: thor-test-suite-triggerbinding
+      template:
+        ref: thor-test-suite-trigger-template
+
+---
+# cron job as trigger
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: thor-test-suite-cron
+spec:
+  schedule: "0 */1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: hello
+              image: busybox
+              args:
+                - wget
+                - --spider
+                - el-thor-test-suite-event-listener.default.svc.cluster.local:8080
+          restartPolicy: Never
