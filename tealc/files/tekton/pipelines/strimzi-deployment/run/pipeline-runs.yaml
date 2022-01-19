@@ -77,7 +77,7 @@ metadata:
 spec:
   pipelineRef:
     name: clients-deployment-image-update-pipeline
-  serviceAccountName: tekton-service-account
+  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:
