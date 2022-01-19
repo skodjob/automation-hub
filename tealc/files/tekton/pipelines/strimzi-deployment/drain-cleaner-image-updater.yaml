@@ -78,7 +78,7 @@ spec:
       spec:
         pipelineRef:
           name: drain-cleaner-deployment-image-update-pipeline
-        serviceAccountName: tekton-service-account
+        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -105,7 +105,7 @@ kind: EventListener
 metadata:
   name: drain-cleaner-deployment-image-update-event-listener
 spec:
-  serviceAccountName: tekton-service-account
+  serviceAccountName: pipeline
   triggers:
     - name: drain-cleaner-deployment-image-update-webhook
       bindings:
