@@ -4,6 +4,9 @@ infra_monitoring_namespace: tealc-monitoring
 infra_ci_namespace: tealc-ci
 infra_argo_namespace: argocd
 
+rp_namespace: report-portal
+rp_secret_name: reportportal
+
 openshift_pipelines_namespace: openshift-pipelines
 openshift_operators_namespace: openshift-operators
 tekton_pipelines_namespace: tekton-pipelines

@@ -72,3 +72,12 @@
   tags: [never, teardown, teardown-monitoring, never]
   when: not is_kubernetes
   no_log: "{{ not log_sensitive_data|bool  }}"
+
+# Report portal
+- import_tasks: infra-setup/install_report_portal.yaml
+  tags: [reportportal, rp, never]
+  no_log: "{{ not log_sensitive_data|bool  }}"
+
+- import_tasks: infra-setup/delete_report_portal.yaml
+  tags: [teardown-reportportal, teardown, teardown-rp, never]
+  no_log: "{{ not log_sensitive_data|bool  }}"
