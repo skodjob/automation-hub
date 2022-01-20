@@ -33,8 +33,13 @@ spec:
               key: token
       script: |
         set +x
+
         oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
+
         cd /opt/thor
+
+        set -x
+
         mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=http://gateway.report-portal.svc.cluster.local:8081
 ---
 apiVersion: tekton.dev/v1beta1
