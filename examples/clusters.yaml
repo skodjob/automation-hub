@@ -12,6 +12,8 @@ infra_context_name: tealc-infra
 infra_username: pepa
 infra_password: zdepa
 
+# ReportPortal
+rp_app_domain: my-domain.com
 rp_admin_user: pepa
 rp_admin_password_old: pepa
 rp_admin_password: pepin
