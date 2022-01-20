@@ -1,0 +1,30 @@
+kind: ReportPortal
+apiVersion: rp5.reportportal.io/v1
+metadata:
+  name: reportportal-tealc
+spec:
+  accesskey: {{ rp_access_key }}
+  analyzer_image: 'quay.io/waynesun09/service-auto-analyzer:5.3.5'
+  api_image: 'quay.io/waynesun09/service-api:5.3.5-rootless'
+  api_replicas: 1
+  app_domain: {{ rp_app_domain }}
+  bucket_prefix: null
+  default_bucket_name: null
+  enable_pg_restic_backup: 'yes'
+  es_backup_schedule: '@daily'
+  es_s3_backup_dir: s3_backup
+  es_snapshot_bucket: es-snapshot-123123
+  gateway_replicas: 1
+  index_image: 'quay.io/waynesun09/service-index:5.0.10'
+  index_replicas: 1
+  integration_salt_path: null
+  migration_image: 'quay.io/waynesun09/migrations:5.3.5'
+  pg_restic_password: rp_user
+  pg_restic_s3_bucket_init: 'yes'
+  pg_s3_bucket_name: pgbackup-123123
+  s3_enabled: false
+  s3_endpoint: null
+  secretkey: {{ rp_secret_key }}
+  uat_image: 'quay.io/waynesun09/service-authorization:5.3.5'
+  ui_image: 'quay.io/waynesun09/service-ui:5.3.5'
+  ui_replicas: 1

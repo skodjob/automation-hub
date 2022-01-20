@@ -33,6 +33,7 @@
       shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators=''"
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+      ignore_errors: true
 
   when: not is_kubernetes
 
