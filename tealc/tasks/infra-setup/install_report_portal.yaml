@@ -86,4 +86,3 @@
             token: "{{ (rp_api_token_response.stdout | from_json).access_token | b64encode }}"
 
   when: not is_kubernetes
-
