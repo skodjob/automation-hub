@@ -68,7 +68,7 @@ git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
 # Storing must have values
 export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-export AFFINITY=$(yq e '.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
 
@@ -100,7 +100,7 @@ yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_
 # We need to keep resources configuration as well
 yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 # We need to keep affinity configuration as well
-yq e -i '.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"

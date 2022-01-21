@@ -70,8 +70,8 @@ export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUN
 export VOLUME_MOUNTS=$(yq e '.spec.template.spec.containers[0].volumeMounts' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export VOLUMES=$(yq e '.spec.template.spec.volumes' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export PORTS=$(yq e '.spec.template.spec.containers[0].ports' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
-export AFFINITY=$(yq e '.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
-export TOLERATIONS=$(yq e '.spec.tolerations' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+export TOLERATIONS=$(yq e '.spec.template.spec.tolerations' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
 
@@ -98,8 +98,8 @@ yq e -i '.spec.template.spec.containers[0].volumeMounts = env(VOLUME_MOUNTS)' $T
 yq e -i '.spec.template.spec.volumes = env(VOLUMES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.containers[0].ports = env(PORTS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 # We need to keep affinity configuration as well
-yq e -i '.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
-yq e -i '.spec.tolerations = env(TOLERATIONS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
+yq e -i '.spec.template.spec.tolerations = env(TOLERATIONS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"
