@@ -15,6 +15,14 @@
     src: "{{ item }}"
   with_fileglob: 'files/tekton/pipelines/strimzi-deployment/*.yaml'
 
+- name: Create worker cluster related Tekton pipelines
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "{{ item }}"
+  with_fileglob: 'files/tekton/pipelines/infra/*.yaml'
+
 - name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
   wait_for:
     timeout: 20
@@ -25,6 +33,13 @@
     namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "files/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
+
+- name: Create Worker cluster related Tekton pipeline runs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "files/tekton/pipelines/infra/run/pipeline-runs.yaml"
 
 - name: Create Strimzi-clients Tekton pipeline
   kubernetes.core.k8s:
