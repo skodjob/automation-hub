@@ -67,6 +67,9 @@ git clone "$SYNC_DEPLOYMENT_REPO" $SYNC_DEPLOYMENT_DIR
 
 # Cyklus pres vsechny a postupny ulozeni - copy - restore
 
+export AFFINITY=$(yq e '.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
+
+
 FILE_NAMES=$(ls $SYNC_DEPLOYMENT_DIR/$SYNC_DEPLOYMENT_PATH | tr '\n' ';')
 IFS=';' read -r -a FILES <<< $FILE_NAMES
 for C_FILE in "${FILES[@]}"
@@ -84,6 +87,8 @@ do
         yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
     fi
 done
+
+export AFFINITY=$(yq e '.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
 echo "================================================"
 echo "Moving into synced deployment repository"
