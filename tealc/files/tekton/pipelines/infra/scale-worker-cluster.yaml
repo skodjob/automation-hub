@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: twitter-app-copy-secret-task
+  name: scale-worker-cluster-task
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -13,7 +13,7 @@ spec:
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
         git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
-    - name: copy
+    - name: scale
       env:
         - name: OC_USERNAME
           valueFrom:
@@ -38,21 +38,21 @@ spec:
 
         set -x
 
-        $(workspaces.task-ws.path)/tealc/scripts/copy-secrets.sh
+        $(workspaces.task-ws.path)/tealc/scripts/label-cluster.sh
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: twitter-app-copy-secret-pipeline
+  name: scale-worker-cluster-pipeline
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: twitter-app-copy-secret
+    - name: scale-worker-cluster
       taskRef:
-        name: twitter-app-copy-secret-task
+        name: scale-worker-cluster-task
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
