@@ -10,7 +10,7 @@ if [ ${WORKER_NODES_COUNT} -lt 10 ]; then
   NODE_DIFF=$((10 - ${WORKER_NODES_COUNT}))
   CUR_MS_REP=$(oc get machinesets ${MS_NAME} -n openshift-machine-api -o=jsonpath='{.spec.replicas}')
   NEW_REP=$(($NODE_DIFF + $CUR_MS_REP))
-  oc patch machinesets ${MS_NAME} -n openshift-machine-api -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
+  oc patch machinesets ${MS_NAME} -n openshift-machine-api --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
   sleep 60
 fi
 
