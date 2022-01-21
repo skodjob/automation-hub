@@ -1,5 +1,5 @@
 ---
-- name: Delete agro openshift
+- name: Install ReportPortal openshift
   block:
     - name: Create ReportPortal namespace on Infra cluster
       kubernetes.core.k8s:
@@ -84,5 +84,173 @@
             namespace: "{{ infra_ci_namespace }}"
           data:
             token: "{{ (rp_api_token_response.stdout | from_json).access_token | b64encode }}"
+
+    - name: Create dashboard
+      ansible.builtin.uri:
+        url: "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/{{ rp_project_name }}/dashboard"
+        method: POST
+        body: '{
+          "description": "Automatically generated dashboard",
+          "name": "Tealc-dashboard",
+          "share": "true"
+        }'
+        force_basic_auth: no
+        status_code: 201
+        body_format: json
+        validate_certs: no
+        headers:
+          accept: "*/*"
+          Content-Type: application/json
+          Authorization: "Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}"
+      register: dashboard_creation
+
+    - name: Create filter
+      ansible.builtin.uri:
+        url: "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/{{ rp_project_name }}/filter"
+        method: POST
+        body: '{
+              "name": "test-filter",
+                "conditions": [
+                {
+                  "filteringField": "attributeValue",
+                  "condition": "has",
+                  "value": "thor-test-suite"
+                }
+              ],
+              "orders": [
+                {
+                  "sortingColumn": "number",
+                  "isAsc": "false"
+                },
+                {
+                  "sortingColumn": "startTime",
+                  "isAsc": "false"
+                }
+              ],
+              "description": "Automatically generated filter",
+              "share": "true",
+              "type": "launch"
+          }'
+        force_basic_auth: no
+        status_code: 201
+        body_format: json
+        validate_certs: no
+        headers:
+          accept: "*/*"
+          Content-Type: application/json
+          Authorization: "Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}"
+      register: filter_creation
+
+    - name: Create widget launchStatistics
+      ansible.builtin.uri:
+        url: "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/{{ rp_project_name }}/widget"
+        method: POST
+        body: '{
+          "contentParameters": {
+            "contentFields": [
+              "statistics$executions$total",
+              "statistics$executions$passed",
+              "statistics$executions$failed",
+              "statistics$executions$skipped",
+              "statistics$defects$product_bug$pb001",
+              "statistics$defects$automation_bug$ab001",
+              "statistics$defects$system_issue$si001",
+              "statistics$defects$no_defect$nd001",
+              "statistics$defects$to_investigate$ti001"
+            ],
+            "itemsCount": 1,
+            "widgetOptions": {}
+          },
+          "description": "Automatically generated widget",
+          "filterIds": [
+            {{ filter_creation.json.id }}
+          ],
+          "name": "launch-statistics-widget",
+          "share": "true",
+          "widgetType": "launchStatistics"
+        }'
+        force_basic_auth: no
+        status_code: 201
+        body_format: json
+        validate_certs: no
+        headers:
+          accept: "*/*"
+          Content-Type: application/json
+          Authorization: "Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}"
+      register: launch_statistics_widget_creation
+
+    - name: Create widget statisticTrend
+      ansible.builtin.uri:
+        url: "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/{{ rp_project_name }}/widget"
+        method: POST
+        body: '{
+          "contentParameters": {
+            "contentFields": [
+              "statistics$executions$total",
+              "statistics$executions$passed",
+              "statistics$executions$failed",
+              "statistics$executions$skipped",
+              "statistics$defects$product_bug$pb001",
+              "statistics$defects$automation_bug$ab001",
+              "statistics$defects$system_issue$si001",
+              "statistics$defects$no_defect$nd001",
+              "statistics$defects$to_investigate$ti001"
+            ],
+            "itemsCount": 72,
+            "widgetOptions": {
+              "timeline": "launch",
+              "viewMode": "area-spline",
+              "zoom": false
+            }
+          },
+          "description": "Automatically generated widget",
+          "filterIds": [
+            {{ filter_creation.json.id }}
+          ],
+          "name": "statistic-trend-widget",
+          "share": "true",
+          "widgetType": "statisticTrend"
+        }'
+        force_basic_auth: no
+        status_code: 201
+        body_format: json
+        validate_certs: no
+        headers:
+          accept: "*/*"
+          Content-Type: application/json
+          Authorization: "Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}"
+      register: statistic_trend_widget_widget_creation
+
+    - name: Add widget to dashboard
+      ansible.builtin.uri:
+        url: "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/{{ rp_project_name }}/dashboard/{{ dashboard_creation.json.id }}/add"
+        method: PUT
+        body: '{
+            "addWidget": {
+              "share": "true",
+              "widgetId": {{ item.id }},
+              "widgetName": "{{ item.name }}",
+              "widgetPosition": {
+              "positionX": 0,
+              "positionY": 0
+              },
+                  "widgetSize": {
+                  "height": 6,
+                  "width": 6
+              },
+              "widgetType": "{{ item.type }}"
+            }
+        }'
+        force_basic_auth: no
+        status_code: 200
+        body_format: json
+        validate_certs: no
+        headers:
+          accept: "*/*"
+          Content-Type: application/json
+          Authorization: "Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}"
+      with_items:
+        - {id: "{{ statistic_trend_widget_widget_creation.json.id }}", name: "statistic-trend-widget", type: "statisticTrend"}
+        - {id: "{{ launch_statistics_widget_creation.json.id }}", name: "launch-statistics-widget", type: "launchStatistics"}
 
   when: not is_kubernetes

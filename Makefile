@@ -15,7 +15,7 @@ remove_infra:
 	ansible-playbook playbooks/tealc-play.yaml --tags=teardown --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
 
 install_rp:
-	ansible-playbook playbooks/tealc-play.yaml --tags=rp --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
+	ansible-playbook playbooks/tealc-play.yaml --tags=rp --extra-vars log_sensitive_data=$(ENABLE_LOGGING) -vvv
 
 remove_rp:
 	ansible-playbook playbooks/tealc-play.yaml --tags=teardown-rp --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
