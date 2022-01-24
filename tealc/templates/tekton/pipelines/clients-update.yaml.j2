@@ -53,6 +53,7 @@ spec:
       script: |
         export CURRENT_DIR=$(workspaces.task-ws.path)/sokar
         git clone https://github.com/ExcelentProject/sokar.git $CURRENT_DIR
+        chmod -R 777 $CURRENT_DIR
     - name: clients-update
       image: mikefarah/yq:latest
       script: |
