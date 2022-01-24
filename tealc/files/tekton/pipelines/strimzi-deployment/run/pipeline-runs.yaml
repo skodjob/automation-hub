@@ -36,7 +36,7 @@ spec:
     - name: pipeline-ws
       volumeClaimTemplate:
         metadata:
-          name: strimzi-pvc
+          name: drain-cleaner-pvc
         spec:
           accessModes:
             - ReadWriteOnce
@@ -59,7 +59,7 @@ spec:
     - name: pipeline-ws
       volumeClaimTemplate:
         metadata:
-          name: strimzi-pvc
+          name: canary-pvc
         spec:
           accessModes:
             - ReadWriteOnce
@@ -82,7 +82,7 @@ spec:
     - name: pipeline-ws
       volumeClaimTemplate:
         metadata:
-          name: strimzi-pvc
+          name: clients-pvc
         spec:
           accessModes:
             - ReadWriteOnce
