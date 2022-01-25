@@ -36,6 +36,6 @@ for index in "${!WORKER_NODES_ARRAY[@]}"; do
   else
     echo "Labeling node: $index main-cluster-node -> ${WORKER_NODES_ARRAY[index]}"
     kubectl label ${WORKER_NODES_ARRAY[index]} nodetype=kafka --overwrite
-    kubectl taint node ${WORKER_NODES_ARRAY[index]} nodetype=kafka:NoSchedule
+    kubectl taint node ${WORKER_NODES_ARRAY[index]} nodetype=kafka:NoSchedule --overwrite
   fi
 done
