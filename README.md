@@ -12,6 +12,7 @@ ansible
 First step is to deploy tekton pipelines operator to cluster. You can achieve that by
 ```
 ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
+ansible-playbook playbooks/tealc-play.yaml --tags=rp
 ```
 
 
