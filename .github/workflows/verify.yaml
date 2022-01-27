@@ -53,7 +53,7 @@ jobs:
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: playbooks/tealc-play-gh-actions.yaml
+          playbook: install/ansible/tealc-play-gh-actions.yaml
           options: |
             --tags infra,strimzi-infra
             --extra-vars log_sensitive_data=true
@@ -65,7 +65,7 @@ jobs:
       - name: Delete CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: playbooks/tealc-play-gh-actions.yaml
+          playbook: install/ansible/tealc-play-gh-actions.yaml
           options: |
             --tags teardown
             --extra-vars log_sensitive_data=true

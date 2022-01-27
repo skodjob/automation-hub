@@ -10,22 +10,35 @@ ansible
 
 ### Deploy infra
 First step is to deploy tekton pipelines operator to cluster. You can achieve that by
+
+ansible
 ```
-ansible-playbook playbooks/tealc-play.yaml --tags=infra
-ansible-playbook playbooks/tealc-play.yaml --tags=rp
+ansible-playbook install/ansible/tealc-play.yaml --tags=infra
+ansible-playbook install/ansible/tealc-play.yaml --tags=rp
+```
+
+makefile
+```
+make install_infra install_rp
 ```
 
 ### Configuring scenario and test suite
+ansible
 ```
-ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
-ansible-playbook playbooks/tealc-play.yaml --tags=twitter-app
-ansible-playbook playbooks/tealc-play.yaml --tags=test-suite
+ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra
+ansible-playbook install/ansible/tealc-play.yaml --tags=twitter-app
+ansible-playbook install/ansible/tealc-play.yaml --tags=test-suite
+```
+
+makefile
+```
+make install_strimzi twitter_app test_suite
 ```
 
 
 ### Show sensitive data during debugging ansible locally
 ```
-ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
+ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
 ```
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)

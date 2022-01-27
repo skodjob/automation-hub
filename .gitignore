@@ -1,5 +1,5 @@
 .idea
 .vscode
 tealc-ci-test.yaml
-kubeconfig/*
-tealc/kubeconfig/*
+**/kubeconfig
+tealc/kubeconfig
