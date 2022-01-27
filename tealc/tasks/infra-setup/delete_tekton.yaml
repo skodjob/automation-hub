@@ -9,7 +9,7 @@
         label_selectors: listener=tealc
         state: absent
         kind: EventListener
-        ignore_errors: true
+      ignore_errors: true
 
     - name: Delete Tekton subscription
       kubernetes.core.k8s:
@@ -65,6 +65,7 @@
         namespace: "{{ tekton_pipelines_namespace }}"
         state: absent
         kind: EventListener
+      ignore_errors: true
 
     - name: Delete Tekton CR
       kubernetes.core.k8s:
