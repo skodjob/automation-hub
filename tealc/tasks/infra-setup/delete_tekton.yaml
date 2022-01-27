@@ -9,6 +9,7 @@
         label_selectors: listener=tealc
         state: absent
         kind: EventListener
+        ignore_errors: true
 
     - name: Delete Tekton subscription
       kubernetes.core.k8s:
