@@ -55,7 +55,7 @@ jobs:
         with:
           playbook: playbooks/tealc-play-gh-actions.yaml
           options: |
-            --tags infra
+            --tags infra strimzi-infra
             --extra-vars log_sensitive_data=true
 
       - name: Try test pipeline
