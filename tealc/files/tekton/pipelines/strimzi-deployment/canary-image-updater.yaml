@@ -106,6 +106,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: canary-deployment-image-update-event-listener
+  labels:
+    listener: tealc
 spec:
   serviceAccountName: pipeline
   triggers:

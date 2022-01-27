@@ -158,6 +158,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: strimzi-deployment-image-update-event-listener
+  labels:
+    listener: tealc
 spec:
   serviceAccountName: tekton-service-account
   triggers:

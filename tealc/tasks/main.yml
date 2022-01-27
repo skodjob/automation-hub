@@ -16,19 +16,19 @@
 
 # infra installation
 - import_tasks: infra-setup/access_remote_cluster.yaml
-  tags: [setup-workers-access, strimzi-infra, never]
+  tags: [setup-workers-access, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: infra-setup/install_tekton.yaml
-  tags: [tekton, strimzi-infra, never]
+  tags: [tekton, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: infra-setup/install_argo.yaml
-  tags: [argo, strimzi-infra, never]
+  tags: [argo, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: monitoring/install_monitoring.yaml
-  tags: [monitoring, grafana, strimzi-infra, never]
+  tags: [monitoring, grafana, infra, never]
   when: not is_kubernetes
   no_log: "{{ not log_sensitive_data|bool  }}"
 
