@@ -11,10 +11,14 @@ ansible
 ### Deploy infra
 First step is to deploy tekton pipelines operator to cluster. You can achieve that by
 ```
-ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
+ansible-playbook playbooks/tealc-play.yaml --tags=infra
 ansible-playbook playbooks/tealc-play.yaml --tags=rp
 ```
 
+### Deploy strimzi argo projects
+```
+ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
+```
 
 ### Configuring scenario and test suite
 ```
