@@ -2,9 +2,8 @@
 - hosts: localhost
   pre_tasks:
     - name: Include configuration
-      include_vars: ../examples/clusters.yaml
+      include_vars: ./secrets/clusters.yaml
       tags:
         - always
   roles:
     - role: tealc
-      become: yes
