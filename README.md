@@ -15,13 +15,9 @@ ansible-playbook playbooks/tealc-play.yaml --tags=infra
 ansible-playbook playbooks/tealc-play.yaml --tags=rp
 ```
 
-### Deploy strimzi argo projects
-```
-ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
-```
-
 ### Configuring scenario and test suite
 ```
+ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra
 ansible-playbook playbooks/tealc-play.yaml --tags=twitter-app
 ansible-playbook playbooks/tealc-play.yaml --tags=test-suite
 ```
