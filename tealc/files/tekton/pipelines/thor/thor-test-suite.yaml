@@ -99,6 +99,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: thor-test-suite-event-listener
+  labels:
+    listener: tealc
 spec:
   serviceAccountName: pipeline
   triggers:

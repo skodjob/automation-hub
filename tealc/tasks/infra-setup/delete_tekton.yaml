@@ -1,6 +1,16 @@
 ---
 - name: Delete tekton openshift
   block:
+    - name: Delete Tekton EventListener
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ infra_ci_namespace }}"
+        api_version: "triggers.tekton.dev/v1alpha1"
+        label_selectors: listener=tealc
+        state: absent
+        kind: EventListener
+      ignore_errors: true
+
     - name: Delete Tekton subscription
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -48,6 +58,14 @@
         namespace: "{{ tekton_operator_namespace }}"
         state: absent
         src: files/tekton/install/tekton-release.yaml
+
+    - name: Delete Tekton EventListener
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        namespace: "{{ tekton_pipelines_namespace }}"
+        state: absent
+        kind: EventListener
+      ignore_errors: true
 
     - name: Delete Tekton CR
       kubernetes.core.k8s:

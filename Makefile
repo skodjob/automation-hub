@@ -1,8 +1,11 @@
 ENABLE_LOGGING ?= false
 
-all: install_infra install_rp twitter_app test_suite
+all: install_infra install_rp install_strimzi twitter_app test_suite
 
 install_infra:
+	ansible-playbook playbooks/tealc-play.yaml --tags=infra --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
+
+install_strimzi:
 	ansible-playbook playbooks/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
 
 twitter_app:
@@ -20,4 +23,4 @@ install_rp:
 remove_rp:
 	ansible-playbook playbooks/tealc-play.yaml --tags=teardown-rp --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
 
-.PHONY: install_infra twitter_app remove_infra
+.PHONY: install_infra install_strimzi twitter_app remove_infra
