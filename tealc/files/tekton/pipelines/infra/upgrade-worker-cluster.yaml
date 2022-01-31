@@ -48,6 +48,7 @@ spec:
           else
             IS_UPGRADING="false"
           fi
+          sleep 10
         done
 ---
 apiVersion: tekton.dev/v1beta1
@@ -63,6 +64,7 @@ spec:
     - name: thor
       taskRef:
         name: upgrade-worker-cluster-task
+      timeout: 4h
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
