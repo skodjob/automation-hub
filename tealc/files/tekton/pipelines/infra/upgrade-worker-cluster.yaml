@@ -61,7 +61,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: thor
+    - name: upgrade
       taskRef:
         name: upgrade-worker-cluster-task
       timeout: 4h
