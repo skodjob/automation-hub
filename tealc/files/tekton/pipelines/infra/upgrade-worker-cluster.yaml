@@ -1,0 +1,145 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: upgrade-worker-cluster-task
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: task-ws
+  steps:
+    - name: execute-tests
+      image: quay.io/tealc/apophis:latest
+      env:
+        - name: OC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: username
+        - name: OC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: password
+        - name: OC_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: tealc-worker-tekton
+              key: server
+      script: |
+        set +x
+
+        oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
+
+        set -x
+
+        oc get clusterversion
+
+        oc adm upgrade
+
+        oc adm upgrade --to-latest=true
+
+        sleep 120
+
+        IS_UPGRADING="true"
+        while [[ $IS_UPGRADING == "true" ]]; do
+          if [[ "$(oc get clusterversion -o=jsonpath='{.items[0].status.history[0].completionTime}')" == "null" ]]; then
+            echo "Cluster is in upgrade state"
+          else
+            IS_UPGRADING="false"
+          fi
+          sleep 10
+        done
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: upgrade-worker-cluster-pipeline
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: upgrade
+      taskRef:
+        name: upgrade-worker-cluster-task
+      timeout: 4h
+      workspaces:
+        - name: task-ws
+          workspace: pipeline-ws
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: upgrade-worker-cluster-trigger-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: upgrade-worker-cluster-
+        labels:
+          app: tealc
+      spec:
+        pipelineRef:
+          name: upgrade-worker-clusterpipeline
+        serviceAccountName: pipeline
+        workspaces:
+          - name: pipeline-ws
+            volumeClaimTemplate:
+              metadata:
+                name: upgrade-worker-cluster-pvc
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: upgrade-worker-cluster-triggerbinding
+spec: {}
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: upgrade-worker-cluster-event-listener
+  labels:
+    listener: tealc
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: upgrade-worker-cluster-webhook
+      bindings:
+        - ref: upgrade-worker-cluster-triggerbinding
+      template:
+        ref: upgrade-worker-cluster-trigger-template
+
+---
+# cron job as trigger
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: upgrade-worker-cluster-cron
+spec:
+  schedule: "0 */12 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: notify
+              image: quay.io/tealc/apophis:latest
+              args:
+                - curl
+                - -d
+                - "{}"
+                - -H
+                - 'Content-Type: application/json'
+                - el-upgrade-worker-cluster-event-listener.tealc-ci.svc.cluster.local:8080
+          restartPolicy: Never
