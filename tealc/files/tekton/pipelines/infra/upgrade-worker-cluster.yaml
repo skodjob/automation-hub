@@ -84,7 +84,7 @@ spec:
           app: tealc
       spec:
         pipelineRef:
-          name: upgrade-worker-clusterpipeline
+          name: upgrade-worker-cluster-pipeline
         serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
