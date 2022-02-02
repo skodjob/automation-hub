@@ -49,6 +49,14 @@ spec:
       env:
         - name: HOME
           value: "/tmp"
+        - name: LOG_SENSITIVE_DATA
+          value: "false"
+        - name: REPO_NAME
+          value: "tealc"
+        - name: SOURCE_REPO
+          value: "https://github.com/ExcelentProject/tealc.git"
+        - name: SOURCE_REPO_BRANCH
+          value: "main"
         - name: GIT_CRYPT_KEY
           valueFrom:
             secretKeyRef:
@@ -59,10 +67,10 @@ spec:
         - "-c"
         - >-
           cd /tmp;
-          git clone --branch main https://github.com/ExcelentProject/tealc.git;
-          cd tealc;
+          git clone --branch $SOURCE_REPO_BRANCH $SOURCE_REPO;
+          cd $REPO_NAME;
           echo "$GIT_CRYPT_KEY" | base64  -d > ./git-crypt-key;
           git-crypt unlock ./git-crypt-key;
           ansible-galaxy collection install community.kubernetes;
-          ansible-playbook install/ansible/tealc-play.yaml --tags infra,rp,strimzi-infra,twitter-app,test-suite --extra-vars log_sensitive_data=true
+          ansible-playbook install/ansible/tealc-play.yaml --tags infra,rp,strimzi-infra,twitter-app,test-suite --extra-vars log_sensitive_data=$LOG_SENSITIVE_DATA
   restartPolicy: Never
