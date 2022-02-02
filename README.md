@@ -41,4 +41,8 @@ make install_strimzi twitter_app test_suite
 ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
 ```
 
+### DevConf.cz 2022 presentation about TEALC in action
+[![TEALC_ON_DEVCONF](https://img.youtube.com/vi/oLAYig0zQgw/0.jpg)](https://www.youtube.com/watch?v=oLAYig0zQgw)
+
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
