@@ -42,7 +42,7 @@ ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra --extra-va
 ```
 
 ### DevConf.cz 2022 presentation about TEALC in action
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/oLAYig0zQgw/0.jpg)](https://www.youtube.com/watch?v=oLAYig0zQgw)
+[![TEALC_ON_DEVCONF](https://img.youtube.com/vi/oLAYig0zQgw/0.jpg)](https://www.youtube.com/watch?v=oLAYig0zQgw)
 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
