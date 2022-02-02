@@ -1,6 +1,6 @@
 FROM registry.fedoraproject.org/fedora-minimal:latest
 
-RUN microdnf -y install skopeo git wget which maven ansible git-crypt
+RUN microdnf -y install skopeo git wget which maven ansible git-crypt python3 python3-pip
 
 RUN pip install --upgrade openshift kubernetes
 
