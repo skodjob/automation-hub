@@ -2,7 +2,7 @@ FROM registry.fedoraproject.org/fedora-minimal:latest
 
 RUN microdnf -y install skopeo git wget which maven ansible git-crypt
 
-RUN sudo pip install --upgrade --user openshift
+RUN pip install --upgrade openshift kubernetes
 
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" &&\
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
