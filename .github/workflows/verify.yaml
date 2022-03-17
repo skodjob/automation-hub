@@ -55,7 +55,7 @@ jobs:
         with:
           playbook: install/ansible/tealc-play-gh-actions.yaml
           options: |
-            --tags infra,strimzi-infra
+            --tags infra,strimzi-infra,admin-access
             --extra-vars log_sensitive_data=true
 
       - name: Try test pipeline

@@ -35,6 +35,9 @@ makefile
 make install_strimzi twitter_app test_suite
 ```
 
+By default, installation of operators on ifra cluster is disabled due to not sufficient rights.
+If you have those rights, you can force operators installation by tag `admin-access`.
+
 
 ### Show sensitive data during debugging ansible locally
 ```
