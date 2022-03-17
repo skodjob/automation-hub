@@ -80,6 +80,8 @@ kind: CronJob
 metadata:
   name: cleanup-trigger
 spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
   schedule: "*/30 * * * *"
   jobTemplate:
     spec:

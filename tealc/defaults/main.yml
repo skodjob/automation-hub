@@ -1,7 +1,7 @@
 ---
 # defaults file for tealc
 infra_monitoring_namespace: tealc-monitoring
-infra_ci_namespace: tealc-ci
+infra_ci_namespace: tealc
 infra_argo_namespace: argocd
 
 rp_namespace: report-portal
