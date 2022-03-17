@@ -72,7 +72,7 @@ spec:
       spec:
         pipelineRef:
           name: twitter-app-deployment-image-update-pipeline
-        serviceAccountName: tekton-service-account
+        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -101,7 +101,7 @@ metadata:
   labels:
     listener: tealc
 spec:
-  serviceAccountName: tekton-service-account
+  serviceAccountName: pipeline
   triggers:
     - name: twitter-app-deployment-image-update-webhook
       bindings:

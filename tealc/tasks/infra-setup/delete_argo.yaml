@@ -14,6 +14,8 @@
         namespace: "{{ openshift_operators_namespace }}"
         state: absent
         src: files/argo/install/openshift/sub.yaml
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Delete Argo namespace on Infra cluster
       kubernetes.core.k8s:
@@ -22,12 +24,16 @@
         api_version: v1
         kind: Namespace
         state: absent
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Delete Argo CSV on Infra cluster
       shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-gitops-operator.openshift-operators=''"
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
       ignore_errors: true
+      when:
+        - '"admin-access" in ansible_run_tags'
 
   when: not is_kubernetes
 

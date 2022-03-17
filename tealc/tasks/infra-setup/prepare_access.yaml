@@ -10,6 +10,8 @@
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
     - "{{ infra_argo_namespace }}"
+  when:
+    - '"admin-access" in ansible_run_tags'
 
 - name: Create ServiceAccount for remote access
   kubernetes.core.k8s:
@@ -32,27 +34,37 @@
     msg: "Token is not properly stored!\n{{ access_token }}"
   when: access_token | length == 0
 
-- name: Create Github access secret
+- name: Create Github access secret in infra namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ item }}"
+    namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "{{ github_secret_path }}"
-  loop:
-    - "{{ infra_ci_namespace }}"
-    - "{{ openshift_pipelines_namespace }}"
 
-- name: Create Tekton secret
+- name: Create Github access secret in openshift-pipelines namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ target_namespace }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
+    state: present
+    src: "{{ github_secret_path }}"
+  when:
+    - '"admin-access" in ansible_run_tags'
+
+- name: Create Tekton secret in tekton namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
     state: present
     template: templates/tekton/install/tekton-secret.yaml.j2
-  loop:
-    - "{{ infra_ci_namespace }}"
-    - "{{ openshift_pipelines_namespace }}"
-  loop_control:
-    loop_var: target_namespace
+
+- name: Create Tekton secret in openshift-pipelines namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_pipelines_namespace }}"
+    state: present
+    template: templates/tekton/install/tekton-secret.yaml.j2
+  when:
+    - '"admin-access" in ansible_run_tags'
 
 - name: Create Argo cluster access secret
   kubernetes.core.k8s:
