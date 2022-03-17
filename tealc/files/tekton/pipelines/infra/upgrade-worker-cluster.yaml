@@ -127,6 +127,8 @@ kind: CronJob
 metadata:
   name: upgrade-worker-cluster-cron
 spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
   schedule: "0 */12 * * *"
   jobTemplate:
     spec:
@@ -141,5 +143,5 @@ spec:
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-upgrade-worker-cluster-event-listener.tealc-ci.svc.cluster.local:8080
+                - el-upgrade-worker-cluster-event-listener.tealc.svc.cluster.local:8080
           restartPolicy: Never

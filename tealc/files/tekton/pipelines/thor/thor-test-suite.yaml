@@ -9,7 +9,7 @@ spec:
     - name: task-ws
   steps:
     - name: execute-tests
-      image: quay.io/tealc/thor:latest
+      image: quay.io/app-sre/mk-ci-tools:latest
       env:
         - name: OC_USERNAME
           valueFrom:
@@ -31,16 +31,26 @@ spec:
             secretKeyRef:
               name: reportportal
               key: token
+        - name: RP_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: reportportal
+              key: endpoint
       script: |
         set +x
 
         oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
 
+        mkdir -p /opt/thor
         cd /opt/thor
 
         set -x
+        
+        git clone https://github.com/ExcelentProject/thor.git
+        
+        cd thor
 
-        mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=http://gateway.report-portal.svc.cluster.local:8081
+        mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=$RP_ENDPOINT
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -117,6 +127,8 @@ kind: CronJob
 metadata:
   name: thor-test-suite-cron
 spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
   schedule: "0 */1 * * *"
   jobTemplate:
     spec:
@@ -131,5 +143,5 @@ spec:
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-thor-test-suite-event-listener.tealc-ci.svc.cluster.local:8080
+                - el-thor-test-suite-event-listener.tealc.svc.cluster.local:8080
           restartPolicy: Never

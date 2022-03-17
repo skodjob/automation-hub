@@ -8,16 +8,22 @@
         api_version: v1
         kind: Namespace
         state: present
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Create ReportPortal subscription
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
         src: files/report_portal/install/rp-subscription.yaml
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Sleep for 60 seconds and continue with play
       wait_for:
         timeout: 60
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Wait for ReportPortal operator on Infra cluster
       kubernetes.core.k8s:
@@ -30,6 +36,8 @@
           type: Available
           status: True
           reason: MinimumReplicasAvailable
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Create ReportPortal instance
       kubernetes.core.k8s:
@@ -37,10 +45,14 @@
         namespace: "{{ rp_namespace }}"
         state: present
         template: templates/report_portal/install/rp-instance.yaml.j2
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Sleep for 60 seconds and continue with play
       wait_for:
         timeout: 60
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Wait for ReportPortal instance on Infra cluster
       kubernetes.core.k8s:
@@ -53,23 +65,35 @@
           type: Available
           status: True
           reason: MinimumReplicasAvailable
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Get ReportPortal UI token
       shell: "curl -k --header 'Content-Type: application/x-www-form-urlencoded' --request POST --data 'grant_type=password&username={{ rp_admin_user }}&password={{ rp_admin_password_old }}' --user 'ui:uiman' https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/uat/sso/oauth/token"
       register: rp_ui_token_response
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Generate API token
       shell: "curl -k --header 'Authorization: Bearer {{ (rp_ui_token_response.stdout | from_json).access_token }}' --request POST https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/uat/sso/me/apitoken"
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Get ReportPortal API token
       shell: "curl -k --header 'Authorization: Bearer {{ (rp_ui_token_response.stdout | from_json).access_token }}' --request GET https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/uat/sso/me/apitoken"
       register: rp_api_token_response
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Change admin password
       shell: 'curl -k -X POST "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/user/password/change" -H  "accept: */*" -H  "Content-Type: application/json" -H  "Authorization: Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}" -d "{  \"newPassword\": \"{{ rp_admin_password }}\",  \"oldPassword\": \"{{ rp_admin_password_old }}\"}"'
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Create project TEALC
       shell: 'curl -k -X POST "https://reportportal-{{ rp_namespace }}.{{ rp_app_domain }}/api/v1/project" -H  "accept: */*" -H  "Content-Type: application/json" -H  "Authorization: Bearer {{ (rp_api_token_response.stdout | from_json).access_token }}" -d "{  \"entryType\": \"INTERNAL\",  \"projectName\": \"{{ rp_project_name }}\"}"'
+      when:
+        - '"admin-access" in ansible_run_tags'
 
     - name: Create ReportPotal access secret
       kubernetes.core.k8s:
@@ -84,6 +108,26 @@
             namespace: "{{ infra_ci_namespace }}"
           data:
             token: "{{ (rp_api_token_response.stdout | from_json).access_token | b64encode }}"
+            endpoint: "{{ http://gateway.report-portal.svc.cluster.local:8081 | b64encode }}"
+      when:
+        - '"admin-access" in ansible_run_tags'
+
+    - name: Create ReportPotal access secret
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: "{{ rp_secret_name }}"
+            namespace: "{{ infra_ci_namespace }}"
+          data:
+            token: "{{ (rp_api_token | b64encode }}"
+            endpoint: "{{ rp_url | b64encode }}"
+      when:
+        - '"admin-access" not in ansible_run_tags'
 
     - name: Create dashboard
       ansible.builtin.uri:
