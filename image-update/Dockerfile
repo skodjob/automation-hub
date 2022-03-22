@@ -1,6 +1,6 @@
 FROM registry.fedoraproject.org/fedora-minimal:latest
 
-RUN microdnf -y install skopeo git wget which maven ansible git-crypt python3 python3-pip
+RUN microdnf -y install skopeo git wget which maven ansible git-crypt python3 python3-pip jq
 
 RUN pip install --upgrade openshift kubernetes
 
@@ -12,7 +12,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/o
     mv /tmp/oc /usr/bin/oc &&\
     chmod +x /usr/bin/oc
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.11.2/yq_linux_amd64 -O /usr/bin/yq &&\
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
 USER root
