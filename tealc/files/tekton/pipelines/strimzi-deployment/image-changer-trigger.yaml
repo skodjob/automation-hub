@@ -71,4 +71,3 @@ data:
       echo "[INFO] Going to trigger Canary images update"
       curl -d '{"trigger-template": "image-update","params": {"image": "canary"}}' el-canary-deployment-image-update-event-listener.tealc.svc.cluster.local:8080
     fi
-
