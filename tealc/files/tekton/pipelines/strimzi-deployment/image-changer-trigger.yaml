@@ -1,0 +1,74 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: image-changer-trigger
+spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: workspace
+              emptyDir: {}
+            - name: configmap-volume
+              configMap:
+                defaultMode: 0700
+                name: image-changer
+          containers:
+            - name: trigger
+              image: quay.io/tealc/apophis:latest
+              command:
+                - /bin/entrypoint.sh
+              volumeMounts:
+                - mountPath: /workspace
+                  name: workspace
+                - name: configmap-volume
+                  mountPath: /bin/entrypoint.sh
+                  readOnly: true
+                  subPath: entrypoint.sh
+              env:
+                - name: WORKSPACE
+                  value: "/workspace"
+          restartPolicy: Never
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: image-changer
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    
+    set -x
+    set -e
+    
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
+    DIGEST_OPERATOR=$(skopeo inspect docker://quay.io/strimzi/operator:latest | jq -r '.Digest' )
+    
+    if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
+      echo "[INFO] Going to trigger Operator images update"
+      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-deployment-image-update-event-listener.tealc.svc.cluster.local:8080  
+    fi
+  
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-drain-cleaner/060-Deployment.yaml -O "${WORKSPACE}"/deployment-dc.yaml
+    DIGEST_DC=$(skopeo inspect docker://quay.io/strimzi/drain-cleaner:latest | jq -r '.Digest' )
+    
+    if ! grep "${DIGEST_DC}" "${WORKSPACE}"/deployment-dc.yaml; then
+      echo "[INFO] Going to trigger drain-cleaner images update"
+      curl -d '{"trigger-template": "image-update","params": {"image": "drain-cleaner"}}' el-drain-cleaner-deployment-image-update-event-listener.tealc.svc.cluster.local:8080  
+    fi
+  
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-canary/020-Deployment.yaml -O "${WORKSPACE}"/deployment-canary.yaml
+    DIGEST_CANARY=$(skopeo inspect docker://quay.io/strimzi/canary:latest | jq -r '.Digest' )
+    
+    if ! grep "${DIGEST_CANARY}" "${WORKSPACE}"/deployment-canary.yaml; then
+      echo "[INFO] Going to trigger Canary images update"
+      curl -d '{"trigger-template": "image-update","params": {"image": "canary"}}' el-canary-deployment-image-update-event-listener.tealc.svc.cluster.local:8080
+    fi
+
