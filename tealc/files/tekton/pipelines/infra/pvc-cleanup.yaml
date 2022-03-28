@@ -82,7 +82,7 @@ metadata:
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  schedule: "*/30 * * * *"
+  schedule: "*/15 * * * *"
   jobTemplate:
     spec:
       template:
@@ -121,5 +121,5 @@ spec:
                 - name: NAMESPACE
                   value: "tealc"
                 - name: CLEANUP_KEEP
-                  value: "1"
+                  value: "10"
           restartPolicy: Never

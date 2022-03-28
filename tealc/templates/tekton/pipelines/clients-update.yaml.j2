@@ -38,7 +38,7 @@ spec:
         echo $ROUTE >> $(workspaces.task-ws.path)/route.txt
         cat $(workspaces.task-ws.path)/route.txt
     - name: sokar-clone
-      image: alpine/git:v2.30.2
+      image: quay.io/rh_integration/strimzi-tools:latest
       env:
         - name: GITHUB_USERNAME
           valueFrom:
@@ -61,7 +61,7 @@ spec:
         yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/sokar/clients/00-external-clients.yaml
         cat $(workspaces.task-ws.path)/sokar/clients/00-external-clients.yaml
     - name: sokar-push
-      image: alpine/git:v2.30.2
+      image: quay.io/rh_integration/strimzi-tools:latest
       env:
         - name: GITHUB_USERNAME
           valueFrom:
