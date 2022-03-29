@@ -66,7 +66,9 @@ SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
 git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
 
 # Storing must have values
-export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[0]' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+export ENV_FEATURE_GATES=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+export ENV_LOG_LEVEL=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 
@@ -96,7 +98,12 @@ do
 done
 
 # We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[0] = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE") = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+# We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
+yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL") = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+# We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
+yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES") = env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+
 # We need to keep resources configuration as well
 yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 # We need to keep affinity configuration as well
