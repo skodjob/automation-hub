@@ -98,15 +98,15 @@ do
 done
 
 # We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE") = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-# We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL") = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-# We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES") = env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-
-# We need to keep resources configuration as well
+yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")) = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+## We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
+yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL")) = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+## We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
+yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")) = env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+#
+## We need to keep resources configuration as well
 yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-# We need to keep affinity configuration as well
+## We need to keep affinity configuration as well
 yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 
 echo "================================================"
@@ -169,14 +169,14 @@ do
     fi
 done
 
-echo "================================================"
-echo "Adding changes to repository"
-git add "$YAML_BUNDLE_PATH"/*
-git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
-git push origin "$BRANCH"
-popd
-echo "================================================"
-echo "Cleaning ${WORKING_DIR}"
-rm -rf ${WORKING_DIR}
-echo "================================================"
+#echo "================================================"
+#echo "Adding changes to repository"
+#git add "$YAML_BUNDLE_PATH"/*
+#git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
+#git push origin "$BRANCH"
+#popd
+#echo "================================================"
+#echo "Cleaning ${WORKING_DIR}"
+#rm -rf ${WORKING_DIR}
+#echo "================================================"
 exit 0
