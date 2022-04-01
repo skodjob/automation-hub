@@ -169,14 +169,14 @@ do
     fi
 done
 
-#echo "================================================"
-#echo "Adding changes to repository"
-#git add "$YAML_BUNDLE_PATH"/*
-#git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
-#git push origin "$BRANCH"
-#popd
-#echo "================================================"
-#echo "Cleaning ${WORKING_DIR}"
-#rm -rf ${WORKING_DIR}
-#echo "================================================"
+echo "================================================"
+echo "Adding changes to repository"
+git add "$YAML_BUNDLE_PATH"/*
+git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
+git push origin "$BRANCH"
+popd
+echo "================================================"
+echo "Cleaning ${WORKING_DIR}"
+rm -rf ${WORKING_DIR}
+echo "================================================"
 exit 0
