@@ -100,7 +100,7 @@ done
 # We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
 yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")) = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 ## We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
-yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL")) = env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+yq e -i '.spec.template.spec.containers[0].env[] += env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 ## We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
 yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")) = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 #
