@@ -121,5 +121,5 @@ spec:
                 - name: NAMESPACE
                   value: "tealc"
                 - name: CLEANUP_KEEP
-                  value: "10"
+                  value: "16"
           restartPolicy: Never
