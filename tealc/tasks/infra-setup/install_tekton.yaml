@@ -6,6 +6,8 @@
     api_version: v1
     kind: Namespace
     state: present
+  when:
+    - '"admin-access" in ansible_run_tags'
 
 - name: Install tekton on openshift
   block:

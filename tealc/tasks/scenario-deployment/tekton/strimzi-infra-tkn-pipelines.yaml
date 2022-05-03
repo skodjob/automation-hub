@@ -33,11 +33,12 @@
     state: present
     src: "files/tekton/pipelines/infra/run/pipeline-runs.yaml"
 
-- name: Create Strimzi-clients Tekton pipeline
+- name: Create Tekton pipelines from jinja templates
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    template: "templates/tekton/pipelines/clients-update.yaml.j2"
+    template: "{{ item }}"
+  with_fileglob: 'templates/tekton/pipelines/*.j2'
   vars:
     worker_secret_prefix: "{{ workers[0].name }}"
