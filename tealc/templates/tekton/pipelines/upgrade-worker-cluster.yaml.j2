@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: upgrade-worker-cluster-task
+  name: upgrade-{{ name }}-cluster-task
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -14,17 +14,17 @@ spec:
         - name: OC_USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: username
         - name: OC_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: password
         - name: OC_API_URL
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: server
       script: |
         set +x
@@ -54,7 +54,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: upgrade-worker-cluster-pipeline
+  name: upgrade-{{ name }}-cluster-pipeline
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -63,7 +63,7 @@ spec:
   tasks:
     - name: upgrade
       taskRef:
-        name: upgrade-worker-cluster-task
+        name: upgrade-{{ name }}-cluster-task
       timeout: 4h
       workspaces:
         - name: task-ws
@@ -73,24 +73,24 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: upgrade-worker-cluster-trigger-template
+  name: upgrade-{{ name }}-cluster-trigger-template
 spec:
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: upgrade-worker-cluster-
+        generateName: upgrade-{{ name }}-cluster-
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: upgrade-worker-cluster-pipeline
+          name: upgrade-{{ name }}-cluster-pipeline
         serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
               metadata:
-                name: upgrade-worker-cluster-pvc
+                name: upgrade-{{ name }}-cluster-pvc
               spec:
                 accessModes:
                   - ReadWriteOnce
@@ -101,31 +101,31 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: upgrade-worker-cluster-triggerbinding
+  name: upgrade-{{ name }}-cluster-triggerbinding
 spec: {}
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: upgrade-worker-cluster-event-listener
+  name: upgrade-{{ name }}-cluster-event-listener
   labels:
     listener: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
-    - name: upgrade-worker-cluster-webhook
+    - name: upgrade-{{ name }}-cluster-webhook
       bindings:
-        - ref: upgrade-worker-cluster-triggerbinding
+        - ref: upgrade-{{ name }}-cluster-triggerbinding
       template:
-        ref: upgrade-worker-cluster-trigger-template
+        ref: upgrade-{{ name }}-cluster-trigger-template
 
 ---
 # cron job as trigger
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: upgrade-worker-cluster-cron
+  name: upgrade-{{ name }}-cluster-cron
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -143,5 +143,5 @@ spec:
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-upgrade-worker-cluster-event-listener.tealc.svc.cluster.local:8080
+                - el-upgrade-{{ name }}-cluster-event-listener.tealc.svc.cluster.local:8080
           restartPolicy: Never

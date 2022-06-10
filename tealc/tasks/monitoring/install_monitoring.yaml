@@ -16,7 +16,9 @@
     api_version: v1
     kind: Namespace
     state: present
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
   
@@ -36,7 +38,9 @@
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -55,7 +59,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     src: "{{ grafana_docker_secret_path }}"
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -74,7 +80,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     src: "{{ grafana_session_secret_path }}"
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -98,7 +106,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -117,7 +127,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-operator.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -150,7 +162,9 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -169,7 +183,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -188,7 +204,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     src: files/grafana/grafana-route.yaml
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -203,7 +221,9 @@
 
 - name: Create data-sources on Worker clusters
   include_tasks: deploy-data-source.yaml
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: target
 
@@ -220,7 +240,9 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 

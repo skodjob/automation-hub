@@ -1,4 +1,5 @@
 ---
+# TODO check if we can delete it
 - name: Create thor Tekton pipelines
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

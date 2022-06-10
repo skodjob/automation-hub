@@ -46,7 +46,7 @@
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/twitter/argo-deploy-strimzi-twitter-app.yaml
-  tags: [argo-apps, argo-strimzi-twitter-app, twitter-app, never]
+  tags: [argo-apps, argo-strimzi-twitter-app, twitter-app, strimzi-infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
