@@ -20,27 +20,3 @@ spec:
           resources:
             requests:
               storage: 1Gi
----
-
-apiVersion: tekton.dev/v1beta1
-kind: PipelineRun
-metadata:
-  name: twitter-app-copy-secret-start
-  labels:
-    app: tealc
-    project: tealc
-spec:
-  pipelineRef:
-    name: twitter-app-copy-secret-pipeline
-  serviceAccountName: pipeline
-  workspaces:
-    - name: pipeline-ws
-      volumeClaimTemplate:
-        metadata:
-          name: strimzi-pvc
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 1Gi
