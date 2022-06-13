@@ -37,7 +37,7 @@ spec:
                 # Cleanup pipelineruns first, as this will delete tasksruns too
                 tkn pr delete -n $(params.namespace) --keep $(params.keep)
                 # Keep double the amount of tr, for standalone trs
-                tkn tr delete -n $(params.namespace) --keep $(( $(params.keep) * 2 ))
+                tkn tr delete -n $(params.namespace) --keep $(( $(params.keep) / 4 ))
         params:
           - name: keep
             value: $(tt.params.keep)
@@ -82,6 +82,7 @@ metadata:
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Replace
   schedule: "*/15 * * * *"
   jobTemplate:
     spec:
