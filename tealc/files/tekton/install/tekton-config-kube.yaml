@@ -16,6 +16,8 @@ apiVersion: operator.tekton.dev/v1alpha1
 kind: TektonConfig
 metadata:
   name: config
+  labels:
+    project: tealc
 spec:
   profile: all
   targetNamespace: tekton-pipelines

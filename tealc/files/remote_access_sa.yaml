@@ -7,6 +7,7 @@ metadata:
   labels:
     app: strimzi
     namespace: default
+    project: tealc
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -14,6 +15,7 @@ metadata:
   name: access-binding
   labels:
     app: strimzi
+    project: tealc
 subjects:
   - kind: ServiceAccount
     name: access-serviceaccount

@@ -3,6 +3,8 @@ kind: Subscription
 metadata:
   name: openshift-gitops-operator
   namespace: openshift-operators
+  labels:
+    project: tealc
 spec:
   channel: stable
   installPlanApproval: Automatic

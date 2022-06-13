@@ -4,6 +4,7 @@ metadata:
   labels:
     app: tealc
     monitoring-key: middleware
+    project: tealc
   name: argo-monitoring
 spec:
   json: ""

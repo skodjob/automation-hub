@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: upgrade-{{ name }}-cluster-task
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -55,6 +57,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: upgrade-{{ name }}-cluster-pipeline
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -74,6 +78,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: upgrade-{{ name }}-cluster-trigger-template
+  labels:
+    project: tealc
 spec:
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
@@ -102,6 +108,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: upgrade-{{ name }}-cluster-triggerbinding
+  labels:
+    project: tealc
 spec: {}
 
 ---
@@ -111,6 +119,7 @@ metadata:
   name: upgrade-{{ name }}-cluster-event-listener
   labels:
     listener: tealc
+    project: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
@@ -126,6 +135,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: upgrade-{{ name }}-cluster-cron
+  labels:
+    project: tealc
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1

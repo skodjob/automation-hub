@@ -4,6 +4,7 @@ metadata:
   name: twitter-app-deployment-image-update-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: twitter-app-deployment-image-update-pipeline
@@ -27,6 +28,7 @@ metadata:
   name: twitter-app-copy-secret-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: twitter-app-copy-secret-pipeline

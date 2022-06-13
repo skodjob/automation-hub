@@ -4,6 +4,7 @@ metadata:
   name: scale-{{ worker.name }}-cluster-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: scale-{{ worker.name }}-cluster-pipeline

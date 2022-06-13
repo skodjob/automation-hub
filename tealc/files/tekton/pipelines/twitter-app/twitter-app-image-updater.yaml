@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: twitter-app-deployment-image-update-task
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -42,6 +44,8 @@ metadata:
   name: twitter-app-deployment-image-update-pipeline
   annotations:
     argocd.argoproj.io/hook: PreSync
+  labels:
+    project: tealc
 spec:
   workspaces:
     - name: pipeline-ws
@@ -57,6 +61,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: twitter-app-deployment-image-update-trigger-template
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -89,6 +95,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: twitter-app-deployment-image-update-triggerbinding
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -100,6 +108,7 @@ metadata:
   name: twitter-app-deployment-image-update-event-listener
   labels:
     listener: tealc
+    project: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
@@ -113,6 +122,8 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: el-twitter-app-deployment-image-update-event-listener
+  labels:
+    project: tealc
 spec:
   to:
     kind: Service
