@@ -52,7 +52,7 @@ spec:
         
         cd thor
 
-        mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=$RP_ENDPOINT
+        mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=$RP_ENDPOINT --no-transfer-progress
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
