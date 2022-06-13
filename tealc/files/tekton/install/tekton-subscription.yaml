@@ -4,6 +4,8 @@ kind: Subscription
 metadata:
     name: openshift-pipelines-operator
     namespace: openshift-operators
+    labels:
+        project: tealc
 spec:
     channel: stable
     name: openshift-pipelines-operator-rh

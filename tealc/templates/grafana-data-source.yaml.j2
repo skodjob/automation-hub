@@ -2,6 +2,8 @@ apiVersion: integreatly.org/v1alpha1
 kind: GrafanaDataSource
 metadata:
   name: grafanadatasource
+  labels:
+    project: tealc
   annotations:
     # Exclude from ArgoCD sync
     argocd.argoproj.io/compare-options: IgnoreExtraneous

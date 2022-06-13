@@ -11,6 +11,7 @@ metadata:
   namespace: {{ namespace }}
   labels:
     app: tealc
+    project: tealc
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
 ---
@@ -21,6 +22,7 @@ metadata:
   namespace: {{ namespace }}
   labels:
     app: tealc
+    project: tealc
 subjects:
   - kind: ServiceAccount
     namespace: {{ namespace }}
@@ -35,6 +37,8 @@ kind: ClusterRole
 metadata:
   namespace: {{ namespace }}
   name: grafana-proxy
+  labels:
+    project: tealc
 rules:
   - verbs:
       - create
@@ -54,6 +58,8 @@ kind: ClusterRoleBinding
 metadata:
   namespace: {{ namespace }}
   name: grafana-proxy
+  labels:
+    project: tealc
 roleRef:
   kind: ClusterRole
   name: grafana-proxy
@@ -67,5 +73,6 @@ kind: ConfigMap
 metadata:
   labels:
     config.openshift.io/inject-trusted-cabundle: "true"
+    project: tealc
   name: ocp-injected-certs
   namespace: {{ namespace }}

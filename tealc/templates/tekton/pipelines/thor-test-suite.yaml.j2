@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: thor-test-suite-task
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -56,6 +58,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: thor-test-suite-pipeline
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -74,6 +78,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: thor-test-suite-triggerbinding
+  labels:
+    project: tealc
 spec: {}
 
 ---
@@ -83,6 +89,7 @@ metadata:
   name: thor-test-suite-event-listener
   labels:
     listener: tealc
+    project: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
@@ -98,6 +105,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: thor-test-suite-cron
+  labels:
+    project: tealc
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1

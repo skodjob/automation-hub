@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: test-pipeline-2
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -26,6 +28,7 @@ metadata:
   name: pipeline-run-test-2
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: test-pipeline-2

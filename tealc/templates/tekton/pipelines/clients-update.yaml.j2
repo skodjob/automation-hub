@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: strimzi-clients-task
+  labels:
+      project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -88,6 +90,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: strimzi-clients-pipeline
+  labels:
+      project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -107,6 +111,7 @@ metadata:
   name: strimzi-clients-pipeline-run
   labels:
     app: tealc
+    project: tealc
 spec:
   workspaces:
     - name: pipeline-ws

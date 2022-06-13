@@ -4,6 +4,8 @@ kind: Subscription
 metadata:
     name: reportportal-operator
     namespace: openshift-operators
+    labels:
+        project: tealc
 spec:
     channel: alpha
     installPlanApproval: Automatic

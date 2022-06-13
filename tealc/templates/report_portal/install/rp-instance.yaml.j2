@@ -2,6 +2,8 @@ kind: ReportPortal
 apiVersion: rp5.reportportal.io/v1
 metadata:
   name: reportportal-tealc
+  labels:
+    project: tealc
 spec:
   accesskey: {{ rp_access_key }}
   analyzer_image: 'quay.io/waynesun09/service-auto-analyzer:5.3.5'

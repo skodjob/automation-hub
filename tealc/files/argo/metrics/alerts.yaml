@@ -7,6 +7,7 @@ metadata:
     prometheus: k8s
     role: alert-rules
     app: tealc
+    project: tealc
 spec:
   groups:
     - name: argo-apps

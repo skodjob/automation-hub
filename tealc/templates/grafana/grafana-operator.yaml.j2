@@ -10,6 +10,7 @@ metadata:
   name: grafana-group
   labels:
     app: grafana
+    project: tealc
 spec:
   targetNamespaces:
     - {{ namespace }}
@@ -18,6 +19,8 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: grafana-operator
+  labels:
+    project: tealc
 spec:
   channel: v4
   installPlanApproval: Automatic
