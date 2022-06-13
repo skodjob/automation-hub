@@ -57,7 +57,7 @@ spec:
         git clone https://github.com/ExcelentProject/sokar.git $CURRENT_DIR
         chmod -R 777 $CURRENT_DIR
     - name: clients-update
-      image: mikefarah/yq:latest
+      image: quay.io/rh_integration/strimzi-tools:latest
       script: |
         export ROUTE=$(cat $(workspaces.task-ws.path)/route.txt)
         yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/sokar/clients/00-external-clients.yaml
