@@ -12,7 +12,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana-setup.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -29,7 +31,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana-operator.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -46,7 +50,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana/grafana.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -63,7 +69,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     src: "{{ grafana_session_secret_path }}"
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -78,7 +86,9 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -108,7 +118,9 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: absent
     template: templates/grafana-data-source.yaml.j2
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -127,7 +139,9 @@
     api_version: v1
     kind: Namespace
     state: absent
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
   

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: scale-worker-cluster-task
+  name: scale-{{ name }}-cluster-task
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -18,17 +18,17 @@ spec:
         - name: OC_USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: username
         - name: OC_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: password
         - name: OC_API_URL
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: server
       image: quay.io/tealc/apophis:latest
       script: |
@@ -43,16 +43,16 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: scale-worker-cluster-pipeline
+  name: scale-{{ name }}-cluster-pipeline
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: scale-worker-cluster
+    - name: scale-{{ name }}-cluster
       taskRef:
-        name: scale-worker-cluster-task
+        name: scale-{{ name }}-cluster-task
       workspaces:
         - name: task-ws
           workspace: pipeline-ws

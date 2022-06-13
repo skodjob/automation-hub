@@ -82,7 +82,9 @@
         state: present
         src: files/tekton/install/tekton-dashboard-route.yaml
 
-  when: not is_kubernetes
+  when:
+    - not is_kubernetes
+    - '"admin-access" in ansible_run_tags'
 
 ######################################################################################
 ######################################################################################

@@ -1,6 +1,7 @@
 ---
 - include_tasks: prepare_access_twitter.yaml
-  loop: "{{ workers }}"
+  loop:
+    - "{{ workers.source_cluster }}"
   loop_control:
     loop_var: worker
 
@@ -11,7 +12,7 @@
     state: present
     template: "{{ item }}"
   vars:
-    worker_cluster_connection: "{{ workers[0].name }}"
+    worker_cluster_connection: "{{ workers.source_cluster.name }}"
   with_fileglob: 'templates/argo/projects/strimzi-twitter-app/*.j2'
 
 - name: Create Twitter app related Tekton pipelines

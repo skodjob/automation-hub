@@ -14,17 +14,17 @@ spec:
         - name: USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: username
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: password
         - name: SERVER
           valueFrom:
             secretKeyRef:
-              name: {{ worker_secret_prefix }}-tekton
+              name: {{ name }}-tekton
               key: server
       script: |
         oc login -u $USERNAME -p $PASSWORD --insecure-skip-tls-verify=true $SERVER

@@ -26,14 +26,7 @@
     state: present
     src: "files/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
 
-- name: Create Worker cluster related Tekton pipeline runs
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_ci_namespace }}"
-    state: present
-    src: "files/tekton/pipelines/infra/run/pipeline-runs.yaml"
-
-- name: Create Tekton pipelines from jinja templates
+- name: Create Tekton pipelines from jinja templates for source_cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
@@ -41,4 +34,29 @@
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/*.j2'
   vars:
-    worker_secret_prefix: "{{ workers[0].name }}"
+    name: "{{ workers.source_cluster.name }}"
+
+- name: Create Tekton pipelines from jinja templates for target_cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    template: "{{ item }}"
+  with_fileglob: 'templates/tekton/pipelines/*.j2'
+  loop:
+    - "templates/tekton/pipelines/scale-worker-cluster.yaml.j2"
+    - "templates/tekton/pipelines/upgrade-worker-cluster.yaml.j2"
+  vars:
+    name: "{{ workers.target_cluster.name }}"
+
+- name: Create Worker cluster related Tekton pipeline runs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    template: "templates/tekton/pipeline-runs/pipeline-runs.yaml.j2"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
+  loop_control:
+    loop_var: worker
