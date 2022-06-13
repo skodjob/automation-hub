@@ -71,34 +71,6 @@ spec:
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
-kind: TriggerTemplate
-metadata:
-  name: thor-test-suite-trigger-template
-spec:
-  resourcetemplates:
-    - apiVersion: tekton.dev/v1beta1
-      kind: PipelineRun
-      metadata:
-        generateName: thor-test-suite-
-        labels:
-          app: tealc
-      spec:
-        pipelineRef:
-          name: thor-test-suite-pipeline
-        serviceAccountName: pipeline
-        workspaces:
-          - name: pipeline-ws
-            volumeClaimTemplate:
-              metadata:
-                name: thor-pvc
-              spec:
-                accessModes:
-                  - ReadWriteOnce
-                resources:
-                  requests:
-                    storage: 1Gi
----
-apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: thor-test-suite-triggerbinding
