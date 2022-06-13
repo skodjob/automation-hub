@@ -16,14 +16,19 @@ fi
 
 READY="false"
 while [[ ${READY} == "false" ]]; do
+  echo "Current worker node count is: $(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l)"
   if [[ $(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l) -eq 10 ]]; then
     READY="true"
+    echo "scale is completed"
+  else
+    sleep 30
   fi
 done
 
 INFRA_NODES_COUNT=2
 CONNECT_NODES_COUNT=3
 
+WORKER_NODES=$(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name)
 WORKER_NODES_ARRAY=(${WORKER_NODES// / })
 
 for index in "${!WORKER_NODES_ARRAY[@]}"; do
