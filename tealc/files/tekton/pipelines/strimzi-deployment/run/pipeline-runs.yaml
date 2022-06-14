@@ -5,6 +5,7 @@ metadata:
   name: strimzi-deployment-image-update-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: strimzi-deployment-image-update-pipeline
@@ -28,6 +29,7 @@ metadata:
   name: drain-cleaner-deployment-image-update-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: drain-cleaner-deployment-image-update-pipeline
@@ -51,6 +53,7 @@ metadata:
   name: canary-deployment-image-update-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: canary-deployment-image-update-pipeline
@@ -74,6 +77,7 @@ metadata:
   name: clients-deployment-image-update-start
   labels:
     app: tealc
+    project: tealc
 spec:
   pipelineRef:
     name: clients-deployment-image-update-pipeline

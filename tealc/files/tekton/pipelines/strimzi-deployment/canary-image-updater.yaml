@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: canary-deployment-image-update-task
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -46,6 +48,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: canary-deployment-image-update-pipeline
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -64,6 +68,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: canary-deployment-image-update-trigger-template
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -96,6 +102,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: canary-deployment-image-update-triggerbinding
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -108,6 +116,7 @@ metadata:
   name: canary-deployment-image-update-event-listener
   labels:
     listener: tealc
+    project: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
@@ -121,6 +130,8 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: el-canary-deployment-image-update-event-listener
+  labels:
+    project: tealc
 spec:
   to:
     kind: Service
