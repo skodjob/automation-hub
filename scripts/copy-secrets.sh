@@ -47,7 +47,7 @@ OUTPUT_NAME=/tmp/secrets.yaml
 
 info "Logging to source cluster and getting secret"
 oc login -u "${SOURCE_USER}" -p "${SOURCE_PASS}" "--insecure-skip-tls-verify=true" "${SOURCE_URL}"
-oc get secret -l "${LABEL_SELECTOR}" -o yaml -n "${SOURCE_NAMESPACE}" | yq eval "del(.items[].metadata.namespace,.items[].metadata.ownerReferences,.items[].metadata.annotations,.items[].metadata.managedFields,.items[].metadata.resourceVersion,.items[].metadata.uid)" > $OUTPUT_NAME
+oc get secret -l "${LABEL_SELECTOR}" -o yaml -n "${SOURCE_NAMESPACE}" | yq eval "del(.items[].metadata.namespace,.items[].metadata.ownerReferences,.items[].metadata.annotations,.items[].metadata.managedFields,.items[].metadata.resourceVersion,.items[].metadata.uid)" - > $OUTPUT_NAME
 
 cat "${OUTPUT_NAME}"
 
