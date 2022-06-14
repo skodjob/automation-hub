@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: strimzi-deployment-image-update-task
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -51,6 +53,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: strimzi-deployment-image-update-pipeline
+  labels:
+    project: tealc
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -69,6 +73,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: strimzi-deployment-image-update-trigger-template
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -103,6 +109,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: strimzi-deployment-image-update-triggerbinding
+  labels:
+    project: tealc
 spec:
   params:
     - name: message
@@ -115,6 +123,7 @@ metadata:
   name: strimzi-deployment-image-update-event-listener
   labels:
     listener: tealc
+    project: tealc
 spec:
   serviceAccountName: pipeline
   triggers:
@@ -129,6 +138,8 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: el-strimzi-deployment-image-update-event-listener
+  labels:
+    project: tealc
 spec:
   to:
     kind: Service
