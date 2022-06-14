@@ -37,6 +37,10 @@
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
 
+- import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
+  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
+  no_log: "{{ not log_sensitive_data|bool  }}"
+
 - import_tasks: scenario-deployment/clients/argo-deploy-strimzi-clients.yaml
   tags: [argo-apps, argo-strimzi-clients, strimzi-infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
