@@ -3,6 +3,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: image-changer-trigger
+  labels:
+    project: tealc
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -41,6 +43,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: image-changer
+  labels:
+    project: tealc
 data:
   entrypoint.sh: |
     #!/bin/bash
