@@ -1,0 +1,10 @@
+---
+- name: Create Argo applications for AMQ Streams infra
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: "{{ item }}"
+  vars:
+    worker_cluster_connection: "{{ workers.target_cluster.name }}"
+  with_fileglob: 'templates/argo/projects/amq-streams-infra/*.j2'

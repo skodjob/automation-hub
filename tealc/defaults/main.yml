@@ -11,7 +11,7 @@ openshift_pipelines_namespace: openshift-pipelines
 openshift_operators_namespace: openshift-operators
 tekton_pipelines_namespace: tekton-pipelines
 tekton_operator_namespace: tekton-operator
-strimzi_twitter_connector_namespace: strimzi-twitter-connector
+strimzi_twitter_connector_namespace: strimzi-kafka
 
 is_kubernetes: false
 
