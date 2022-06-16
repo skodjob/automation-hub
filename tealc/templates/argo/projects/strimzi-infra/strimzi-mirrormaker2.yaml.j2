@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-mirror-maker2
+  labels:
+    project: tealc
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: mirror-maker2
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-kafka
