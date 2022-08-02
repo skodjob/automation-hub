@@ -69,7 +69,6 @@ git clone "$SYNC_DEPLOYMENT_REPO" $SYNC_DEPLOYMENT_DIR
 export ENV=$(yq e '.spec.template.spec.containers[0].env' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export VOLUME_MOUNTS=$(yq e '.spec.template.spec.containers[0].volumeMounts' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export VOLUMES=$(yq e '.spec.template.spec.volumes' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
-export PORTS=$(yq e '.spec.template.spec.containers[0].ports' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 export TOLERATIONS=$(yq e '.spec.template.spec.tolerations' "$TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME")
 
@@ -96,7 +95,6 @@ done
 yq e -i '.spec.template.spec.containers[0].env = env(ENV)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.containers[0].volumeMounts = env(VOLUME_MOUNTS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.volumes = env(VOLUMES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
-yq e -i '.spec.template.spec.containers[0].ports = env(PORTS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 # We need to keep affinity configuration as well
 yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
 yq e -i '.spec.template.spec.tolerations = env(TOLERATIONS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$FILE_NAME
