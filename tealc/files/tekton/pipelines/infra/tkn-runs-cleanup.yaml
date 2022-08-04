@@ -9,9 +9,11 @@ metadata:
     app.kubernetes.io/name: tekton-pipelinerun-cleaner
     app.kubernetes.io/part-of: tekton
 spec:
-  schedule: 0 * * * *
+  schedule: "*/5 * * * *"
   concurrencyPolicy: Forbid
   suspend: false
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
