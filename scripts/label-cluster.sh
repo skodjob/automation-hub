@@ -5,9 +5,9 @@ WORKER_NODES_COUNT=$(kubectl get node --selector='!node-role.kubernetes.io/maste
 
 echo "Worker node count: ${WORKER_NODES_COUNT}"
 
-if [ ${WORKER_NODES_COUNT} -lt 10 ]; then
+if [ ${WORKER_NODES_COUNT} -lt 12 ]; then
   MS_NAME=$(oc get machinesets -n openshift-machine-api -o=jsonpath='{.items[0].metadata.name}')
-  NODE_DIFF=$((10 - ${WORKER_NODES_COUNT}))
+  NODE_DIFF=$((12 - ${WORKER_NODES_COUNT}))
   CUR_MS_REP=$(oc get machinesets ${MS_NAME} -n openshift-machine-api -o=jsonpath='{.spec.replicas}')
   NEW_REP=$(($NODE_DIFF + $CUR_MS_REP))
   oc patch machinesets ${MS_NAME} -n openshift-machine-api --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
