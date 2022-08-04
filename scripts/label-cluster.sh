@@ -2,12 +2,13 @@
 
 WORKER_NODES=$(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name)
 WORKER_NODES_COUNT=$(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l)
+EXPECT_WORKER_NODES_COUNT=12
 
 echo "Worker node count: ${WORKER_NODES_COUNT}"
 
-if [ ${WORKER_NODES_COUNT} -lt 12 ]; then
+if [ ${WORKER_NODES_COUNT} -lt ${EXPECT_WORKER_NODES_COUNT} ]; then
   MS_NAME=$(oc get machinesets -n openshift-machine-api -o=jsonpath='{.items[0].metadata.name}')
-  NODE_DIFF=$((12 - ${WORKER_NODES_COUNT}))
+  NODE_DIFF=$((${EXPECT_WORKER_NODES_COUNT} - ${WORKER_NODES_COUNT}))
   CUR_MS_REP=$(oc get machinesets ${MS_NAME} -n openshift-machine-api -o=jsonpath='{.spec.replicas}')
   NEW_REP=$(($NODE_DIFF + $CUR_MS_REP))
   oc patch machinesets ${MS_NAME} -n openshift-machine-api --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
@@ -17,7 +18,7 @@ fi
 READY="false"
 while [[ ${READY} == "false" ]]; do
   echo "Current worker node count is: $(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l)"
-  if [[ $(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l) -eq 10 ]]; then
+  if [[ $(kubectl get node --selector='!node-role.kubernetes.io/master' -o=name | wc -l) -eq ${EXPECT_WORKER_NODES_COUNT} ]]; then
     READY="true"
     echo "scale is completed"
   else
