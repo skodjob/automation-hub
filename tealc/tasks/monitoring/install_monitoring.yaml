@@ -9,20 +9,6 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Create monitoring namespaces on Worker clusters
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    name: "{{ worker.monitoring_namespace }}"
-    api_version: v1
-    kind: Namespace
-    state: present
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
-  
-
 - name: Enable user-workload on infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -74,24 +60,12 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Create grafana session secret on worker cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: present
-    src: "{{ grafana_session_secret_path }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
-
 - name: Sleep for 10 seconds and continue with play
   wait_for:
     timeout: 10
   when: not is_kubernetes
 
-- name: Setup Grafana access on Infra cluster
+- name: Setup Grafana on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
@@ -99,18 +73,6 @@
     template: templates/grafana/grafana-setup.yaml.j2
   when:
     - '"admin-access" in ansible_run_tags'
-
-- name: Setup Grafana access on Worker clusters
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: present
-    template: templates/grafana/grafana-setup.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
 
 - name: Install Grafana operator on Infra cluster
   kubernetes.core.k8s:
@@ -120,18 +82,6 @@
     template: templates/grafana/grafana-operator.yaml.j2
   when:
     - '"admin-access" in ansible_run_tags'
-
-- name: Install Grafana operator on Worker clusters
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: present
-    template: templates/grafana/grafana-operator.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
 
 - name: Sleep for 20 seconds and continue with play
   wait_for:
@@ -151,79 +101,36 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Wait for Grafana operator Worker clusters
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    kind: Deployment
-    name: grafana-operator-controller-manager
-    wait: true
-    wait_condition:
-      type: Available
-      status: True
-      reason: MinimumReplicasAvailable
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
-
 - name: Deploy Grafana instance on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana.yaml.j2
-  when:
-    - '"admin-access" in ansible_run_tags'
-
-- name: Deploy Grafana instance on Worker clusters
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: present
-    template: templates/grafana/grafana.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
-
-- name: Create grafana route on infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
-    state: present
-    src: files/grafana/grafana-route.yaml
-  when:
-    - '"admin-access" in ansible_run_tags'
-
-- name: Create grafana route on worker cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: present
-    src: files/grafana/grafana-route.yaml
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
 
 - name: Create data-sources on Infra cluster
   include_tasks: deploy-data-source.yaml
   loop:
-    - {name: "{{ infra_context_name }}", monitoring_namespace: "{{ infra_monitoring_namespace }}"}
+    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_monitoring_namespace }}",
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       context: "{{ infra_context_name }}",
+       url: " https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
   loop_control:
     loop_var: target
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Create data-sources on Worker clusters
+- name: Create data-sources on Infra cluster
   include_tasks: deploy-data-source.yaml
   loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+    - {name: "{{ workers.source_cluster.name }}", sa_namespace: "{{ workers.source_cluster.monitoring_namespace }}",
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       context: "{{ infra_context_name }}",
+       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.source_cluster.name }}.strimzi.app-services-dev.net:443"}
+    - {name: "{{ workers.target_cluster.name }}", sa_namespace: "{{ workers.target_cluster.monitoring_namespace }}",
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       context: "{{ infra_context_name }}",
+       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.target_cluster.name }}.strimzi.app-services-dev.net:443"}
   loop_control:
     loop_var: target
 
@@ -246,7 +153,7 @@
   loop_control:
     loop_var: worker
 
-- name: Configure Grafana dashboards and Prometheus alerts
+- name: Configure Grafana dashboards and Prometheus alerts on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
@@ -258,7 +165,7 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Configure Prometheus alerts
+- name: Configure Prometheus alerts on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
