@@ -1,10 +1,30 @@
 ---
-- name: Create Argo applications for Strimzi monitoring
+- name: Create Argo applications for Strimzi monitoring on source cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
     template: "{{ item }}"
   vars:
-    worker_cluster_connection: "{{ workers.source_cluster.name }}"
+    cluster: "{{ workers.source_cluster.name }}"
   with_fileglob: 'templates/argo/projects/strimzi-monitoring/*.j2'
+
+- name: Create Argo applications for Strimzi monitoring on target cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: "{{ item }}"
+  vars:
+    cluster: "{{ workers.target_cluster.name }}"
+  with_fileglob: 'templates/argo/projects/strimzi-monitoring/*.j2'
+
+- name: Create Argo applications for Strimzi dashboards on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    template: "{{ item }}"
+  vars:
+    cluster: "in-cluster"
+  with_fileglob: 'templates/argo/projects/strimzi-dashboards/*.j2'

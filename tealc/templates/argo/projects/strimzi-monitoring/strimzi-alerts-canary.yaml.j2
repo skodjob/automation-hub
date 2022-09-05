@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-alerts-canary
+  name: strimzi-alerts-canary-{{ cluster }}
   labels:
     project: tealc
     app: strimzi
@@ -20,5 +20,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: {{ worker_cluster_connection }}
+    name: {{ cluster }}
     namespace: strimzi-kafka
