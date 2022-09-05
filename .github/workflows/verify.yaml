@@ -39,7 +39,7 @@ jobs:
           export API_URL=`awk '/server/{print $NF}' ~/.kube/config`
           sed -i -e "s#server_api_url#$API_URL#g" -e "s#placeholder#$TOKEN#g" -e "s#configpath#$GITHUB_WORKSPACE#g" install/examples/clusters.yaml
 
-          cat examples/clusters.yaml
+          cat install/examples/clusters.yaml
 
       - name: Install Prometheus
         run: |
