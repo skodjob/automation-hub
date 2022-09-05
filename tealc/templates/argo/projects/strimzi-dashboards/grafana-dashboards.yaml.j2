@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-alerts-kafka-{{ cluster }}
+  name: grafana-dashboards
   labels:
     project: tealc
     app: strimzi
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/ExcelentProject/sokar
     targetRevision: HEAD
-    path: metrics/alerts/kafka
+    path: metrics/grafana/dashboards
     directory:
       recurse: true
   syncPolicy:
@@ -21,4 +21,4 @@ spec:
       - CreateNamespace=true
   destination:
     name: {{ cluster }}
-    namespace: strimzi-kafka
+    namespace: {{ infra_monitoring_namespace }}

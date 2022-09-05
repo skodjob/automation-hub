@@ -74,6 +74,18 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
+- name: Setup Grafana on Worker clusters
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ worker.monitoring_namespace }}"
+    state: present
+    template: templates/grafana/grafana-setup.yaml.j2
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
+  loop_control:
+    loop_var: worker
+
 - name: Install Grafana operator on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
