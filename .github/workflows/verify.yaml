@@ -47,7 +47,7 @@ jobs:
 
       - name: Install ansible dependencies
         run: |
-          ansible-galaxy collection install kubernetes.core
+          ansible-galaxy collection install -r install/collections/requirements.yml
           /opt/pipx/venvs/ansible-core/bin/python -m pip install openshift pyyaml kubernetes
 
       - name: Install CICD
