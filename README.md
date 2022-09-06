@@ -6,33 +6,28 @@ Collection of deployments and tools for continuous testing of applications
 ## Requirements
 ```
 ansible
+podman/docker #in case you want to use ansible navigator
 ```
 
-### Deploy infra
-First step is to deploy tekton pipelines operator to cluster. You can achieve that by
-
-ansible
+### Install tealc
+ansible-playbook
 ```
-ansible-playbook install/ansible/tealc-play.yaml --tags=infra
-ansible-playbook install/ansible/tealc-play.yaml --tags=rp
-```
-
-makefile
-```
-make install_infra install_rp
-```
-
-### Configuring scenario and test suite
-ansible
-```
-ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra
-ansible-playbook install/ansible/tealc-play.yaml --tags=twitter-app
-ansible-playbook install/ansible/tealc-play.yaml --tags=test-suite
+cd install
+ansible-galaxy collection install -r collections/requirements.yml
+ansible-playbook tealc-play.yaml --tags=infra,rp,strimzi-infra,twitter-app,test-suite
 ```
 
 makefile
 ```
-make install_strimzi twitter_app test_suite
+ansible-galaxy collection install -r install/collections/requirements.yml
+make install_infra install_rp install_strimzi twitter_app test_suite
+```
+
+ansible-navigator
+```
+cd install
+ansible-navigator #default all tags
+ansible-navigator --tags infra
 ```
 
 By default, installation of operators on ifra cluster is disabled due to not sufficient rights.
@@ -42,6 +37,8 @@ If you have those rights, you can force operators installation by tag `admin-acc
 ### Show sensitive data during debugging ansible locally
 ```
 ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
+#or
+ansible-navigator --extra-vars log_sensitive_data=true
 ```
 
 ### DevConf.cz 2022 presentation about TEALC in action

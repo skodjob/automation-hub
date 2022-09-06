@@ -6,6 +6,9 @@ ansible-navigator:
   execution-environment:
     enabled: true
     image: quay.io/ansible/creator-ee:v0.4.2
+    environment-variables:
+      set:
+        ANSIBLE_RUN_TAGS: 'infra,rp,strimzi-infra,twitter-app,test-suite'
 
   app: run
   mode: stdout
