@@ -37,9 +37,9 @@ jobs:
           cat ~/.kube/config
 
           export API_URL=`awk '/server/{print $NF}' ~/.kube/config`
-          sed -i -e "s#server_api_url#$API_URL#g" -e "s#placeholder#$TOKEN#g" -e "s#configpath#$GITHUB_WORKSPACE#g" examples/clusters.yaml
+          sed -i -e "s#server_api_url#$API_URL#g" -e "s#placeholder#$TOKEN#g" -e "s#configpath#$GITHUB_WORKSPACE#g" install/examples/clusters.yaml
 
-          cat examples/clusters.yaml
+          cat install/examples/clusters.yaml
 
       - name: Install Prometheus
         run: |
@@ -53,7 +53,7 @@ jobs:
       - name: Install CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: install/ansible/tealc-play-gh-actions.yaml
+          playbook: install/tealc-play-gh-actions.yaml
           options: |
             --tags infra,strimzi-infra,admin-access
             --extra-vars log_sensitive_data=true
@@ -65,7 +65,7 @@ jobs:
       - name: Delete CICD
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: install/ansible/tealc-play-gh-actions.yaml
+          playbook: install/tealc-play-gh-actions.yaml
           options: |
             --tags teardown
             --extra-vars log_sensitive_data=true

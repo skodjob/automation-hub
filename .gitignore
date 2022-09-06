@@ -2,4 +2,7 @@
 .vscode
 tealc-ci-test.yaml
 **/kubeconfig
-tealc/kubeconfig
+install/kubeconfig
+**/.ssh/
+**/ansible-navigator.log
+*-artifact-*

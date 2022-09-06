@@ -1,0 +1,13 @@
+ansible-navigator:
+  ansible:
+    playbook:
+      path: tealc-play.yaml
+
+  execution-environment:
+    enabled: true
+    image: quay.io/ansible/creator-ee:v0.4.2
+
+  app: run
+  mode: stdout
+  playbook-artifact:
+    enable: false
