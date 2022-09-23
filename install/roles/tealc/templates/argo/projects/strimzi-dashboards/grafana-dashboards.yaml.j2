@@ -18,7 +18,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
   destination:
     name: {{ cluster }}
     namespace: {{ infra_monitoring_namespace }}
