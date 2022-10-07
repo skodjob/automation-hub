@@ -7,7 +7,7 @@
     template: "{{ item }}"
   vars:
     cluster: "{{ workers.source_cluster.name }}"
-  with_fileglob: 'templates/argo/projects/strimzi-monitoring/*.j2'
+  with_fileglob: 'templates/argo/projects/monitoring/alerts/*.j2'
 
 - name: Create Argo applications for Strimzi monitoring on target cluster
   kubernetes.core.k8s:
@@ -17,7 +17,7 @@
     template: "{{ item }}"
   vars:
     cluster: "{{ workers.target_cluster.name }}"
-  with_fileglob: 'templates/argo/projects/strimzi-monitoring/*.j2'
+  with_fileglob: 'templates/argo/projects/monitoring/alerts/*.j2'
 
 - name: Create Argo applications for Strimzi dashboards on infra cluster
   kubernetes.core.k8s:
@@ -27,4 +27,4 @@
     template: "{{ item }}"
   vars:
     cluster: "in-cluster"
-  with_fileglob: 'templates/argo/projects/strimzi-dashboards/*.j2'
+  with_fileglob: 'templates/argo/projects/monitoring/dashboards/*.j2'

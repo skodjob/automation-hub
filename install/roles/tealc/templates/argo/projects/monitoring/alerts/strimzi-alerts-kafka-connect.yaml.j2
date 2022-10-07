@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-clients
+  name: strimzi-alerts-kafka-connect
   labels:
     project: tealc
     app: strimzi
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/ExcelentProject/sokar
     targetRevision: HEAD
-    path: clients
+    path: metrics/alerts/kafka-connect
     directory:
       recurse: true
   syncPolicy:
@@ -20,5 +20,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: {{ worker_cluster_connection }}
-    namespace: strimzi-clients
+    name: {{ cluster }}
+    namespace: strimzi-kafka

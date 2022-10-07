@@ -56,25 +56,6 @@
   loop_control:
     loop_var: worker
 
-- name: Delete grafana session secret on infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
-    state: absent
-    src: "{{ grafana_session_secret_path }}"
-
-- name: Delete grafana session secret on worker cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
-    state: absent
-    src: "{{ grafana_session_secret_path }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker
-
 - name: Remove Alertmanager  configuration for sending alerts on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

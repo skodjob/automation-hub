@@ -39,9 +39,9 @@ spec:
               key: TOKEN
       image: quay.io/tealc/apophis:latest
       script: |
-        FILE_NAME=clients/00-external-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
-        FILE_NAME=clients/01-internal-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
-        FILE_NAME=twitter-connector/clients/01-verification-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
+        FILE_NAME=strimzi/clients/00-external-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
+        FILE_NAME=strimzi/clients/01-internal-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
+        FILE_NAME=strimzi/twitter-connector/clients/01-verification-clients.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
         echo "[INFO] Done!"
 ---
 apiVersion: tekton.dev/v1beta1
