@@ -35,7 +35,7 @@ spec:
               key: TOKEN
       image: quay.io/tealc/apophis:latest
       script: |
-        FILE_NAME=twitter-connector/apps/01-twitter-messages-parser.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
+        FILE_NAME=strimzi/twitter-connector/apps/01-twitter-messages-parser.yaml $(workspaces.task-ws.path)/tealc/image-update/clients-image-update.sh
         echo "[INFO] Done!"
 ---
 apiVersion: tekton.dev/v1beta1

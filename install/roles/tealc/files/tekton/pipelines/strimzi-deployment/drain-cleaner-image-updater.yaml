@@ -20,7 +20,7 @@ spec:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
         - name: YAML_BUNDLE_PATH
-          value: "./strimzi-drain-cleaner/"
+          value: "./strimzi/drain-cleaner/"
         - name: TARGET_ORG_REPO
           value: "quay.io/strimzi"
         - name: BRANCH

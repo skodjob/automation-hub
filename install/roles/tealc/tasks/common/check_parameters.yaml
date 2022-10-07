@@ -29,11 +29,6 @@
     msg: "Variable 'smtp_username' is not defined"
   when: smtp_username is not defined
 
-- name: Check that 'grafana_session_secret_path' is not defined
-  fail:
-    msg: "Variable 'grafana_session_secret_path' is not defined"
-  when: grafana_session_secret_path is not defined
-
 - name: Check that 'grafana_docker_secret_path' is not defined
   fail:
     msg: "Variable 'grafana_docker_secret_path' is not defined"
