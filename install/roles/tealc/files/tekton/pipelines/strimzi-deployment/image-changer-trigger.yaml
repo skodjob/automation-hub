@@ -52,7 +52,7 @@ data:
     set -x
     set -e
     
-    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
     DIGEST_OPERATOR=$(skopeo inspect docker://quay.io/strimzi/operator:latest | jq -r '.Digest' )
     
     if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
@@ -60,7 +60,7 @@ data:
       curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-deployment-image-update-event-listener.tealc.svc.cluster.local:8080  
     fi
   
-    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-drain-cleaner/060-Deployment.yaml -O "${WORKSPACE}"/deployment-dc.yaml
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/drain-cleaner/060-Deployment.yaml -O "${WORKSPACE}"/deployment-dc.yaml
     DIGEST_DC=$(skopeo inspect docker://quay.io/strimzi/drain-cleaner:latest | jq -r '.Digest' )
     
     if ! grep "${DIGEST_DC}" "${WORKSPACE}"/deployment-dc.yaml; then
@@ -68,7 +68,7 @@ data:
       curl -d '{"trigger-template": "image-update","params": {"image": "drain-cleaner"}}' el-drain-cleaner-deployment-image-update-event-listener.tealc.svc.cluster.local:8080  
     fi
   
-    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi-canary/020-Deployment.yaml -O "${WORKSPACE}"/deployment-canary.yaml
+    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/canary/020-Deployment.yaml -O "${WORKSPACE}"/deployment-canary.yaml
     DIGEST_CANARY=$(skopeo inspect docker://quay.io/strimzi/canary:latest | jq -r '.Digest' )
     
     if ! grep "${DIGEST_CANARY}" "${WORKSPACE}"/deployment-canary.yaml; then
