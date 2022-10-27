@@ -1,7 +1,0 @@
----
-- include_tasks: prepare_access.yaml
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
-  loop_control:
-    loop_var: worker

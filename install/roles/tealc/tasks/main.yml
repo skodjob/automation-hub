@@ -15,9 +15,29 @@
   no_log: "{{ not log_sensitive_data|bool  }}"
 
 # infra installation
-- import_tasks: infra-setup/access_remote_cluster.yaml
+- include_tasks:
+    file: infra-setup/prepare_access.yaml
+    apply:
+      tags: [setup-workers-access, infra, never]
   tags: [setup-workers-access, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
+  loop_control:
+    loop_var: worker
+
+- include_tasks:
+    file: infra-setup/deploy_machine_sets.yaml
+    apply:
+      tags: [machine-sets, infra, never]
+  tags: [machine-sets, infra, never]
+  no_log: "{{ not log_sensitive_data|bool  }}"
+  loop:
+    - "{{ workers.source_cluster }}"
+    - "{{ workers.target_cluster }}"
+  loop_control:
+    loop_var: worker
 
 - import_tasks: infra-setup/install_tekton.yaml
   tags: [tekton, infra, never]

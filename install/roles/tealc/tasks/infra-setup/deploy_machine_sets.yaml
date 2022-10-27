@@ -1,0 +1,29 @@
+---
+- name: Get cluster ID
+  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "get_cluster_id_out"
+
+- name: Get image name
+  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "get_image_out"
+
+- name: Create new machine sets
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "openshift-machine-api"
+    state: present
+    template: templates/machine-sets.yaml.j2
+  vars:
+    clusterName: "{{ worker.name }}"
+    clusterId: "{{ get_cluster_id_out.stdout }}"
+    clusterImage: "{{ get_image_out.stdout }}"
+
+- name: Delete original machine-set
+  shell: "oc delete machineset -n openshift-machine-api {{ get_cluster_id_out.stdout }}-worker-0"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  ignore_errors: yes

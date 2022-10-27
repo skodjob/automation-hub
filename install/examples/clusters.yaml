@@ -30,16 +30,16 @@ twitter_secret_path: configpath/install/examples/twitter
 # Workers
 workers:
   source_cluster:
-    name: worker-02
+    name: worker-01
     api_url: server_api_url
     access_token: placeholder
     username: pepa
     password: zdepa
-    monitoring_namespace: strimzi-monitoring
+    monitoring_namespace: tealc
   target_cluster:
     name: worker-02
     api_url: server_api_url
     access_token: placeholder
     username: pepa
     password: zdepa
-    monitoring_namespace: strimzi-monitoring
+    monitoring_namespace: tealc

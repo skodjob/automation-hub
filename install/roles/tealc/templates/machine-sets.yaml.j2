@@ -1,0 +1,169 @@
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: {{ clusterName }}-kafka-worker-0
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+spec:
+  # 7x kafka node
+  replicas: 7
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-kafka-worker-0
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-kafka-worker-0
+    spec:
+      metadata:
+        labels:
+          nodetype: kafka
+      taints:
+        - key: nodetype
+          value: kafka
+          effect: NoSchedule
+      providerSpec:
+        value:
+          cloudName: openstack
+          networks:
+            - subnets:
+                - filter:
+                    name: {{ clusterId }}-nodes
+                    tags: openshiftClusterID={{ clusterId }}
+          userDataSecret:
+            name: worker-user-data
+          serverGroupName: {{ clusterId }}-worker
+          cloudsSecret:
+            name: openstack-cloud-credentials
+            namespace: openshift-machine-api
+          serverMetadata:
+            Name: {{ clusterId }}-worker
+            openshiftClusterID: {{ clusterId }}
+          securityGroups:
+            - filter: {}
+              name: {{ clusterId }}-worker
+          trunk: true
+          kind: OpenstackProviderSpec
+          tags:
+            - openshiftClusterID={{ clusterId }}
+          image: {{ clusterImage }}
+          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
+          flavor: g.standard.xxl
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: {{ clusterName }}-connect-worker-0
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+spec:
+  # 5x connect node
+  replicas: 5
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-connect-worker-0
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-connect-worker-0
+    spec:
+      metadata:
+        labels:
+          nodetype: connect
+      providerSpec:
+        value:
+          cloudName: openstack
+          networks:
+            - subnets:
+                - filter:
+                    name: {{ clusterId }}-nodes
+                    tags: openshiftClusterID={{ clusterId }}
+          userDataSecret:
+            name: worker-user-data
+          serverGroupName: {{ clusterId }}-worker
+          cloudsSecret:
+            name: openstack-cloud-credentials
+            namespace: openshift-machine-api
+          serverMetadata:
+            Name: {{ clusterId }}-worker
+            openshiftClusterID: {{ clusterId }}
+          securityGroups:
+            - filter: {}
+              name: {{ clusterId }}-worker
+          trunk: true
+          kind: OpenstackProviderSpec
+          tags:
+            - openshiftClusterID={{ clusterId }}
+          image: {{ clusterImage }}
+          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
+          flavor: g.memory.medium
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: {{ clusterName }}-infra-worker-0
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+spec:
+  # 2x infra node
+  replicas: 2
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-infra-worker-0
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-infra-worker-0
+    spec:
+      metadata:
+        labels:
+          nodetype: infra
+      providerSpec:
+        value:
+          cloudName: openstack
+          networks:
+            - subnets:
+                - filter:
+                    name: {{ clusterId }}-nodes
+                    tags: openshiftClusterID={{ clusterId }}
+          userDataSecret:
+            name: worker-user-data
+          serverGroupName: {{ clusterId }}-worker
+          cloudsSecret:
+            name: openstack-cloud-credentials
+            namespace: openshift-machine-api
+          serverMetadata:
+            Name: {{ clusterId }}-worker
+            openshiftClusterID: {{ clusterId }}
+          securityGroups:
+            - filter: {}
+              name: {{ clusterId }}-worker
+          trunk: true
+          kind: OpenstackProviderSpec
+          tags:
+            - openshiftClusterID={{ clusterId }}
+          image: {{ clusterImage }}
+          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
+          flavor: g.memory.medium
