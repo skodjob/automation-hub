@@ -38,6 +38,7 @@
     - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
+  when: not is_kubernetes
 
 - import_tasks: infra-setup/install_tekton.yaml
   tags: [tekton, infra, never]
