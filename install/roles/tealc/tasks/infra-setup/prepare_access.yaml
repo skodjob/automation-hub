@@ -21,7 +21,8 @@
     src: files/remote_access_sa.yaml
 
 - name: Export access token
-  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
+#  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
+  shell: "oc get  $(oc get secret -o name -n default | grep access-serviceaccount-token) -n default -o=jsonpath='{.data.token}' | base64 -d"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   register: "access_token_out"

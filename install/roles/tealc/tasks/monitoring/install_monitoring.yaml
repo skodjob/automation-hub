@@ -18,33 +18,25 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Enable user-workload on worker cluster
+- name: Create monitoring namespace on worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "openshift-monitoring"
+    name: "{{ worker.monitoring_namespace }}"
+    api_version: v1
+    kind: Namespace
     state: present
-    src: files/user-workload-cm.yaml
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"
   loop_control:
     loop_var: worker
 
-- name: Create image pull secret on infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
-    state: present
-    src: "{{ grafana_docker_secret_path }}"
-  when:
-    - '"admin-access" in ansible_run_tags'
-
-- name: Create image pull secret on worker cluster
+- name: Enable user-workload on worker cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    namespace: "openshift-monitoring"
     state: present
-    src: "{{ grafana_docker_secret_path }}"
+    src: files/user-workload-cm.yaml
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"

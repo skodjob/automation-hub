@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-monitoring-enablement-{{ cluster }}
+  name: amq-streams-clients
   labels:
     project: tealc
-    app: strimzi
+    app: amq-streams
 spec:
   project: default
   source:
     repoURL: https://github.com/ExcelentProject/sokar
     targetRevision: HEAD
-    path: metrics/podmonitors
+    path: amq-streams/clients
     directory:
       recurse: true
   syncPolicy:
@@ -20,5 +20,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
   destination:
-    name: {{ cluster }}
-    namespace: {{ namespace }}
+    name: {{ worker_cluster_connection }}
+    namespace: strimzi-clients
