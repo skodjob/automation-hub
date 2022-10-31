@@ -134,6 +134,8 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
+  vars:
+    clusterName: "{{ infra_context_name }}"
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -142,6 +144,8 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: present
     template: templates/alert-manager-configuration.yaml.j2
+  vars:
+    clusterName: "{{ worker.name }}"
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"

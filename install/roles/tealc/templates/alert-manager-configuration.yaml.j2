@@ -28,6 +28,8 @@ stringData:
       email_configs:
       - to: '{{ smtp_email }}'
         from: '{{ smtp_email }}'
+        headers:
+          subject: '[{{ clusterName }}] {% raw %}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }}{% endraw %}'
         smarthost: {{ smtp_server }}
         require_tls: true
         auth_username: {{ smtp_username }}

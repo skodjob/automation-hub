@@ -61,12 +61,16 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
+  vars:
+    clusterName: "{{ infra_context_name }}"
 
 - name: Remove Alertmanager configuration for sending alerts on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: absent
     template: templates/alert-manager-configuration.yaml.j2
+  vars:
+    clusterName: "{{ worker.name }}"
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"
