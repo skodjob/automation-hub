@@ -30,7 +30,7 @@ ansible-navigator #default all tags
 ansible-navigator --tags infra
 ```
 
-By default, installation of operators on ifra cluster is disabled due to not sufficient rights.
+By default, installation of operators on infra cluster is disabled due to not sufficient rights.
 If you have those rights, you can force operators installation by tag `admin-access`.
 
 
