@@ -5,6 +5,7 @@ metadata:
   labels:
     project: tealc
 spec:
+  applicationSet: {}
   controller:
     resources:
       limits:
