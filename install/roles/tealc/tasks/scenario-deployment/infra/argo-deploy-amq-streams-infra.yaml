@@ -4,7 +4,4 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
-    template: "{{ item }}"
-  vars:
-    worker_cluster_connection: "{{ workers.target_cluster.name }}"
-  with_fileglob: 'templates/argo/projects/amq-streams-infra/*.j2'
+    src: "files/argo/applications/amq-streams-infra.yaml"

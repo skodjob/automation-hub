@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: amq-streams-infra
+spec:
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/ExcelentProject/sokar
+              revision: HEAD
+              files:
+                - path: "amq-streams/**/argo-config.yaml"
+          - clusters:
+              selector:
+                matchLabels:
+                  type: 'downstream'
+  metadata:
+    name: '{{name}}'
+    labels:
+      project: tealc
+      app: strimzi
+  spec:
+    project: default
+    source:
+      repoURL: https://github.com/ExcelentProject/sokar
+      targetRevision: HEAD
+      path: '{{source}}'
+      directory:
+        recurse: true
+        exclude: '{argo-config.yaml}'
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+    destination:
+      name: '{{server}}'
+      namespace: '{{namespace}}'
