@@ -20,3 +20,4 @@
     namespace: "{{ target.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-data-source.yaml.j2
+    verify_ssl: no

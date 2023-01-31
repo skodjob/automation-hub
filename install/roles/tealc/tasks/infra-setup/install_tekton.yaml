@@ -6,6 +6,7 @@
     api_version: v1
     kind: Namespace
     state: present
+    verify_ssl: no
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -15,6 +16,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-subscription.yaml
 
     - name: Sleep for 60 seconds and continue with play
@@ -28,6 +30,7 @@
         kind: Deployment
         name: openshift-pipelines-operator
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -38,6 +41,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-config.yaml
 
     - name: Create Tekton dashboard
@@ -45,6 +49,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard.yaml
 
     - name: Sleep for 60 seconds and continue with play
@@ -58,6 +63,7 @@
         kind: Deployment
         name: tekton-pipelines-controller
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -70,6 +76,7 @@
         kind: Deployment
         name: tekton-dashboard
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -80,6 +87,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard-route.yaml
 
   when:
@@ -98,6 +106,7 @@
         api_version: v1
         kind: Namespace
         state: present
+        verify_ssl: no
 
     - name: Create Tekton pipelines namespace on Infra cluster
       kubernetes.core.k8s:
@@ -106,12 +115,14 @@
         api_version: v1
         kind: Namespace
         state: present
+        verify_ssl: no
 
     - name: Install Tekton
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_operator_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-release.yaml
 
     - name: Sleep for 10 seconds and continue with play
@@ -125,6 +136,7 @@
         kind: Deployment
         name: tekton-operator
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -135,6 +147,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_pipelines_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-config-kube.yaml
 
     - name: Install Tekton dashboard
@@ -142,6 +155,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_pipelines_namespace }}"
         state: present
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard-kube.yaml
 
     - name: Sleep for 10 seconds and continue with play
@@ -155,6 +169,7 @@
         kind: Deployment
         name: tekton-pipelines-controller
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -167,6 +182,7 @@
         kind: Deployment
         name: tekton-dashboard
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True

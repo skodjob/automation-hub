@@ -6,6 +6,7 @@
     api_version: v1
     kind: Namespace
     state: present
+    verify_ssl: no
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -15,6 +16,7 @@
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
+    verify_ssl: no
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -25,6 +27,7 @@
     api_version: v1
     kind: Namespace
     state: present
+    verify_ssl: no
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"
@@ -37,6 +40,7 @@
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
+    verify_ssl: no
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"
@@ -54,6 +58,7 @@
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
+    verify_ssl: no
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -63,6 +68,7 @@
     namespace: "{{ worker.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
+    verify_ssl: no
   loop:
     - "{{ workers.source_cluster }}"
     - "{{ workers.target_cluster }}"
@@ -75,6 +81,7 @@
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-operator.yaml.j2
+    verify_ssl: no
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -89,6 +96,7 @@
     kind: Deployment
     name: grafana-operator-controller-manager
     wait: true
+    verify_ssl: no
     wait_condition:
       type: Available
       status: True
@@ -102,6 +110,7 @@
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana.yaml.j2
+    verify_ssl: no
 
 - name: Create data-sources on Infra cluster
   include_tasks: deploy-data-source.yaml
@@ -133,6 +142,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
+    verify_ssl: no
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ infra_context_name }}"
@@ -143,6 +153,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: present
+    verify_ssl: no
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ worker.name }}"
@@ -157,6 +168,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
+    verify_ssl: no
     src: "files/argo/metrics/{{ item }}"
   loop:
     - argo-dashboard-cm.yaml
@@ -169,6 +181,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    verify_ssl: no
     src: "files/argo/metrics/{{ item }}"
   loop:
     - alerts.yaml

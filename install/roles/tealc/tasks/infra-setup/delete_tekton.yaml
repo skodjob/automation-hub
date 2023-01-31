@@ -7,6 +7,7 @@
         namespace: "{{ infra_ci_namespace }}"
         api_version: "triggers.tekton.dev/v1alpha1"
         label_selectors: listener=tealc
+        verify_ssl: no
         state: absent
         kind: EventListener
       ignore_errors: true
@@ -16,6 +17,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_operators_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-subscription.yaml
 
     - name: Delete Tekton config
@@ -23,6 +25,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-config.yaml
 
     - name: Delete Tekton dashboard
@@ -30,6 +33,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard.yaml
 
     - name: Delete Tekton dashboard route
@@ -37,6 +41,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard-route.yaml
 
     - name: Delete Tekton CSV on Infra cluster
@@ -57,6 +62,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_operator_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-release.yaml
 
     - name: Delete Tekton EventListener
@@ -64,6 +70,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         kind: EventListener
       ignore_errors: true
 
@@ -72,6 +79,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-config-kube.yaml
 
     - name: Delete Tekton dashboard
@@ -79,6 +87,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ tekton_pipelines_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/tekton/install/tekton-dashboard-kube.yaml
 
     - name: Delete Tekton operator namespace on Infra cluster
@@ -86,6 +95,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         name: "{{ tekton_operator_namespace }}"
         api_version: v1
+        verify_ssl: no
         kind: Namespace
         state: absent
 
@@ -94,6 +104,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         name: "{{ tekton_pipelines_namespace }}"
         api_version: v1
+        verify_ssl: no
         kind: Namespace
         state: absent
 
@@ -104,5 +115,6 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ infra_ci_namespace }}"
     api_version: v1
+    verify_ssl: no
     kind: Namespace
     state: absent

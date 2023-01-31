@@ -10,6 +10,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    verify_ssl: no
     src: "files/argo/applications/strimzi-twitter-app.yaml"
 
 - name: Create Twitter app related Tekton pipelines
@@ -17,6 +18,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
+    verify_ssl: no
     src: "{{ item }}"
   with_fileglob: 'files/tekton/pipelines/twitter-app/*.yaml'
 
@@ -29,4 +31,5 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
+    verify_ssl: no
     src: "files/tekton/pipelines/twitter-app/run/pipeline-runs.yaml"

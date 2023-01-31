@@ -5,3 +5,4 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     src: "files/argo/applications/amq-streams-infra.yaml"
+    verify_ssl: no

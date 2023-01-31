@@ -6,6 +6,7 @@
     api_version: v1
     kind: Namespace
     state: present
+    verify_ssl: no
   loop:
     - "{{ strimzi_twitter_connector_namespace }}"
 
@@ -14,6 +15,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "{{ strimzi_twitter_connector_namespace }}"
     state: present
+    verify_ssl: no
     src: "{{ twitter_secret_path }}/{{ item }}"
   loop:
     - "registry.yaml"
