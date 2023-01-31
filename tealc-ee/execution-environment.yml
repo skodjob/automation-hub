@@ -1,0 +1,12 @@
+version: 1
+
+dependencies:
+  galaxy: ../install/collections/requirements.yml
+  system: bindep.txt
+
+additional_build_steps:
+  prepend: |
+    RUN whoami
+  append:
+    - RUN echo This is a post-install command!
+    - RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
