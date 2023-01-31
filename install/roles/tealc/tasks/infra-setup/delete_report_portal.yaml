@@ -6,12 +6,14 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ rp_namespace }}"
         state: absent
+        verify_ssl: no
         template: templates/report_portal/install/rp-instance.yaml.j2
 
     - name: Delete ReportPortal subscription
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: absent
+        verify_ssl: no
         src: files/report_portal/install/rp-subscription.yaml
 
     - name: Delete ReportPotal access secret
@@ -20,6 +22,7 @@
         namespace: "{{ infra_ci_namespace }}"
         name: "{{ rp_secret_name }}"
         state: absent
+        verify_ssl: no
         kind: Secret
 
     - name: Delete ReportPortal CSV on Infra cluster
@@ -33,6 +36,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         name: "{{ rp_namespace }}"
         api_version: v1
+        verify_ssl: no
         kind: Namespace
         state: absent
 

@@ -8,6 +8,7 @@
         api_version: v1
         kind: Namespace
         state: present
+        verify_ssl: no
       when:
         - '"admin-access" in ansible_run_tags'
 
@@ -16,6 +17,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
         src: files/report_portal/install/rp-subscription.yaml
+        verify_ssl: no
       when:
         - '"admin-access" in ansible_run_tags'
 
@@ -32,6 +34,7 @@
         kind: Deployment
         name: reportportal-operator-controller-manager
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -44,6 +47,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ rp_namespace }}"
         state: present
+        verify_ssl: no
         template: templates/report_portal/install/rp-instance.yaml.j2
       when:
         - '"admin-access" in ansible_run_tags'
@@ -61,6 +65,7 @@
         kind: Deployment
         name: api
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -99,6 +104,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
+        verify_ssl: no
         definition:
           apiVersion: v1
           kind: Secret
@@ -116,6 +122,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
+        verify_ssl: no
         definition:
           apiVersion: v1
           kind: Secret

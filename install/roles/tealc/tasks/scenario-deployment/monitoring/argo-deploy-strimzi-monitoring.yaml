@@ -5,6 +5,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     template: "{{ item }}"
+    verify_ssl: no
   vars:
     cluster: "{{ workers.source_cluster.name }}"
     namespace: "{{ workers.source_cluster.monitoring_namespace }}"
@@ -15,6 +16,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    verify_ssl: no
     template: "{{ item }}"
   vars:
     cluster: "{{ workers.target_cluster.name }}"
@@ -26,6 +28,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    verify_ssl: no
     template: "{{ item }}"
   vars:
     cluster: "in-cluster"

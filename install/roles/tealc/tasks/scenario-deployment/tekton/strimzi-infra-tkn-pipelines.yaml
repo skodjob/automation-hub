@@ -5,6 +5,7 @@
     namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "{{ item }}"
+    verify_ssl: no
   with_fileglob: 'files/tekton/pipelines/strimzi-deployment/*.yaml'
 
 - name: Create worker cluster related Tekton pipelines
@@ -13,6 +14,7 @@
     namespace: "{{ infra_ci_namespace }}"
     state: present
     src: "{{ item }}"
+    verify_ssl: no
   with_fileglob: 'files/tekton/pipelines/infra/*.yaml'
 
 - name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
@@ -24,6 +26,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
+    verify_ssl: no
     src: "files/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
 
 - name: Create Tekton pipelines from jinja templates for source_cluster
@@ -31,6 +34,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
+    verify_ssl: no
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/*.j2'
   vars:
@@ -41,6 +45,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
+    verify_ssl: no
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/*.j2'
   loop:

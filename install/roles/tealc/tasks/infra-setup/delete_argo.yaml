@@ -6,6 +6,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ infra_argo_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/argo/install/openshift/argocd.yaml
 
     - name: Delete Argo subscription
@@ -13,6 +14,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ openshift_operators_namespace }}"
         state: absent
+        verify_ssl: no
         src: files/argo/install/openshift/sub.yaml
       when:
         - '"admin-access" in ansible_run_tags'
@@ -22,6 +24,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         name: "{{ infra_argo_namespace }}"
         api_version: v1
+        verify_ssl: no
         kind: Namespace
         state: absent
       when:
@@ -42,6 +45,7 @@
     - name: Delete Argo
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        verify_ssl: no
         namespace: "{{ infra_argo_namespace }}"
         state: absent
         src: files/argo/install/kubernetes/argo-install.yaml
@@ -49,6 +53,7 @@
     - name: Delete Argo rbac
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        verify_ssl: no
         namespace: "{{ infra_argo_namespace }}"
         state: absent
         src: files/argo/install/kubernetes/argocd-rbac-cm.yaml
@@ -56,6 +61,7 @@
     - name: Delete Argo namespace on Infra cluster
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+        verify_ssl: no
         name: "{{ infra_argo_namespace }}"
         api_version: v1
         kind: Namespace

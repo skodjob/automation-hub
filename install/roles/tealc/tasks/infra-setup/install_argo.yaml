@@ -5,6 +5,7 @@
     name: "{{ infra_argo_namespace }}"
     api_version: v1
     kind: Namespace
+    verify_ssl: no
     state: present
   when:
     - '"admin-access" in ansible_run_tags'
@@ -14,6 +15,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    verify_ssl: no
     src: "{{ grafana_docker_secret_path }}"
 
 
@@ -26,6 +28,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         state: present
+        verify_ssl: no
         src: files/argo/install/openshift/sub.yaml
       when:
         - '"admin-access" in ansible_run_tags'
@@ -43,6 +46,7 @@
         kind: Deployment
         name: gitops-operator-controller-manager
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -55,6 +59,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ infra_argo_namespace }}"
         state: present
+        verify_ssl: no
         src: files/argo/install/openshift/argocd.yaml
 
     - name: Sleep for 60 seconds and continue with play
@@ -68,6 +73,7 @@
         kind: Deployment
         name: argocd-server
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -80,6 +86,7 @@
         kind: Deployment
         name: argocd-dex-server
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -98,6 +105,7 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ infra_argo_namespace }}"
         state: present
+        verify_ssl: no
         src: files/argo/install/kubernetes/argo-install.yaml
 
     - name: Wait for Argo readiness
@@ -107,6 +115,7 @@
         kind: Deployment
         name: argocd-server
         wait: true
+        verify_ssl: no
         wait_condition:
           type: Available
           status: True
@@ -117,5 +126,6 @@
         kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
         namespace: "{{ infra_argo_namespace }}"
         state: present
+        verify_ssl: no
         src: files/argo/install/kubernetes/argocd-rbac-cm.yaml
   when: is_kubernetes

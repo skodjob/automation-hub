@@ -16,6 +16,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "openshift-machine-api"
     state: present
+    verify_ssl: no
     template: templates/machine-sets.yaml.j2
   vars:
     clusterName: "{{ worker.name }}"
