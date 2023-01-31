@@ -36,6 +36,8 @@ workers:
     username: pepa
     password: zdepa
     monitoring_namespace: tealc
+    environment: upstream
+    workload: true
   target_cluster:
     name: worker-02
     api_url: server_api_url
@@ -43,3 +45,5 @@ workers:
     username: pepa
     password: zdepa
     monitoring_namespace: tealc
+    environment: upstream
+    workload: true
