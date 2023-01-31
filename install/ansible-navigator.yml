@@ -5,7 +5,10 @@ ansible-navigator:
 
   execution-environment:
     enabled: true
-    image: quay.io/ansible/creator-ee:v0.13.0
+    image: quay.io/tealc/tealc-ee:latest
+    pull:
+      arguments:
+        - "--platform linux/amd64"
     environment-variables:
       set:
         ANSIBLE_RUN_TAGS: 'infra,rp,strimzi-infra,twitter-app,test-suite'
