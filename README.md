@@ -27,7 +27,7 @@ ansible-navigator
 ```
 cd install
 ansible-navigator #default all tags
-ansible-navigator --tags infra
+ansible-navigator run install/ansible/tealc-play.yaml --tags infra
 ```
 
 By default, installation of operators on infra cluster is disabled due to not sufficient rights.
@@ -38,7 +38,7 @@ If you have those rights, you can force operators installation by tag `admin-acc
 ```
 ansible-playbook install/ansible/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
 #or
-ansible-navigator --extra-vars log_sensitive_data=true
+ansible-navigator run install/ansible/tealc-play.yaml --extra-vars log_sensitive_data=true
 ```
 
 ### DevConf.cz 2022 presentation about TEALC in action
