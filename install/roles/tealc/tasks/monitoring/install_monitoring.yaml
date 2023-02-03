@@ -130,9 +130,9 @@
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.release_cluster.name }}.strimzi.app-services-dev.net:443"}
     - {name: "{{ workers.downstream_cluster.name }}", sa_namespace: "{{ workers.downstream_cluster.monitoring_namespace }}",
-        monitoring_namespace: "{{ infra_monitoring_namespace }}",
-        context: "{{ infra_context_name }}",
-        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443"}
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       context: "{{ infra_context_name }}",
+       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443"}
   loop_control:
     loop_var: target
 
