@@ -16,7 +16,7 @@
 
 - name: Create ServiceAccount for remote access
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     namespace: "default"
     state: present
     verify_ssl: no
@@ -26,7 +26,7 @@
 #  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
   shell: "oc get  $(oc get secret -o name -n default | grep access-serviceaccount-token) -n default -o=jsonpath='{.data.token}' | base64 -d"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.value.name }}"
   register: "access_token_out"
 
 - name: Set facts for route host

@@ -1,7 +1,7 @@
 ---
 - include_tasks: prepare_access_twitter.yaml
   loop:
-    - "{{ workers.source_cluster }}"
+    - "{{ workers.main_cluster }}"
   loop_control:
     loop_var: worker
 

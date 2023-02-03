@@ -22,28 +22,24 @@
 
 - name: Create monitoring namespace on worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    name: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    name: "{{ worker.value.monitoring_namespace }}"
     api_version: v1
     kind: Namespace
     state: present
     verify_ssl: no
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
 - name: Enable user-workload on worker cluster
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     namespace: "openshift-monitoring"
     state: present
     src: files/user-workload-cm.yaml
     verify_ssl: no
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -52,7 +48,7 @@
     timeout: 10
   when: not is_kubernetes
 
-- name: Setup Grafana on Infra cluster
+- name: Setup Grafana access on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
@@ -62,16 +58,14 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Setup Grafana on Worker clusters
+- name: Setup Grafana access on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "{{ worker.value.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
     verify_ssl: no
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -127,14 +121,18 @@
 - name: Create data-sources on Infra cluster
   include_tasks: deploy-data-source.yaml
   loop:
-    - {name: "{{ workers.source_cluster.name }}", sa_namespace: "{{ workers.source_cluster.monitoring_namespace }}",
+    - {name: "{{ workers.main_cluster.name }}", sa_namespace: "{{ workers.main_cluster.monitoring_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        context: "{{ infra_context_name }}",
-       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.source_cluster.name }}.strimzi.app-services-dev.net:443"}
-    - {name: "{{ workers.target_cluster.name }}", sa_namespace: "{{ workers.target_cluster.monitoring_namespace }}",
+       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.main_cluster.name }}.strimzi.app-services-dev.net:443"}
+    - {name: "{{ workers.release_cluster.name }}", sa_namespace: "{{ workers.release_cluster.monitoring_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        context: "{{ infra_context_name }}",
-       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.target_cluster.name }}.strimzi.app-services-dev.net:443"}
+       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.release_cluster.name }}.strimzi.app-services-dev.net:443"}
+    - { name: "{{ workers.downstream_cluster.name }}", sa_namespace: "{{ workers.downstream_cluster.monitoring_namespace }}",
+        monitoring_namespace: "{{ infra_monitoring_namespace }}",
+        context: "{{ infra_context_name }}",
+        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443" }
   loop_control:
     loop_var: target
 
@@ -151,15 +149,13 @@
 
 - name: Configure Alertmanager to for sending alerts on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     state: present
     verify_ssl: no
     template: templates/alert-manager-configuration.yaml.j2
   vars:
-    clusterName: "{{ worker.name }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+    clusterName: "{{ worker.value.name }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 

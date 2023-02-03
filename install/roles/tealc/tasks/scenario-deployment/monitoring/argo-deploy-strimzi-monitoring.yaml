@@ -7,9 +7,9 @@
     template: "{{ item }}"
     verify_ssl: no
   vars:
-    cluster: "{{ workers.source_cluster.name }}"
-    namespace: "{{ workers.source_cluster.monitoring_namespace }}"
-  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.source_cluster.name }}/*.j2"
+    cluster: "{{ workers.main_cluster.name }}"
+    namespace: "{{ workers.main_cluster.monitoring_namespace }}"
+  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.main_cluster.name }}/*.j2"
 
 - name: Create Argo applications for Strimzi monitoring on target cluster
   kubernetes.core.k8s:
@@ -19,9 +19,9 @@
     verify_ssl: no
     template: "{{ item }}"
   vars:
-    cluster: "{{ workers.target_cluster.name }}"
-    namespace: "{{ workers.target_cluster.monitoring_namespace }}"
-  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.target_cluster.name }}/*.j2"
+    cluster: "{{ workers.release_cluster.name }}"
+    namespace: "{{ workers.release_cluster.monitoring_namespace }}"
+  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.release_cluster.name }}/*.j2"
 
 - name: Create Argo applications for Strimzi dashboards on infra cluster
   kubernetes.core.k8s:

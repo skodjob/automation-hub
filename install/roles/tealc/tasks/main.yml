@@ -21,9 +21,7 @@
       tags: [setup-workers-access, infra, never]
   tags: [setup-workers-access, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -33,9 +31,7 @@
       tags: [machine-sets, infra, never]
   tags: [machine-sets, infra, never]
   no_log: "{{ not log_sensitive_data|bool  }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
   when: not is_kubernetes

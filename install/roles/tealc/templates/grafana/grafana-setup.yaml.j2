@@ -1,5 +1,5 @@
 {% if worker is defined %} 
-{% set namespace = worker.monitoring_namespace %}
+{% set namespace = worker.value.monitoring_namespace %}
 {% else %} 
 {% set namespace = infra_monitoring_namespace %} 
 {% endif %}
