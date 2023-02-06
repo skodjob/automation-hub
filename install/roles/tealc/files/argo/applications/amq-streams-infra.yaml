@@ -17,7 +17,7 @@ spec:
                   environment: 'downstream'
   template:
     metadata:
-      name: '{{appname}}'
+      name: '{{appname}}-{{name}}'
       labels:
         project: tealc
         app: strimzi

@@ -17,7 +17,7 @@ spec:
                   environment: 'upstream-latest'
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{appname}}-{{name}}'
       labels:
         project: tealc
         app: strimzi
@@ -37,5 +37,5 @@ spec:
         syncOptions:
           - CreateNamespace=true
       destination:
-        name: '{{server}}'
+        name: '{{name}}'
         namespace: '{{namespace}}'
