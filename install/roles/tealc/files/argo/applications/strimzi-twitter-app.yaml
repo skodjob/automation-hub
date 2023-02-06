@@ -10,15 +10,14 @@ spec:
               repoURL: https://github.com/ExcelentProject/sokar
               revision: HEAD
               files:
-                - path: 'strimzi/twitter-connector/**/argo-config.yaml'
-                  exclude: true
+                - path: 'twitter-connector/**/argo-config.yaml'
           - clusters:
               selector:
                 matchLabels:
-                  type: 'upstream'
+                  environment: 'upstream-latest'
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{appname}}-{{name}}'
       labels:
         project: tealc
         app: strimzi
@@ -38,5 +37,5 @@ spec:
         syncOptions:
           - CreateNamespace=true
       destination:
-        name: '{{server}}'
+        name: '{{name}}'
         namespace: '{{namespace}}'

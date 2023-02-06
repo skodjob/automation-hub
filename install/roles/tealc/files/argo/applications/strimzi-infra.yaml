@@ -11,15 +11,13 @@ spec:
               revision: HEAD
               files:
                 - path: "strimzi/**/argo-config.yaml"
-                - path: 'strimzi/twitter-connector'
-                  exclude: true
           - clusters:
               selector:
                 matchLabels:
-                  type: 'upstream'
+                  environment: 'upstream-latest'
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{appname}}-{{name}}'
       labels:
         project: tealc
         app: strimzi
@@ -39,5 +37,5 @@ spec:
         syncOptions:
           - CreateNamespace=true
       destination:
-        name: '{{server}}'
+        name: '{{name}}'
         namespace: '{{namespace}}'
