@@ -10,7 +10,7 @@ infra_access_token: placeholder
 infra_api_url: server_api_url
 infra_context_name: tealc-infra
 infra_username: pepa
-infra_password: zdepa
+infra_token: zdepa
 
 # ReportPortal
 rp_app_domain: my-domain.com
@@ -29,7 +29,7 @@ twitter_secret_path: configpath/install/examples/twitter
 
 # Workers
 workers:
-  source_cluster:
+  main_cluster:
     name: worker-01
     api_url: server_api_url
     access_token: placeholder
@@ -38,7 +38,7 @@ workers:
     monitoring_namespace: tealc
     environment: upstream
     workload: true
-  target_cluster:
+  release_cluster:
     name: worker-02
     api_url: server_api_url
     access_token: placeholder

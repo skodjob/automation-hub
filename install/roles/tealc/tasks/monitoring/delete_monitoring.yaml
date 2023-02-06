@@ -10,13 +10,11 @@
 - name: Delete Grafana access on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    namespace: "{{ worker.value.monitoring_namespace }}"
     state: absent
     verify_ssl: no
     template: templates/grafana/grafana-setup.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -30,14 +28,12 @@
 
 - name: Delete Grafana operator on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "{{ worker.value.monitoring_namespace }}"
     state: absent
     verify_ssl: no
     template: templates/grafana/grafana-operator.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -51,14 +47,12 @@
 
 - name: Delete Grafana instance on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "{{ worker.value.monitoring_namespace }}"
     state: absent
     verify_ssl: no
     template: templates/grafana/grafana.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -73,15 +67,13 @@
 
 - name: Remove Alertmanager configuration for sending alerts on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     state: absent
     verify_ssl: no
     template: templates/alert-manager-configuration.yaml.j2
   vars:
-    clusterName: "{{ worker.name }}"
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+    clusterName: "{{ worker.value.name }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -109,14 +101,12 @@
 
 - name: Delete Grafana data-source on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "{{ worker.value.monitoring_namespace }}"
     state: absent
     verify_ssl: no
     template: templates/grafana-data-source.yaml.j2
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
 
@@ -131,15 +121,12 @@
 
 - name: Delete monitoring namespaces on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    name: "{{ worker.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    name: "{{ worker.value.monitoring_namespace }}"
     api_version: v1
     kind: Namespace
     state: absent
     verify_ssl: no
-  loop:
-    - "{{ workers.source_cluster }}"
-    - "{{ workers.target_cluster }}"
+  loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
-  

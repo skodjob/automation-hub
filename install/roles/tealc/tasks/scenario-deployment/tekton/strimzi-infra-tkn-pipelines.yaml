@@ -29,7 +29,7 @@
     verify_ssl: no
     src: "files/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
 
-- name: Create Tekton pipelines from jinja templates for source_cluster
+- name: Create Tekton pipelines from jinja templates for main_cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
@@ -38,17 +38,15 @@
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/*.j2'
   vars:
-    name: "{{ workers.source_cluster.name }}"
+    name: "{{ workers.main_cluster.name }}"
 
-- name: Create Tekton pipelines from jinja templates for target_cluster
+- name: Create Tekton pipelines from jinja templates for release_cluster and downstream_cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
     verify_ssl: no
-    template: "{{ item }}"
-  with_fileglob: 'templates/tekton/pipelines/*.j2'
-  loop:
-    - "templates/tekton/pipelines/upgrade-worker-cluster.yaml.j2"
-  vars:
-    name: "{{ workers.target_cluster.name }}"
+    template: "templates/tekton/pipelines/upgrade-worker-cluster.yaml.j2"
+  loop: "{{ workers | dict2items }}"
+  loop_control:
+    loop_var: worker

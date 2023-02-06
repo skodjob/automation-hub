@@ -1,3 +1,6 @@
+{% if worker is defined %}
+{% set name = worker.value.name %}
+{% endif %}
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
