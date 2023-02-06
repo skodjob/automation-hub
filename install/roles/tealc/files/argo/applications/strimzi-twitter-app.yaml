@@ -10,12 +10,11 @@ spec:
               repoURL: https://github.com/ExcelentProject/sokar
               revision: HEAD
               files:
-                - path: 'strimzi/twitter-connector/**/argo-config.yaml'
-                  exclude: true
+                - path: 'twitter-connector/**/argo-config.yaml'
           - clusters:
               selector:
                 matchLabels:
-                  type: 'upstream'
+                  environment: 'upstream-latest'
   template:
     metadata:
       name: '{{name}}'

@@ -11,12 +11,10 @@ spec:
               revision: HEAD
               files:
                 - path: "strimzi/**/argo-config.yaml"
-                - path: 'strimzi/twitter-connector'
-                  exclude: true
           - clusters:
               selector:
                 matchLabels:
-                  type: 'upstream'
+                  environment: 'upstream-latest'
   template:
     metadata:
       name: '{{name}}'
