@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: debezium
+spec:
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/ExcelentProject/sokar
+              revision: HEAD
+              files:
+                - path: "debezium/**/argo-config.yaml"
+          - clusters:
+              selector:
+                matchLabels:
+                  environment: 'upstream-latest'
+  template:
+    metadata:
+      name: '{{appname}}-{{name}}'
+      labels:
+        project: tealc
+        app: debezium
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/ExcelentProject/sokar
+        targetRevision: HEAD
+        path: '{{source}}'
+        directory:
+          recurse: true
+          exclude: '{argo-config.yaml}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      destination:
+        name: '{{name}}'
+        namespace: '{{namespace}}'
