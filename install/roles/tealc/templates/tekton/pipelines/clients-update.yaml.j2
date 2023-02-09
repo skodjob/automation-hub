@@ -60,7 +60,7 @@ spec:
       image: quay.io/rh_integration/strimzi-tools:latest
       script: |
         export ROUTE=$(cat $(workspaces.task-ws.path)/route.txt)
-        yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/sokar/clients/strimzi/00-external-clients.yaml
+        yq -i e '.spec.template.spec.containers[0].env.[] |= select(.name == "BOOTSTRAP_SERVERS") |= .value=env(ROUTE)' $(workspaces.task-ws.path)/sokar/strimzi/clients/00-external-clients.yaml
         cat $(workspaces.task-ws.path)/sokar/strimzi/clients/00-external-clients.yaml
     - name: sokar-push
       image: quay.io/rh_integration/strimzi-tools:latest
