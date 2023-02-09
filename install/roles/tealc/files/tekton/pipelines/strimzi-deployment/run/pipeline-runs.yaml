@@ -20,7 +20,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Gi
+              storage: 500Mi
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -44,7 +44,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Gi
+              storage: 500Mi
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -68,7 +68,7 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Gi
+              storage: 500Mi
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -92,4 +92,4 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 1Gi
+              storage: 500Mi

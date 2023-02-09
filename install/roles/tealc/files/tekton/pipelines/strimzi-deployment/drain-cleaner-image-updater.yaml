@@ -95,7 +95,7 @@ spec:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 1Gi
+                    storage: 500Mi
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -123,6 +123,16 @@ spec:
         - ref: drain-cleaner-deployment-image-update-triggerbinding
       template:
         ref: drain-cleaner-deployment-image-update-trigger-template
+  resources:
+    kubernetesResource:
+      spec:
+        template:
+          spec:
+            containers:
+              - resources:
+                  limits:
+                    memory: "64Mi"
+                    cpu: "50m"
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
