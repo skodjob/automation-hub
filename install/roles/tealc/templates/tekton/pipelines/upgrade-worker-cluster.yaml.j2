@@ -105,7 +105,7 @@ spec:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 1Gi
+                    storage: 500Mi
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -131,6 +131,16 @@ spec:
         - ref: upgrade-{{ name }}-cluster-triggerbinding
       template:
         ref: upgrade-{{ name }}-cluster-trigger-template
+  resources:
+    kubernetesResource:
+      spec:
+        template:
+          spec:
+            containers:
+            - resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "50m"
 
 ---
 # cron job as trigger

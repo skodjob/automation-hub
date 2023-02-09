@@ -98,6 +98,16 @@ spec:
         - ref: thor-test-suite-triggerbinding
       template:
         ref: thor-test-suite-trigger-template
+  resources:
+    kubernetesResource:
+      spec:
+        template:
+          spec:
+            containers:
+            - resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "50m"
 
 ---
 # cron job as trigger

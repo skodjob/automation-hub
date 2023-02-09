@@ -35,6 +35,13 @@ spec:
               env:
                 - name: WORKSPACE
                   value: "/workspace"
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
           restartPolicy: Never
 
 
