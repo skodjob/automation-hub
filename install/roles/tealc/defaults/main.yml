@@ -1,6 +1,6 @@
 ---
 # defaults file for tealc
-infra_monitoring_namespace: tealc-monitoring
+infra_monitoring_namespace: tealc
 infra_ci_namespace: tealc
 infra_argo_namespace: argocd
 
