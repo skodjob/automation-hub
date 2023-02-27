@@ -18,20 +18,16 @@ stringData:
       repeat_interval: 24h
       receiver: 'default_blackhole'
       routes:
-        - receiver: email
+        - receiver: telegram
           match:
             app: tealc
 
     receivers:
     - name: 'default_blackhole'
-    - name: 'email'
-      email_configs:
-      - to: '{{ smtp_email }}'
-        from: '{{ smtp_email }}'
-        headers:
-          subject: '[{{ clusterName }}] {% raw %}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }}{% endraw %}'
-        smarthost: {{ smtp_server }}
-        require_tls: true
-        auth_username: {{ smtp_username }}
-        auth_password: {{ smtp_password }}
-        send_resolved: true
+    - name: 'telegram'
+      telegram_configs:
+      - bot_token: {{ telegram_alert_bot_token }}
+        api_url: https://api.telegram.org
+        chat_id: {{ telegram_alert_chat_id }}
+        parse_mode: Markdown
+        message: '\[*{{ clusterName }}*] {% raw %}\[Alert *{{ .Status }}*{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }}{% endraw %}'
