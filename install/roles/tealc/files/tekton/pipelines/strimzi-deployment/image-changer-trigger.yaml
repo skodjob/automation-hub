@@ -18,18 +18,18 @@ spec:
               emptyDir: {}
             - name: configmap-volume
               configMap:
-                defaultMode: 0700
+                defaultMode: 0755
                 name: image-changer
           containers:
             - name: trigger
               image: quay.io/tealc/apophis:latest
               command:
-                - /bin/entrypoint.sh
+                - /workspace/entrypoint.sh
               volumeMounts:
                 - mountPath: /workspace
                   name: workspace
                 - name: configmap-volume
-                  mountPath: /bin/entrypoint.sh
+                  mountPath: /workspace/entrypoint.sh
                   readOnly: true
                   subPath: entrypoint.sh
               env:
