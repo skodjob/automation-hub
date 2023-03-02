@@ -113,7 +113,10 @@ metadata:
   name: upgrade-{{ name }}-cluster-triggerbinding
   labels:
     project: tealc
-spec: {}
+spec:
+  params:
+    - name: message
+      value: $(body)
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
