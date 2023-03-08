@@ -1,0 +1,25 @@
+---
+- name: Create 3scale namespace on Worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    name: "{{ item }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+    verify_ssl: no
+  loop:
+    - "{{ 3scale_namespace }}"
+
+- name: Create 3scale secrets
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ 3scale_namespace }}"
+    state: present
+    verify_ssl: no
+    src: "{{ 3scale_secret_path }}/{{ item }}"
+  loop:
+    - "system-aws.yaml"
+    - "system-recaptcha.yaml"
+    - "system-seed.yaml"
+    - "system-smtp.yaml"
+    - "threescale-registry-auth.yaml"
