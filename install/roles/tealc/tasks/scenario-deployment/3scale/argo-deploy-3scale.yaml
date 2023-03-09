@@ -1,4 +1,10 @@
 ---
+- include_tasks: prepare_3scale.yaml
+  loop:
+    - "{{ workers.main_cluster }}"
+  loop_control:
+    loop_var: worker
+
 - include_tasks: prepare_apicast.yaml
   loop:
     - "{{ workers.main_cluster }}"
