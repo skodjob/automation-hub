@@ -1,0 +1,11 @@
+---
+- name: Create Apicast namespace on Worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    name: "{{ item }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+    verify_ssl: no
+  loop:
+    - "{{ apicast_namespace }}"

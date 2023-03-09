@@ -1,4 +1,10 @@
 ---
+- include_tasks: prepare_apicast.yaml
+  loop:
+    - "{{ workers.main_cluster }}"
+  loop_control:
+    loop_var: worker
+
 - name: Create Argo applications for 3scale
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
