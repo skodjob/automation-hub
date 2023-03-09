@@ -1,0 +1,8 @@
+---
+- name: Create Argo applications for 3scale
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    src: "files/argo/applications/3scale.yaml"
