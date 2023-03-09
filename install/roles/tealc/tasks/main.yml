@@ -70,6 +70,9 @@
 - import_tasks: scenario-deployment/twitter/argo-deploy-strimzi-twitter-app.yaml
   tags: [argo-apps, argo-strimzi-twitter-app, twitter-app, never]
 
+- import_tasks: scenario-deployment/3scale/argo-deploy-3scale.yaml
+  tags: [argo-apps, 3scale, never]
+
 - import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra, never]
 
