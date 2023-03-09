@@ -7,7 +7,7 @@ infra_argo_namespace: tealc-gitops
 openshift_pipelines_namespace: openshift-pipelines
 openshift_operators_namespace: openshift-operators
 strimzi_twitter_connector_namespace: strimzi-kafka
-3scale_namespace: 3scale-ga
+threescale_namespace: 3scale-ga
 apicast_namespace: apicast-ga
 
 route: empty

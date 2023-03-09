@@ -8,15 +8,15 @@
     state: present
     verify_ssl: no
   loop:
-    - "{{ 3scale_namespace }}"
+    - "{{ threescale_namespace }}"
 
 - name: Create 3scale secrets
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
-    namespace: "{{ 3scale_namespace }}"
+    namespace: "{{ threescale_namespace }}"
     state: present
     verify_ssl: no
-    src: "{{ 3scale_secret_path }}/{{ item }}"
+    src: "{{ threescale_secret_path }}/{{ item }}"
   loop:
     - "system-aws.yaml"
     - "system-recaptcha.yaml"

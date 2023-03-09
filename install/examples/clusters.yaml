@@ -11,6 +11,7 @@ kubeconfig_path: configpath
 github_secret_path: configpath/install/examples/github-secret.yaml
 grafana_docker_secret_path: configpath/install/examples/docker-secret.yaml
 twitter_secret_path: configpath/install/examples/twitter
+threescale_secret_path: configpath/install/examples/3scale
 
 # Workers
 workers:
