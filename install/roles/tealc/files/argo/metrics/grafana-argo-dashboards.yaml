@@ -7,7 +7,9 @@ metadata:
     project: tealc
   name: argo-monitoring
 spec:
-  json: ""
+  datasources:
+    - inputName: "datasource"
+      datasourceName: "tealc"
   configMapRef:
     name: grafana-dashboard-argo-config
     key: argo
