@@ -139,8 +139,8 @@
     - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_monitoring_namespace }}",
        sa_name: "tealc-sa",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
-        context: "{{ infra_context_name }}",
-        url: " https://thanos-querier.openshift-monitoring.svc.cluster.local:9091" }
+       context: "{{ infra_context_name }}",
+       url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
   loop_control:
     loop_var: target
 
