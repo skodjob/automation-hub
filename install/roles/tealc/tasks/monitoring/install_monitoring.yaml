@@ -124,15 +124,23 @@
     - {name: "{{ workers.main_cluster.name }}", sa_namespace: "{{ workers.main_cluster.monitoring_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        context: "{{ infra_context_name }}",
+       sa_name: "grafana-serviceaccount",
        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.main_cluster.name }}.strimzi.app-services-dev.net:443"}
     - {name: "{{ workers.release_cluster.name }}", sa_namespace: "{{ workers.release_cluster.monitoring_namespace }}",
+       sa_name: "grafana-serviceaccount",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.release_cluster.name }}.strimzi.app-services-dev.net:443"}
     - {name: "{{ workers.downstream_cluster.name }}", sa_namespace: "{{ workers.downstream_cluster.monitoring_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       sa_name: "grafana-serviceaccount",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443"}
+    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_monitoring_namespace }}",
+       sa_name: "tealc-sa",
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       context: "{{ infra_context_name }}",
+       url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
   loop_control:
     loop_var: target
 
@@ -169,8 +177,17 @@
   loop:
     - argo-dashboard-cm.yaml
     - grafana-argo-dashboards.yaml
-  when:
-    - '"admin-access" in ansible_run_tags'
+
+- name: Create SMTP secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    template: "templates/argo/metrics/{{ item }}"
+  loop:
+    - smtp-secret.yaml.j2
+    - alert-manager-config.yaml.j2
 
 - name: Configure Prometheus alerts on Infra cluster
   kubernetes.core.k8s:
@@ -181,5 +198,3 @@
     src: "files/argo/metrics/{{ item }}"
   loop:
     - alerts.yaml
-  when:
-    - '"admin-access" in ansible_run_tags'

@@ -12,7 +12,7 @@ spec:
   groups:
     - name: argo-apps
       rules:
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 15
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 100
           alert: ArgoCdNotEnoughApplications
           for: 1m
           labels:
@@ -21,7 +21,7 @@ spec:
           annotations:
             summary: 'Argo Applications are down'
             description: 'There are some Argo applications which are not created!'
-        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 1
+        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 100
           alert: ArgoCdNotEnoughClusters
           for: 1m
           labels:

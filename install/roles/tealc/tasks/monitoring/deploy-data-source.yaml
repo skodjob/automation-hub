@@ -1,7 +1,7 @@
 ---
 - name: "Export access token {{ target.name }}"
 #  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ target.sa_namespace }}"
-  shell: "oc get  $(oc get secret -o name -n {{ target.sa_namespace }} | grep grafana-serviceaccount-token) -n {{ target.sa_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
+  shell: "oc get  $(oc get secret -o name -n {{ target.sa_namespace }} | grep {{ target.sa_name }}-token) -n {{ target.sa_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ target.name }}"
   register: "access_token_out"
