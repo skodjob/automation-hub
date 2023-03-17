@@ -16,6 +16,7 @@
     namespace: "{{ strimzi_twitter_connector_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "{{ twitter_secret_path }}/{{ item }}"
   loop:
     - "registry.yaml"

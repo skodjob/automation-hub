@@ -1,10 +1,4 @@
 ---
-# SMTP configurations for alerts
-smtp_username: pepa
-smtp_password: zdepa
-smtp_server: smtp.server.com:538
-smtp_email: pepa@zdepa.cz
-
 #  Infra cluster configuration
 infra_access_token: placeholder
 infra_api_url: server_api_url

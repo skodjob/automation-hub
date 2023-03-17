@@ -4,5 +4,6 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     state: present
+    apply: true
     src: "files/argo/applications/strimzi-infra.yaml"
     verify_ssl: no

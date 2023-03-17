@@ -84,7 +84,6 @@ spec:
       spec:
         pipelineRef:
           name: clients-deployment-image-update-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -111,14 +110,13 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: clients-deployment-image-update-event-listener
+  name: clients-image-update-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
-    - name: clients-deployment-image-update-webhook
+    - name: clients-image-update-webhook
       bindings:
         - ref: clients-deployment-image-update-triggerbinding
       template:
@@ -137,13 +135,13 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-clients-deployment-image-update-event-listener
+  name: el-clients-image-update-event-listener
   labels:
     project: tealc
 spec:
   to:
     kind: Service
-    name: el-clients-deployment-image-update-event-listener
+    name: el-clients-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener

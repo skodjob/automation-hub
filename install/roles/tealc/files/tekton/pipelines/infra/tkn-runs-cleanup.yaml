@@ -1,8 +1,7 @@
 kind: CronJob
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 metadata:
   name: tekton-pipelinerun-cleaner
-  namespace: tealc
   labels:
     app: tekton-pipelinerun-cleaner
     app.kubernetes.io/component: pipelinerun-cleaner
@@ -18,6 +17,7 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: Never
           containers:
             - name: kubectl
               image: 'quay.io/tealc/k8s:latest'
@@ -37,7 +37,7 @@ spec:
                   "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | uniq);
               env:
                 - name: NUM_TO_KEEP
-                  value: '1'
+                  value: '5'
               resources:
                 limits:
                   cpu: 100m

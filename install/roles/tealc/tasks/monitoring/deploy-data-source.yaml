@@ -19,5 +19,6 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ target.context }}"
     namespace: "{{ target.monitoring_namespace }}"
     state: present
+    apply: true
     template: templates/grafana/grafana-data-source.yaml.j2
     verify_ssl: no

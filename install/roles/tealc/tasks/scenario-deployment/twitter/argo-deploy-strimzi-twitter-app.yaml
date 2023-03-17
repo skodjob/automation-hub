@@ -11,6 +11,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "files/argo/applications/strimzi-twitter-app.yaml"
 
 - name: Create Twitter app related Tekton pipelines
@@ -19,6 +20,7 @@
     namespace: "{{ infra_ci_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "{{ item }}"
   with_fileglob: 'files/tekton/pipelines/twitter-app/*.yaml'
 
@@ -32,4 +34,5 @@
     namespace: "{{ infra_ci_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "files/tekton/pipelines/twitter-app/run/pipeline-runs.yaml"

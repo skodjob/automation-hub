@@ -85,7 +85,6 @@ spec:
       spec:
         pipelineRef:
           name: canary-deployment-image-update-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -113,14 +112,13 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: canary-deployment-image-update-event-listener
+  name: canary-image-update-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
-    - name: canary-deployment-image-update-webhook
+    - name: canary-image-update-webhook
       bindings:
         - ref: canary-deployment-image-update-triggerbinding
       template:
@@ -139,13 +137,13 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-canary-deployment-image-update-event-listener
+  name: el-canary-image-update-event-listener
   labels:
     project: tealc
 spec:
   to:
     kind: Service
-    name: el-canary-deployment-image-update-event-listener
+    name: el-canary-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener

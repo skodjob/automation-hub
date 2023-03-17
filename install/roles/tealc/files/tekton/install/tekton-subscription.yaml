@@ -7,7 +7,7 @@ metadata:
     labels:
         project: tealc
 spec:
-    channel: stable
+    channel: latest
     name: openshift-pipelines-operator-rh
     source: redhat-operators
     sourceNamespace: openshift-marketplace

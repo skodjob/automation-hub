@@ -1,8 +1,6 @@
 # TEALC CICD tooling
 Collection of deployments and tools for continuous testing of applications
 
-[![Verify](https://github.com/ExcelentProject/tealc/actions/workflows/verify.yaml/badge.svg)](https://github.com/ExcelentProject/tealc/actions/workflows/verify.yaml)
-
 ## Requirements
 ```
 ansible
@@ -14,13 +12,13 @@ ansible-playbook
 ```
 cd install
 ansible-galaxy collection install -r collections/requirements.yml
-ansible-playbook tealc-play.yaml --tags=infra,rp,strimzi-infra,twitter-app,test-suite
+ansible-playbook tealc-play.yaml --tags=infra,strimzi-infra,twitter-app
 ```
 
 makefile
 ```
 ansible-galaxy collection install -r install/collections/requirements.yml
-make install_infra install_rp install_strimzi twitter_app test_suite
+make install_infra install_strimzi twitter_app
 ```
 
 ansible-navigator
@@ -30,16 +28,13 @@ ansible-navigator #default all tags
 ansible-navigator run tealc-play.yaml --tags infra
 ```
 
-By default, installation of operators on infra cluster is disabled due to not sufficient rights.
-If you have those rights, you can force operators installation by tag `admin-access`.
-
 
 ### Show sensitive data during debugging ansible locally
 ```
-ansible-playbook install/tealc-play.yaml --tags=strimzi-infra --extra-vars log_sensitive_data=true
+ansible-playbook install/tealc-play.yaml --tags=strimzi-infra
 #or
 cd install
-ansible-navigator run tealc-play.yaml --extra-vars log_sensitive_data=true
+ansible-navigator run tealc-play.yaml
 ```
 
 ### DevConf.cz 2022 presentation about TEALC in action

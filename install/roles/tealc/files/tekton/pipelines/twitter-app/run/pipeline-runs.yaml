@@ -8,7 +8,6 @@ metadata:
 spec:
   pipelineRef:
     name: twitter-app-deployment-image-update-pipeline
-  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:

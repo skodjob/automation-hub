@@ -78,7 +78,6 @@ spec:
       spec:
         pipelineRef:
           name: twitter-app-deployment-image-update-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -105,12 +104,11 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: twitter-app-deployment-image-update-event-listener
+  name: twitter-image-update-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
     - name: twitter-app-deployment-image-update-webhook
       bindings:
@@ -131,13 +129,13 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-twitter-app-deployment-image-update-event-listener
+  name: el-twitter-image-update-event-listener
   labels:
     project: tealc
 spec:
   to:
     kind: Service
-    name: el-twitter-app-deployment-image-update-event-listener
+    name: el-twitter-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener

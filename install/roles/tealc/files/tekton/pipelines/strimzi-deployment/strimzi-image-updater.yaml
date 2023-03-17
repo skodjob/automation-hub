@@ -90,7 +90,6 @@ spec:
       spec:
         pipelineRef:
           name: strimzi-deployment-image-update-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -120,12 +119,11 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: strimzi-deployment-image-update-event-listener
+  name: strimzi-image-update-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
     - name: strimzi-deployment-image-update-webhook
       bindings:
@@ -147,13 +145,13 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-strimzi-deployment-image-update-event-listener
+  name: el-strimzi-image-update-event-listener
   labels:
     project: tealc
 spec:
   to:
     kind: Service
-    name: el-strimzi-deployment-image-update-event-listener
+    name: el-strimzi-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener

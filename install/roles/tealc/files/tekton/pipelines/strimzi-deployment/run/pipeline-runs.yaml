@@ -9,7 +9,6 @@ metadata:
 spec:
   pipelineRef:
     name: strimzi-deployment-image-update-pipeline
-  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:
@@ -33,7 +32,6 @@ metadata:
 spec:
   pipelineRef:
     name: drain-cleaner-deployment-image-update-pipeline
-  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:
@@ -57,7 +55,6 @@ metadata:
 spec:
   pipelineRef:
     name: canary-deployment-image-update-pipeline
-  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:
@@ -81,7 +78,6 @@ metadata:
 spec:
   pipelineRef:
     name: clients-deployment-image-update-pipeline
-  serviceAccountName: pipeline
   workspaces:
     - name: pipeline-ws
       volumeClaimTemplate:
