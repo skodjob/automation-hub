@@ -10,13 +10,17 @@
   when:
     - '"admin-access" in ansible_run_tags'
 
-- name: Enable user-workload on infra cluster
+- name: Enable & configure user-workload on infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "openshift-monitoring"
     state: present
-    src: files/user-workload-cm.yaml
+    template: "{{ item }}"
     verify_ssl: no
+  vars:
+    clusterName: "{{ infra_context_name }}"
+  loop:
+    - templates/cluster-monitoring-cm.yaml.j2
+    - templates/user-workload-monitoring-cm.yaml.j2
   when:
     - '"admin-access" in ansible_run_tags'
 
@@ -37,8 +41,22 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     namespace: "openshift-monitoring"
     state: present
-    src: files/user-workload-cm.yaml
+    template: templates/cluster-monitoring-cm.yaml.j2
     verify_ssl: no
+  vars:
+    clusterName: "{{ worker.value.name }}"
+  loop: "{{ workers | dict2items }}"
+  loop_control:
+    loop_var: worker
+
+- name: Configure user-workload on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    state: present
+    template: templates/user-workload-monitoring-cm.yaml.j2
+    verify_ssl: no
+  vars:
+    clusterName: "{{ worker.value.name }}"
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker

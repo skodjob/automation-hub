@@ -7,27 +7,116 @@ metadata:
     project: tealc
 type: Opaque
 stringData:
+  slack.tmpl: |
+    {% raw %}
+    {{/* Alertmanager Silence link */}}
+    {{ define "__alert_silence_link" -}}
+        {{ .ExternalURL | reReplaceAll "///" "//" }}/silences/~new?alertname={{- .CommonLabels.alertname -}}
+        {{- range .CommonLabels.SortedPairs -}}
+            {{- if ne .Name "alertname" -}}
+                &{{- .Name }}={{- .Value -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end }}
+
+    {{/* Severity of the alert */}}
+    {{ define "__alert_severity" -}}
+        {{- if eq .CommonLabels.severity "critical" -}}
+        *Severity:* `Critical`
+        {{- else if eq .CommonLabels.severity "warning" -}}
+        *Severity:* `Warning`
+        {{- else if eq .CommonLabels.severity "info" -}}
+        *Severity:* `Info`
+        {{- else -}}
+        *Severity:* :question: {{ .CommonLabels.severity }}
+        {{- end }}
+    {{- end }}
+
+    {{/* Title of the Slack alert */}}
+    {{ define "slack.title" -}}
+      [{{ .Status | toUpper -}}
+      {{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{- end -}}
+      ] {{ .CommonLabels.alertname }}
+    {{- end }}
+
+
+    {{/* Color of Slack attachment (appears as line next to alert )*/}}
+    {{ define "slack.color" -}}
+        {{ if eq .Status "firing" -}}
+            {{ if eq .CommonLabels.severity "warning" -}}
+                warning
+            {{- else if eq .CommonLabels.severity "critical" -}}
+                danger
+            {{- else -}}
+                #439FE0
+            {{- end -}}
+        {{ else -}}
+        good
+        {{- end }}
+    {{- end }}
+
+    {{/* The text to display in the alert */}}
+    {{ define "slack.text" -}}
+
+        {{ template "__alert_severity" . }}
+        {{- if (index .Alerts 0).Annotations.summary }}
+        {{- "\n" -}}
+        *Cluster:* `{{ .CommonLabels.clusterName }}`
+        {{- "\n" -}}
+        *Summary:* {{ (index .Alerts 0).Annotations.summary }}
+        {{- end }}
+
+        {{ range .Alerts }}
+
+            {{- if .Annotations.description }}
+            {{- "\n" -}}
+            {{ .Annotations.description }}
+            {{- "\n" -}}
+            {{- end }}
+            {{- if .Annotations.message }}
+            {{- "\n" -}}
+            {{ .Annotations.message }}
+            {{- "\n" -}}
+            {{- end }}
+
+        {{- end }}
+
+    {{- end }}
+    {% endraw %}
+
   alertmanager.yaml: |
     global:
       resolve_timeout: 10m
+      slack_api_url: {{ slack_api_url }}
 
     route:
       group_by: ['alertname']
       group_wait: 1m
-      group_interval: 5m
-      repeat_interval: 24h
+      group_interval: 2m
+      repeat_interval: 3m
       receiver: 'default_blackhole'
       routes:
-        - receiver: telegram
+        - receiver: slack
           match:
             app: tealc
-
     receivers:
-    - name: 'default_blackhole'
-    - name: 'telegram'
-      telegram_configs:
-      - bot_token: {{ telegram_alert_bot_token }}
-        api_url: https://api.telegram.org
-        chat_id: {{ telegram_alert_chat_id }}
-        parse_mode: Markdown
-        message: '\[*{{ clusterName }}*] {% raw %}\[Alert *{{ .Status }}*{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }}{% endraw %}'
+      - name: 'default_blackhole'
+      - name: 'slack'
+        slack_configs:
+        - channel: '#tealc-alerts'
+          color: '{% raw %}{{ template "slack.color" . }}{% endraw %}'
+          title: '{% raw %}{{ template "slack.title" . }}{% endraw %}'
+          text: '{% raw %}{{ template "slack.text" . }}{% endraw %}'
+          send_resolved: true
+          actions:
+            - type: button
+              text: 'Grafana :grafana:'
+              url: '{{ grafana_url }}'
+            - type: button
+              text: 'ArgoCD :argocd:'
+              url: '{{ argo_url }}'
+            - type: button
+              text: 'Silence :no_bell:'
+              url: '{% raw %}{{ template "__alert_silence_link" . }}{% endraw %}'
+    templates: ['/etc/alertmanager/config/**/*.tmpl']
+
