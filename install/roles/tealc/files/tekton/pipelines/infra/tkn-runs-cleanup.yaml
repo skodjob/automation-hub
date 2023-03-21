@@ -17,6 +17,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: pipeline
           restartPolicy: Never
           containers:
             - name: kubectl
