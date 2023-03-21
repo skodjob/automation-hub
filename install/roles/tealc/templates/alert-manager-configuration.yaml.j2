@@ -92,8 +92,8 @@ stringData:
     route:
       group_by: ['alertname']
       group_wait: 1m
-      group_interval: 2m
-      repeat_interval: 3m
+      group_interval: 2h
+      repeat_interval: 24h
       receiver: 'default_blackhole'
       routes:
         - receiver: slack
