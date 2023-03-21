@@ -64,7 +64,7 @@ data:
     
     if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
       echo "[INFO] Going to trigger Operator images update"
-      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.tealc.svc.cluster.local:8080  
+      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
     fi
   
     wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/drain-cleaner/060-Deployment.yaml -O "${WORKSPACE}"/deployment-dc.yaml
@@ -72,7 +72,7 @@ data:
     
     if ! grep "${DIGEST_DC}" "${WORKSPACE}"/deployment-dc.yaml; then
       echo "[INFO] Going to trigger drain-cleaner images update"
-      curl -d '{"trigger-template": "image-update","params": {"image": "drain-cleaner"}}' el-drain-cleaner-image-update-event-listener.tealc.svc.cluster.local:8080  
+      curl -d '{"trigger-template": "image-update","params": {"image": "drain-cleaner"}}' el-drain-cleaner-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
     fi
   
     wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/canary/020-Deployment.yaml -O "${WORKSPACE}"/deployment-canary.yaml
@@ -80,5 +80,5 @@ data:
     
     if ! grep "${DIGEST_CANARY}" "${WORKSPACE}"/deployment-canary.yaml; then
       echo "[INFO] Going to trigger Canary images update"
-      curl -d '{"trigger-template": "image-update","params": {"image": "canary"}}' el-canary-image-update-event-listener.tealc.svc.cluster.local:8080
+      curl -d '{"trigger-template": "image-update","params": {"image": "canary"}}' el-canary-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080
     fi
