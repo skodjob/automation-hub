@@ -1,0 +1,23 @@
+---
+- name: Delete logging namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ openshift_logging_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: absent
+  when:
+    - '"admin-access" in ansible_run_tags'
+
+- name: Delete logging namespace on Worker clusters
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    name: "{{ openshift_logging_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: absent
+  loop: "{{ workers | dict2items }}"
+  loop_control:
+    loop_var: worker

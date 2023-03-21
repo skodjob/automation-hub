@@ -1,0 +1,41 @@
+---
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogging
+metadata:
+  name: instance
+  namespace: {{ openshift_logging_namespace }}
+spec:
+  collection:
+    type: fluentd
+  logStore:
+    elasticsearch:
+      nodeCount: 3
+      redundancyPolicy: SingleRedundancy
+      resources:
+        requests:
+          memory: 2Gi
+      storage:
+        size: 200G
+        storageClassName: standard-csi
+    retentionPolicy:
+      application:
+        maxAge: 7d
+    type: elasticsearch
+  managementState: Managed
+  visualization:
+    kibana:
+      replicas: 1
+    type: kibana
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: elasticsearch
+  namespace: {{ openshift_logging_namespace }}
+spec:
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: elasticsearch

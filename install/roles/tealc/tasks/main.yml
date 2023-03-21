@@ -36,6 +36,10 @@
 - import_tasks: infra-setup/install_argo.yaml
   tags: [argo, infra, never]
 
+- import_tasks: infra-setup/install/install_openshift_logging.yaml
+  tags: [logging, infra, monitoring, never]
+  no_log: "{{ not log_sensitive_data|bool  }}"
+
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana, infra, never]
 
