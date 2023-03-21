@@ -11,7 +11,7 @@ ansible-navigator:
         - "--platform linux/amd64"
     environment-variables:
       set:
-        ANSIBLE_RUN_TAGS: 'infra,rp,strimzi-infra,twitter-app,test-suite'
+        ANSIBLE_RUN_TAGS: 'infra,strimzi-infra,twitter-app'
 
   app: run
   mode: stdout

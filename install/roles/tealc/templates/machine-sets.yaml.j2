@@ -10,7 +10,7 @@ metadata:
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
   # 7x kafka node
-  replicas: 7
+  replicas: 5
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}

@@ -28,16 +28,6 @@ spec:
             secretKeyRef:
               name: {{ name }}-tekton
               key: server
-        - name: RP_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: reportportal
-              key: token
-        - name: RP_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: reportportal
-              key: endpoint
       script: |
         set +x
 
@@ -52,7 +42,7 @@ spec:
         
         cd thor
 
-        mvn test -Drp.enable=true -Drp.uuid=$RP_TOKEN -Drp.endpoint=$RP_ENDPOINT --no-transfer-progress
+        mvn test --no-transfer-progress
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -91,7 +81,6 @@ spec:
       spec:
         pipelineRef:
           name: thor-test-suite-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -125,7 +114,6 @@ metadata:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
     - name: thor-test-suite-webhook
       bindings:

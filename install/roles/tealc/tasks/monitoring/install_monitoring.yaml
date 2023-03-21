@@ -2,18 +2,21 @@
 - name: Create monitoring namespace on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    name: "{{ infra_monitoring_namespace }}"
-    api_version: v1
-    kind: Namespace
     state: present
     verify_ssl: no
-  when:
-    - '"admin-access" in ansible_run_tags'
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ infra_monitoring_namespace }}"
+        labels:
+          'argocd.argoproj.io/managed-by': "{{ infra_argo_namespace }}"
 
 - name: Enable & configure user-workload on infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
+    apply: true
     template: "{{ item }}"
     verify_ssl: no
   vars:
@@ -21,8 +24,7 @@
   loop:
     - templates/cluster-monitoring-cm.yaml.j2
     - templates/user-workload-monitoring-cm.yaml.j2
-  when:
-    - '"admin-access" in ansible_run_tags'
+
 
 - name: Create monitoring namespace on worker clusters
   kubernetes.core.k8s:
@@ -41,6 +43,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     namespace: "openshift-monitoring"
     state: present
+    apply: true
     template: templates/cluster-monitoring-cm.yaml.j2
     verify_ssl: no
   vars:
@@ -53,6 +56,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     state: present
+    apply: true
     template: templates/user-workload-monitoring-cm.yaml.j2
     verify_ssl: no
   vars:
@@ -64,17 +68,15 @@
 - name: Sleep for 10 seconds and continue with play
   wait_for:
     timeout: 10
-  when: not is_kubernetes
 
 - name: Setup Grafana access on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
+    apply: true
     template: templates/grafana/grafana-setup.yaml.j2
     verify_ssl: no
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Setup Grafana access on Worker clusters
   kubernetes.core.k8s:
@@ -83,6 +85,7 @@
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
     verify_ssl: no
+    apply: true
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
@@ -94,8 +97,7 @@
     state: present
     template: templates/grafana/grafana-operator.yaml.j2
     verify_ssl: no
-  when:
-    - '"admin-access" in ansible_run_tags'
+    apply: true
 
 - name: Sleep for 20 seconds and continue with play
   wait_for:
@@ -108,33 +110,21 @@
     kind: Deployment
     name: grafana-operator-controller-manager
     wait: true
+    apply: true
     verify_ssl: no
     wait_condition:
       type: Available
       status: True
       reason: MinimumReplicasAvailable
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Deploy Grafana instance on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
+    apply: true
     template: templates/grafana/grafana.yaml.j2
     verify_ssl: no
-
-- name: Create data-sources on Infra cluster
-  include_tasks: deploy-data-source.yaml
-  loop:
-    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_monitoring_namespace }}",
-       monitoring_namespace: "{{ infra_monitoring_namespace }}",
-       context: "{{ infra_context_name }}",
-       url: " https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
-  loop_control:
-    loop_var: target
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Create data-sources on Infra cluster
   include_tasks: deploy-data-source.yaml
@@ -154,7 +144,7 @@
        sa_name: "grafana-serviceaccount",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443"}
-    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_monitoring_namespace }}",
+    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_user_namespace }}",
        sa_name: "tealc-sa",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        context: "{{ infra_context_name }}",
@@ -167,17 +157,17 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     verify_ssl: no
+    apply: true
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ infra_context_name }}"
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Configure Alertmanager to for sending alerts on Worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     state: present
     verify_ssl: no
+    apply: true
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ worker.value.name }}"
@@ -191,21 +181,11 @@
     namespace: "{{ infra_monitoring_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "files/argo/metrics/{{ item }}"
   loop:
     - argo-dashboard-cm.yaml
     - grafana-argo-dashboards.yaml
-
-- name: Create SMTP secret
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    verify_ssl: no
-    template: "templates/argo/metrics/{{ item }}"
-  loop:
-    - smtp-secret.yaml.j2
-    - alert-manager-config.yaml.j2
 
 - name: Configure Prometheus alerts on Infra cluster
   kubernetes.core.k8s:
@@ -213,6 +193,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     verify_ssl: no
+    apply: true
     src: "files/argo/metrics/{{ item }}"
   loop:
     - alerts.yaml

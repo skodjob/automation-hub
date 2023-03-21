@@ -11,8 +11,6 @@
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
     - "{{ infra_argo_namespace }}"
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Create ServiceAccount for remote access
   kubernetes.core.k8s:
@@ -52,8 +50,6 @@
     state: present
     src: "{{ github_secret_path }}"
     verify_ssl: no
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Create Tekton secret in tekton namespace
   kubernetes.core.k8s:
@@ -70,8 +66,6 @@
     state: present
     template: templates/tekton/install/tekton-secret.yaml.j2
     verify_ssl: no
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Create Argo cluster access secret
   kubernetes.core.k8s:

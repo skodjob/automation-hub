@@ -4,15 +4,12 @@
 # clusters connections
 - import_tasks: common/check_parameters.yaml
   tags: [always, check-params]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: common/check_clients.yaml
   tags: [always, check-clients]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: common/prepare_kubeconfigs.yaml
   tags: [always, kubeconfigs]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 # infra installation
 - include_tasks:
@@ -20,7 +17,6 @@
     apply:
       tags: [setup-workers-access, infra, never]
   tags: [setup-workers-access, infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
@@ -30,71 +26,41 @@
     apply:
       tags: [machine-sets, infra, never]
   tags: [machine-sets, infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
-  when: not is_kubernetes
 
 - import_tasks: infra-setup/install_tekton.yaml
   tags: [tekton, infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: infra-setup/install_argo.yaml
   tags: [argo, infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana, infra, never]
-  when: not is_kubernetes
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 # Scenarios
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/monitoring/argo-deploy-strimzi-monitoring.yaml
   tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/twitter/argo-deploy-strimzi-twitter-app.yaml
   tags: [argo-apps, argo-strimzi-twitter-app, twitter-app, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra, never]
-  when: not is_kubernetes
-  no_log: "{{ not log_sensitive_data|bool  }}"
-
-- import_tasks: scenario-deployment/tekton/thor-test-suite-tkn-pipelines.yaml
-  tags: [tekton-pipelines, test-suite, never]
-  when: not is_kubernetes
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 # Teardown
 - import_tasks: infra-setup/delete_argo.yaml
   tags: [never, teardown, teardown-argo, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: infra-setup/delete_tekton.yaml
   tags: [never, teardown, teardown-tekton, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: monitoring/delete_monitoring.yaml
   tags: [never, teardown, teardown-monitoring, never]
-  when: not is_kubernetes
-  no_log: "{{ not log_sensitive_data|bool  }}"
-
-# Report portal
-- import_tasks: infra-setup/install_report_portal.yaml
-  tags: [reportportal, rp, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
-
-- import_tasks: infra-setup/delete_report_portal.yaml
-  tags: [teardown-reportportal, teardown, teardown-rp, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"

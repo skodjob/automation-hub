@@ -94,7 +94,6 @@ spec:
       spec:
         pipelineRef:
           name: upgrade-{{ name }}-cluster-pipeline
-        serviceAccountName: pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
@@ -127,7 +126,6 @@ metadata:
     listener: tealc
     project: tealc
 spec:
-  serviceAccountName: pipeline
   triggers:
     - name: upgrade-{{ name }}-cluster-webhook
       bindings:
