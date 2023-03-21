@@ -6,15 +6,6 @@ infra_context_name: tealc-infra
 infra_username: pepa
 infra_token: zdepa
 
-# ReportPortal
-rp_app_domain: my-domain.com
-rp_admin_user: pepa
-rp_admin_password_old: pepa
-rp_admin_password: pepin
-rp_project_name: TEALC
-rp_access_key: 453453453536436
-rp_secret_key: 6456474734653sdrgd5674
-
 # Paths info
 kubeconfig_path: configpath
 github_secret_path: configpath/install/examples/github-secret.yaml

@@ -9,7 +9,7 @@
     apply: true
   with_fileglob: 'files/tekton/pipelines/strimzi-deployment/*.yaml'
 
-- name: Create worker cluster related Tekton pipelines
+- name: Create infra/worker cluster related Tekton pipelines
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"

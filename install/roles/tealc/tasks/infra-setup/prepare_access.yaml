@@ -43,6 +43,14 @@
     src: "{{ github_secret_path }}"
     verify_ssl: no
 
+- name: Create tealc-install access secret in infra namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "{{ tealc_git_crypt_key }}"
+    verify_ssl: no
+
 - name: Create Github access secret in openshift-pipelines namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
