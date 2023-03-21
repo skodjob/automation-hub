@@ -12,36 +12,36 @@ spec:
   groups:
     - name: argo-apps
       rules:
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 100
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*"}) by (namespace) < 21
           alert: ArgoCdNotEnoughApplications
-          for: 1m
+          for: 2m
           labels:
             severity: major
             app: tealc
           annotations:
             summary: 'Argo Applications are down'
             description: 'There are some Argo applications which are not created!'
-        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 100
+        - expr: count(count by (server) (argocd_cluster_info{namespace=~".*"})) < 4
           alert: ArgoCdNotEnoughClusters
-          for: 1m
+          for: 2m
           labels:
             severity: major
             app: tealc
           annotations:
             summary: 'Argo lost some of the external cluster access'
             description: 'There are cluster access configurations which are deleted, but should be available!'
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (health_status) < 15
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (health_status) < 21
           alert: ArgoCdApplicationNotHealthy
-          for: 1m
+          for: 5m
           labels:
             severity: major
             app: tealc
           annotations:
             summary: 'Some Argo applications are not healthy'
             description: 'Some Argo application are not healthy and should be checked why is this happening!'
-        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 15
+        - expr: sum(argocd_app_info{namespace=~".*",dest_server=~".*",health_status=~".*",sync_status=~".*",health_status!=""}) by (sync_status) < 21
           alert: ArgoCdApplicationIsOutOfSync
-          for: 1m
+          for: 5m
           labels:
             severity: major
             app: tealc
