@@ -11,7 +11,7 @@ spec:
     - name: task-ws
   steps:
     - name: execute-tests
-      image: quay.io/app-sre/mk-ci-tools:latest
+      image: quay.io/mk-ci-cd/mas-ci-tools:latest
       env:
         - name: OC_USERNAME
           valueFrom:
@@ -41,7 +41,7 @@ spec:
         git clone https://github.com/ExcelentProject/thor.git
         
         cd thor
-
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
         mvn test --no-transfer-progress
 ---
 apiVersion: tekton.dev/v1beta1
