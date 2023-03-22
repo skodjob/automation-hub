@@ -68,3 +68,8 @@
       reason: MinimumReplicasAvailable
   retries: 10
   delay: 10
+
+- name: Install tekton poll operator
+  shell: "oc apply -f https://github.com/bigkevmcd/tekton-polling-operator/releases/download/v0.4.0/release-v0.4.0.yaml --namespace {{ infra_ci_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
