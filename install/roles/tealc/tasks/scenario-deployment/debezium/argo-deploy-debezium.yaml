@@ -1,0 +1,9 @@
+---
+- name: Create Argo applications for Debezium
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    apply: true
+    src: "files/argo/applications/debezium.yaml"
+    verify_ssl: no
