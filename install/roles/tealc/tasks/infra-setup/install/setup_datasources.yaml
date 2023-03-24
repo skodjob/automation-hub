@@ -1,15 +1,18 @@
 ---
-- name: Add ca.crt to variable
+- name: Add ca to variable
   shell: "oc get secret logging-loki-gateway-token -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.ca\\.crt}' | base64 -d"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
   register: "secret_data"
 
-- name: Add bundle-ca final secret
+- debug:
+    msg: "{{ secret_data }}"
+
+- name: Add ca to final secret
   set_fact:
-    loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
+    loki_datasource_data: "{{ loki_datasource_data | default({}) | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'ca',value: "{{ secret_data.stdout }}" }
+    - { key: 'ca', value: "{{ secret_data.stdout }}" }
 
 - name: Add token to variable
   shell: "oc get secret logging-loki-gateway-token -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
@@ -17,11 +20,11 @@
     KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
   register: "secret_data"
 
-- name: Add bundle-ca final secret
+- name: Add token to final secret
   set_fact:
     loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'token',value: "{{ secret_data.stdout }}" }
+    - { key: 'token', value: "{{ secret_data.stdout }}" }
 
 - name: Add route to variable
   shell: "oc get route logging-loki -n openshift-logging -o=jsonpath='{.status.ingress[0].host}'"
@@ -29,28 +32,54 @@
     KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
   register: "route_data"
 
-- name: Add bundle-ca final secret
+- name: Add route to final secret
   set_fact:
     loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'route',value: "{{ route_data.stdout }}" }
+    - { key: 'route', value: "{{ route_data.stdout }}" }
+
+- debug:
+    msg: "{{ loki_datasource_data }}"
 
 - name: Create Loki datasources on Infra cluster
   kubernetes.core.k8s:
+    state: present
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_logging_namespace }}"
-    state: present
     apply: true
-    verify_ssl: no
-    template: "templates/logging/install/loki/05-datasource.yaml.j2"
+    definition:
+      apiVersion: integreatly.org/v1alpha1
+      kind: GrafanaDataSource
+      metadata:
+        name: "loki-{{ clusterName }}-{{ loki_tenant_id }}"
+        namespace: "{{ infra_monitoring_namespace }}"
+        labels:
+          project: "tealc"
+          managed: "true"
+      spec:
+        name: "loki-{{ clusterName }}-{{ loki_tenant_id }}"
+        datasources:
+          - access: proxy
+            type: loki
+            url: "https://{{ loki_gateway_route_url }}:443/api/logs/v1/{{ loki_tenant_id }}"
+            editable: true
+            jsonData:
+              httpHeaderName1: X-Scope-OrgID
+              httpHeaderName2: Authorization
+              tlsAuthWithCACert: true
+            name: "Loki-{{ clusterName }}-{{ loki_tenant_id }}"
+            secureJsonData:
+              httpHeaderValue1: "{{ loki_tenant_id }}"
+              httpHeaderValue2: "Bearer {{ loki_gateway_token }}"
+              tlsCACert: "{{ loki_gateway_ca_cert }}"
   vars:
     loki_gateway_token: "{{ loki_datasource_data.token }}"
-    loki_gateway_ca_cert: "{{ loki_datasource_data.ca }}"
     loki_gateway_route_url: "{{ loki_datasource_data.route }}"
     loki_tenant_id: "{{ tenant_id }}"
+    loki_gateway_ca_cert: "{{ loki_datasource_data.ca }}"
   loop:
-    - application
-    - audit
-    - infrastructure
+    - "application"
+    - "audit"
+    - "infrastructure"
   loop_control:
     loop_var: tenant_id

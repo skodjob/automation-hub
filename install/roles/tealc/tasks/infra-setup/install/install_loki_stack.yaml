@@ -22,10 +22,12 @@
   loop:
     - templates/logging/install/loki/00-operator-group.yaml.j2
     - templates/logging/install/loki/01-loki-operator-sub.yaml.j2
+  register: loki
 
-- name: Sleep for 20 seconds and continue with play
+- name: Sleep for 30 seconds and continue with play
   wait_for:
-    timeout: 20
+    timeout: 30
+  when: loki.changed
 
 - name: "Wait for Loki operator on {{ clusterName }}"
   kubernetes.core.k8s:
