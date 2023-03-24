@@ -34,4 +34,3 @@
   loop: "{{ worker_clusters }}"
   loop_control:
     loop_var: clusterName
-

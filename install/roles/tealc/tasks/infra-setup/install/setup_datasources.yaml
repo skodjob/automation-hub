@@ -12,7 +12,7 @@
   set_fact:
     loki_datasource_data: "{{ loki_datasource_data | default({}) | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'ca', value: "{{ secret_data.stdout }}" }
+    - {key: 'ca', value: "{{ secret_data.stdout }}"}
 
 - name: Add token to variable
   shell: "oc get secret logging-loki-gateway-token -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
@@ -24,7 +24,7 @@
   set_fact:
     loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'token', value: "{{ secret_data.stdout }}" }
+    - {key: 'token', value: "{{ secret_data.stdout }}"}
 
 - name: Add route to variable
   shell: "oc get route logging-loki -n openshift-logging -o=jsonpath='{.status.ingress[0].host}'"
@@ -36,7 +36,7 @@
   set_fact:
     loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
   with_items:
-    - { key: 'route', value: "{{ route_data.stdout }}" }
+    - {key: 'route', value: "{{ route_data.stdout }}"}
 
 - debug:
     msg: "{{ loki_datasource_data }}"
