@@ -7,8 +7,6 @@
     kind: Namespace
     verify_ssl: no
     state: absent
-  when:
-    - '"admin-access" in ansible_run_tags'
 
 - name: Delete logging namespace on Worker clusters
   kubernetes.core.k8s:
