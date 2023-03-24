@@ -1,0 +1,76 @@
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: {{ tealc_logging_namespace }}
+spec:
+  auth: {}
+  http:
+    service:
+      metadata: {}
+      spec: {}
+    tls:
+      certificate: {}
+  monitoring:
+    logs: {}
+    metrics: {}
+  nodeSets:
+    - config:
+        node.attr.attr_name: attr_value
+        node.roles:
+          - master
+          - data
+        node.store.allow_mmap: false
+      count: 1
+      name: default
+      podTemplate:
+        metadata:
+          labels:
+            app: tealc
+        spec:
+          containers:
+            - name: elasticsearch
+              resources:
+                limits:
+                  cpu: '2'
+                  memory: 4Gi
+                requests:
+                  cpu: '1'
+                  memory: 4Gi
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+            storageClassName: standard-csi
+          status: {}
+  transport:
+    service:
+      metadata: {}
+      spec: {}
+    tls:
+      certificate: {}
+  updateStrategy:
+    changeBudget: {}
+  version: 8.6.2
+  volumeClaimDeletePolicy: DeleteOnScaledownOnly
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: elasticsearch
+  namespace: {{ tealc_logging_namespace }}
+spec:
+  to:
+    kind: Service
+    name: elasticsearch-es-http
+    weight: 100
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

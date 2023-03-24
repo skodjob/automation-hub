@@ -1,0 +1,148 @@
+---
+- name: "Create logging namespace on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    name: "{{ openshift_logging_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: present
+
+- name: "Create OpenShift Logging operator group and subscription on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/cluster-logging/00-operator-group.yaml.j2
+    - templates/logging/install/cluster-logging/01-openshift-logging-subscription.yaml.j2
+
+- name: Sleep for 20 seconds and continue with play
+  wait_for:
+    timeout: 20
+
+- name: "Wait for OpenShift logging operator on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    kind: Deployment
+    name: cluster-logging-operator
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: "Create OpenShift Logging instance on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/cluster-logging/02-cluster-logging-instance.yaml.j2
+
+
+
+
+
+#- name: Add bundle-ca to variable
+#  shell: "oc get secret elasticsearch-sample-es-http-certs-internal -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.ca\\.crt}' | base64 -d"
+#  environment:
+#    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#  register: "secret_data"
+#
+#- name: Add bundle-ca final secret
+#  set_fact:
+#    elastic_secret: "{{ elastic_secret | default({})  | combine({item.key: item.value}) }}"
+#  with_items:
+#    - { key: 'ca',value: "{{ secret_data.stdout }}" }
+#
+#- name: Add tls.crt to variable
+#  shell: "oc get secret elasticsearch-sample-es-http-certs-internal -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.tls\\.crt}' | base64 -d"
+#  environment:
+#    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#  register: "secret_data"
+#
+#- name: Add tls.crt to final secret
+#  set_fact:
+#    elastic_secret: "{{ elastic_secret | default({})  | combine({item.key: item.value}) }}"
+#  with_items:
+#    - { key: 'cert',value: "{{ secret_data.stdout }}" }
+#
+#- name: Add tls.key to variable
+#  shell: "oc get secret elasticsearch-sample-es-http-certs-internal -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.tls\\.key}' | base64 -d"
+#  environment:
+#    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#  register: "secret_data"
+#
+#- name: Add tls.key to final secret
+#  set_fact:
+#    elastic_secret: "{{ elastic_secret | default({})  | combine({item.key: item.value}) }}"
+#  with_items:
+#    - { key: 'key',value: "{{ secret_data.stdout }}" }
+#
+#- name: Add user password to variable
+#  shell: "oc get secret elasticsearch-sample-es-elastic-user -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.elastic}' | base64 -d"
+#  environment:
+#    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#  register: "secret_data"
+#
+#- name: Add user password to final secret
+#  set_fact:
+#    elastic_secret: "{{ elastic_secret | default({})  | combine({item.key: item.value}) }}"
+#  with_items:
+#    - { key: 'password',value: "{{ secret_data.stdout }}" }
+#
+#- name: Create elastic access secret
+#  kubernetes.core.k8s:
+#    state: present
+#    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+#    namespace: "openshift-logging"
+#    apply: true
+#    definition:
+#      apiVersion: v1
+#      kind: Secret
+#      type: Opaque
+#      metadata:
+#        name: "collector"
+#      data:
+#        tls.crt: "{{ elastic_secret.cert | b64encode }}"
+#        tls.key: "{{ elastic_secret.key | b64encode }}"
+#        ca-bundle.crt: "{{ elastic_secret.ca | b64encode }}"
+#        username: "{{ 'elastic' | b64encode }}"
+#        password: "{{ elastic_secret.password | b64encode }}"
+#  loop: "{{ workers | dict2items }}"
+#  loop_control:
+#    loop_var: worker
+#
+## Loki
+#- name: Create Loki access secret
+#  kubernetes.core.k8s:
+#    state: present
+#    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+#    namespace: "openshift-logging"
+#    apply: true
+#    definition:
+#      apiVersion: v1
+#      kind: Secret
+#      type: Opaque
+#      metadata:
+#        name: "logging-loki-s3"
+#      data:
+#        access_key_id: "{{ aws_access_key_id | b64encode }}"
+#        access_key_secret: "{{ aws_access_key_secret | b64encode }}"
+#        endpoint: "{{ aws_endpoint | b64encode }}"
+#        region: "{{ aws_region | b64encode }}"
+#        bucketnames: "{{ bucketname | b64encode }}"
+#  vars:
+#    bucketname: "tealc-{{ worker.value.name }}"
+#  loop: "{{ workers | dict2items }}"
+#  loop_control:
+#    loop_var: worker

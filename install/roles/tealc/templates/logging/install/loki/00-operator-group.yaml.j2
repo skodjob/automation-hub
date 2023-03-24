@@ -2,8 +2,6 @@ apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
   name: operator-group
-  namespace: {{ openshift_logging_namespace }}
+  namespace: openshift-operators-redhat
 spec:
-  targetNamespaces:
-    - {{ openshift_logging_namespace }}
   upgradeStrategy: Default

@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: operator-group
+  namespace: {{ tealc_logging_namespace }}
+spec:
+  targetNamespaces:
+    - {{ tealc_logging_namespace }}
+  upgradeStrategy: Default

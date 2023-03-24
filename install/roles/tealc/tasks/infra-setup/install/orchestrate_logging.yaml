@@ -1,0 +1,37 @@
+---
+- set_fact:
+    worker_clusters: []
+
+- name: Build worker cluster list
+  set_fact:
+    worker_clusters: "{{ worker_clusters + [ item.name ] }}"
+  loop: "{{ workers.values() }}"
+
+- name: Add infra-cluster to cluster list
+  set_fact:
+    clusters: "{{ [ infra_context_name ] + worker_clusters }}"
+
+- name: Show generated cluster list
+  debug:
+    msg: "{{ clusters }}"
+
+- include_tasks:
+    file: install_loki_stack.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+  vars:
+    logging_loki_s3_secret: logging-loki-s3
+
+- include_tasks:
+    file: install_cluster_logging.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- include_tasks:
+    file: setup_datasources.yaml
+  loop: "{{ worker_clusters }}"
+  loop_control:
+    loop_var: clusterName
+

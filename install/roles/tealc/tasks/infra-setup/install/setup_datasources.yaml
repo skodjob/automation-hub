@@ -1,0 +1,56 @@
+---
+- name: Add ca.crt to variable
+  shell: "oc get secret logging-loki-gateway-token -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.ca\\.crt}' | base64 -d"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
+  register: "secret_data"
+
+- name: Add bundle-ca final secret
+  set_fact:
+    loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
+  with_items:
+    - { key: 'ca',value: "{{ secret_data.stdout }}" }
+
+- name: Add token to variable
+  shell: "oc get secret logging-loki-gateway-token -n {{ openshift_logging_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
+  register: "secret_data"
+
+- name: Add bundle-ca final secret
+  set_fact:
+    loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
+  with_items:
+    - { key: 'token',value: "{{ secret_data.stdout }}" }
+
+- name: Add route to variable
+  shell: "oc get route logging-loki -n openshift-logging -o=jsonpath='{.status.ingress[0].host}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
+  register: "route_data"
+
+- name: Add bundle-ca final secret
+  set_fact:
+    loki_datasource_data: "{{ loki_datasource_data | combine({item.key: item.value}) }}"
+  with_items:
+    - { key: 'route',value: "{{ route_data.stdout }}" }
+
+- name: Create Loki datasources on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "templates/logging/install/loki/05-datasource.yaml.j2"
+  vars:
+    loki_gateway_token: "{{ loki_datasource_data.token }}"
+    loki_gateway_ca_cert: "{{ loki_datasource_data.ca }}"
+    loki_gateway_route_url: "{{ loki_datasource_data.route }}"
+    loki_tenant_id: "{{ tenant_id }}"
+  loop:
+    - application
+    - audit
+    - infrastructure
+  loop_control:
+    loop_var: tenant_id
