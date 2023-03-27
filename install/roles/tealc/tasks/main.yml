@@ -75,4 +75,4 @@
   tags: [never, teardown, teardown-monitoring]
 
 - import_tasks: infra-setup/delete/delete_logging.yaml
-  tags: [never, infra, teardown-logging, teardown,teardown-monitoring]
+  tags: [never, infra, teardown-logging, teardown, teardown-monitoring]
