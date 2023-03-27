@@ -42,7 +42,3 @@
     template: "{{ item }}"
   loop:
     - templates/logging/install/loki/01-loki-operator-sub.yaml.j2
-
-
-
-
