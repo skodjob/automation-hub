@@ -1,0 +1,28 @@
+---
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogging
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  collection:
+    type: vector
+  logStore:
+    lokistack:
+      name: logging-loki
+    type: lokistack
+  limits:
+    global:
+      retention:
+        days: 10
+        streams:
+          - days: 2
+            priority: 1
+            selector: '{kubernetes_namespace_name=~"strimzi-clients"}'
+          - days: 5
+            priority: 1
+            selector: '{log_type="infrastructure"}'
+  managementState: Managed
+
+
+

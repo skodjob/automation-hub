@@ -1,0 +1,20 @@
+---
+- include_tasks:
+    file: cluster-logging/delete_loki_stack.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+  vars:
+    logging_loki_s3_secret: logging-loki-s3
+
+- include_tasks:
+    file: cluster-logging/delete_cluster_logging.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- include_tasks:
+    file: cluster-logging/delete_datasources.yaml
+  loop: "{{ worker_clusters }}"
+  loop_control:
+    loop_var: clusterName

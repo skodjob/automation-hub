@@ -1,0 +1,16 @@
+---
+- set_fact:
+    worker_clusters: []
+
+- name: Build worker cluster list
+  set_fact:
+    worker_clusters: "{{ worker_clusters + [ item.name ] }}"
+  loop: "{{ workers.values() }}"
+
+- name: Add infra-cluster to cluster list
+  set_fact:
+    clusters: "{{ [ infra_context_name ] + worker_clusters }}"
+
+- name: Show generated cluster list
+  debug:
+    msg: "{{ clusters }}"

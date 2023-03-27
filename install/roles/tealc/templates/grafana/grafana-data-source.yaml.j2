@@ -3,7 +3,8 @@ kind: GrafanaDataSource
 metadata:
   name: {{ target.name }}-source
   labels:
-    project: tealc
+    project: "tealc"
+    managed: "true"
   annotations:
     # Exclude from ArgoCD sync
     argocd.argoproj.io/compare-options: IgnoreExtraneous
