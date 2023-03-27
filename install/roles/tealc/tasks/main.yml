@@ -11,6 +11,9 @@
 - import_tasks: common/prepare_kubeconfigs.yaml
   tags: [always, kubeconfigs]
 
+- import_tasks: common/set_facts.yaml
+  tags: [always]
+
 # infra installation
 - include_tasks:
     file: infra-setup/prepare_access.yaml
@@ -38,7 +41,6 @@
 
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
-  no_log: "{{ not log_sensitive_data|bool  }}"
 
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana, infra, never]
@@ -64,10 +66,13 @@
 
 # Teardown
 - import_tasks: infra-setup/delete_argo.yaml
-  tags: [never, teardown, teardown-argo, never]
+  tags: [never, teardown, teardown-argo]
 
 - import_tasks: infra-setup/delete_tekton.yaml
-  tags: [never, teardown, teardown-tekton, never]
+  tags: [never, teardown, teardown-tekton]
 
 - import_tasks: monitoring/delete_monitoring.yaml
-  tags: [never, teardown, teardown-monitoring, never]
+  tags: [never, teardown, teardown-monitoring]
+
+- import_tasks: infra-setup/delete/delete_logging.yaml
+  tags: [never, infra, teardown-logging, teardown,teardown-monitoring]
