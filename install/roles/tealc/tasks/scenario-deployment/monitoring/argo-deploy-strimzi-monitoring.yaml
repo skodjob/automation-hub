@@ -10,7 +10,7 @@
   vars:
     cluster: "{{ workers.main_cluster.name }}"
     namespace: "{{ workers.main_cluster.monitoring_namespace }}"
-  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.main_cluster.name }}/*.j2"
+  with_fileglob: "templates/argo/applications/monitoring/alerts/{{ workers.main_cluster.name }}/*.j2"
 
 - name: Create Argo applications for Strimzi monitoring on target cluster
   kubernetes.core.k8s:
@@ -23,7 +23,7 @@
   vars:
     cluster: "{{ workers.release_cluster.name }}"
     namespace: "{{ workers.release_cluster.monitoring_namespace }}"
-  with_fileglob: "templates/argo/projects/monitoring/alerts/{{ workers.release_cluster.name }}/*.j2"
+  with_fileglob: "templates/argo/applications/monitoring/alerts/{{ workers.release_cluster.name }}/*.j2"
 
 - name: Create Argo applications for Strimzi dashboards on infra cluster
   kubernetes.core.k8s:
@@ -35,4 +35,4 @@
     template: "{{ item }}"
   vars:
     cluster: "in-cluster"
-  with_fileglob: 'templates/argo/projects/monitoring/dashboards/*.j2'
+  with_fileglob: 'templates/argo/applications/monitoring/dashboards/*.j2'
