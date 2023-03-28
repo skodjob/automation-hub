@@ -5,5 +5,5 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     apply: true
-    src: "files/argo/applications/strimzi-infra.yaml"
+    src: "templates/argo/applications/strimzi-infra.yaml"
     verify_ssl: no

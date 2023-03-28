@@ -26,7 +26,7 @@
     namespace: "{{ openshift_operators_namespace }}"
     state: absent
     verify_ssl: no
-    src: files/tekton/install/tekton-subscription.yaml
+    src: templates/tekton/install/tekton-subscription.yaml
 
 - name: Delete Tekton CSV on Infra cluster
   shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators=''"

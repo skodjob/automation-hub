@@ -5,7 +5,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: absent
     verify_ssl: no
-    src: files/argo/install/argocd.yaml
+    src: templates/argo/install/argocd.yaml
 
 - name: Delete Argo subscription
   kubernetes.core.k8s:
@@ -13,7 +13,7 @@
     namespace: "{{ openshift_operators_namespace }}"
     state: absent
     verify_ssl: no
-    src: files/argo/install/sub.yaml
+    src: templates/argo/install/sub.yaml
 
 - name: Delete Argo CSV on Infra cluster
   shell: "oc delete csv -n {{ openshift_operators_namespace }} -l operators.coreos.com/openshift-gitops-operator.openshift-operators=''"

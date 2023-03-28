@@ -17,7 +17,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     verify_ssl: no
-    src: files/tekton/install/tekton-subscription.yaml
+    src: templates/tekton/install/tekton-subscription.yaml
   register: tkn_operator
 
 - name: Sleep for 60 seconds and continue with play
@@ -44,7 +44,7 @@
     state: present
     verify_ssl: no
     apply: true
-    src: files/tekton/install/tekton-config.yaml
+    src: templates/tekton/install/tekton-config.yaml
   retries: 20
   delay: 5
   register: tkn_config

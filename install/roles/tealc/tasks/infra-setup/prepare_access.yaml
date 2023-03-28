@@ -18,7 +18,7 @@
     namespace: "default"
     state: present
     verify_ssl: no
-    src: files/remote_access_sa.yaml
+    src: templates/remote_access_sa.yaml
 
 - name: Export access token
 #  shell: "oc serviceaccounts get-token access-serviceaccount -n default"

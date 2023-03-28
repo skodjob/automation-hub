@@ -21,7 +21,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     verify_ssl: no
-    src: files/argo/install/sub.yaml
+    src: templates/argo/install/sub.yaml
   register: argo_sub
 
 - name: Sleep for 60 seconds and continue with play
@@ -53,7 +53,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     verify_ssl: no
-    src: files/argo/install/argocd.yaml
+    src: templates/argo/install/argocd.yaml
     apply: true
   retries: 20
   delay: 5
