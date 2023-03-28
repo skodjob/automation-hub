@@ -182,7 +182,7 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "files/argo/metrics/{{ item }}"
+    src: "templates/argo/metrics/{{ item }}"
   loop:
     - argo-dashboard-cm.yaml
     - grafana-argo-dashboards.yaml
@@ -194,6 +194,6 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "files/argo/metrics/{{ item }}"
+    src: "templates/argo/metrics/{{ item }}"
   loop:
     - alerts.yaml

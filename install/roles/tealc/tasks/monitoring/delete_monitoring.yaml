@@ -83,7 +83,7 @@
     namespace: "{{ infra_monitoring_namespace }}"
     state: absent
     verify_ssl: no
-    src: "files/argo/metrics/{{ target_file }}"
+    src: "templates/argo/metrics/{{ target_file }}"
   loop:
     - alerts.yaml
     - argo-dashboard-cm.yaml

@@ -33,10 +33,10 @@
   loop_control:
     loop_var: worker
 
-- import_tasks: infra-setup/install_tekton.yaml
+- import_tasks: infra-setup/install/install_tekton.yaml
   tags: [tekton, infra, never]
 
-- import_tasks: infra-setup/install_argo.yaml
+- import_tasks: infra-setup/install/install_argo.yaml
   tags: [argo, infra, never]
 
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
@@ -65,14 +65,14 @@
   tags: [tekton-pipelines, strimzi-infra, never]
 
 # Teardown
-- import_tasks: infra-setup/delete_argo.yaml
+- import_tasks: infra-setup/delete/delete_argo.yaml
   tags: [never, teardown, teardown-argo]
 
-- import_tasks: infra-setup/delete_tekton.yaml
+- import_tasks: infra-setup/delete/delete_tekton.yaml
   tags: [never, teardown, teardown-tekton]
 
 - import_tasks: monitoring/delete_monitoring.yaml
   tags: [never, teardown, teardown-monitoring]
 
 - import_tasks: infra-setup/delete/delete_logging.yaml
-  tags: [never, infra, teardown-logging, teardown, teardown-monitoring]
+  tags: [never, teardown-logging, teardown, teardown-monitoring]

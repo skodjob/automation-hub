@@ -12,7 +12,7 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "files/argo/applications/strimzi-twitter-app.yaml"
+    src: "templates/argo/applications/strimzi-twitter-app.yaml"
 
 - name: Create Twitter app related Tekton pipelines
   kubernetes.core.k8s:
@@ -22,7 +22,7 @@
     verify_ssl: no
     apply: true
     src: "{{ item }}"
-  with_fileglob: 'files/tekton/pipelines/twitter-app/*.yaml'
+  with_fileglob: 'templates/tekton/pipelines/twitter-app/*.yaml'
 
 - name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
   wait_for:
@@ -35,4 +35,4 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "files/tekton/pipelines/twitter-app/run/pipeline-runs.yaml"
+    src: "templates/tekton/pipelines/twitter-app/run/pipeline-runs.yaml"
