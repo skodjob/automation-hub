@@ -32,4 +32,3 @@
     kind: Namespace
     verify_ssl: no
     state: present
-
