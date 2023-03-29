@@ -65,6 +65,16 @@
   vars:
     bucketname: "tealc-{{ clusterName }}-loki"
 
+- name: "Remove Grafana access on {{ clusterName }} to avoid conflicts"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: absent
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/loki/04-grafana-access.yaml.j2
+
 - name: "Create Loki stack on {{ clusterName }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
