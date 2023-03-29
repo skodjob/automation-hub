@@ -45,6 +45,9 @@
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
 
+- import_tasks: infra-setup/install/orchestrate_acm.yaml
+  tags: [acm, logging, infra, monitoring, never]
+
 # Scenarios
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
@@ -76,3 +79,6 @@
 
 - import_tasks: infra-setup/delete/delete_logging.yaml
   tags: [never, teardown-logging, teardown, teardown-monitoring]
+
+- import_tasks: infra-setup/delete/delete_acm.yaml
+  tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
