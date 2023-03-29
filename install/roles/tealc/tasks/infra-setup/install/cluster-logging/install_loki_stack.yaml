@@ -41,6 +41,8 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
 
 - name: "Create Loki access secret on {{ clusterName }}"
   kubernetes.core.k8s:

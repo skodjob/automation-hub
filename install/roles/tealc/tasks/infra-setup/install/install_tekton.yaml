@@ -18,6 +18,8 @@
     state: present
     verify_ssl: no
     src: templates/tekton/install/tekton-subscription.yaml
+  retries: 20
+  delay: 5
   register: tkn_operator
 
 - name: Sleep for 60 seconds and continue with play
@@ -37,6 +39,8 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
 
 - name: Create tekton config
   kubernetes.core.k8s:

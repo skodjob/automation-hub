@@ -38,6 +38,8 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
 
 - name: "Create OpenShift Logging instance on {{ clusterName }}"
   kubernetes.core.k8s:
