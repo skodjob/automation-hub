@@ -42,6 +42,7 @@
     state: present
     src: "{{ github_secret_path }}"
     verify_ssl: no
+    apply: true
 
 - name: Create tealc-install access secret in infra namespace
   kubernetes.core.k8s:
@@ -50,6 +51,7 @@
     state: present
     src: "{{ tealc_git_crypt_key }}"
     verify_ssl: no
+    apply: true
 
 - name: Create Github access secret in openshift-pipelines namespace
   kubernetes.core.k8s:
@@ -58,6 +60,7 @@
     state: present
     src: "{{ github_secret_path }}"
     verify_ssl: no
+    apply: true
 
 - name: Create Tekton secret in tekton namespace
   kubernetes.core.k8s:
@@ -66,6 +69,7 @@
     state: present
     template: templates/tekton/install/tekton-secret.yaml.j2
     verify_ssl: no
+    apply: true
 
 - name: Create Tekton secret in openshift-pipelines namespace
   kubernetes.core.k8s:
@@ -74,6 +78,7 @@
     state: present
     template: templates/tekton/install/tekton-secret.yaml.j2
     verify_ssl: no
+    apply: true
 
 - name: Create Argo cluster access secret
   kubernetes.core.k8s:
@@ -82,3 +87,4 @@
     state: present
     template: templates/cluster-secret.yaml.j2
     verify_ssl: no
+    apply: true

@@ -1,0 +1,34 @@
+---
+# For more info see https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html/install/installing#installing-while-connected-online
+- name: "Delete multi-cluster-hub on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/acm/02-multicluster-hub.yaml.j2
+  register: acm_operator
+
+- name: "Delete ACM operator group and subscription on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/acm/00-operator-group.yaml.j2
+    - templates/acm/01-acm-subscription.yaml.j2
+
+- name: "Delete ACM namespace on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ acm_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: present

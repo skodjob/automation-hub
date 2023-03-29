@@ -1,0 +1,31 @@
+---
+# For more info see https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html/clusters/cluster_mce_overview#importing-clusters-auto-import-secret
+- name: "Delete {{ clusterName }}'s klusterlet addon on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ clusterName }}"
+    state: present
+    apply: true
+    template: templates/acm/05-klusterlet-addon-config.yaml.j2
+    verify_ssl: no
+
+- name: "Delete {{ clusterName }}'s managed cluster on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ clusterName }}"
+    state: present
+    apply: true
+    template: templates/acm/04-managed-cluster.yaml.j2
+    verify_ssl: no
+
+- name: "Delete {{ clusterName }} namespace on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ clusterName }}"
+    state: present
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ clusterName }}"
