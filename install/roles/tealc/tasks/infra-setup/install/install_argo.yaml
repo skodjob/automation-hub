@@ -81,6 +81,8 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
 
 - name: Wait for argo dex on infra cluster
   kubernetes.core.k8s:
@@ -94,3 +96,5 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
