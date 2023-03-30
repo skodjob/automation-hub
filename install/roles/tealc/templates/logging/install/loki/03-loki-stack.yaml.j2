@@ -16,3 +16,19 @@ spec:
   storageClassName: standard-csi
   tenants:
     mode: openshift-logging
+  limits:
+    global:
+      retention:
+        days: 10
+        streams:
+          - days: 1
+            priority: 1
+            selector: '{kubernetes_namespace_name="strimzi-clients"}'
+          - days: 1
+            priority: 1
+            selector: '{kubernetes_pod_name=~"kronos"}'
+          - days: 5
+            priority: 1
+            selector: '{log_type="infrastructure"}'
+      ingestion:
+        ingestionRate: 5
