@@ -68,6 +68,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: absent
+    api_version: v1alpha1
     kind: GitopsService
     name: cluster
     verify_ssl: no
