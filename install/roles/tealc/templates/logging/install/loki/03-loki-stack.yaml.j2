@@ -26,7 +26,7 @@ spec:
             selector: '{kubernetes_namespace_name="strimzi-clients"}'
           - days: 1
             priority: 1
-            selector: '{kubernetes_pod_name=~"kronos"}'
+            selector: '{kubernetes_pod_name=~"kronos.*"}'
           - days: 5
             priority: 1
             selector: '{log_type="infrastructure"}'
