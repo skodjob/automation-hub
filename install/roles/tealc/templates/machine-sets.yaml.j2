@@ -9,7 +9,7 @@ metadata:
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
-  # 7x kafka node
+  # 5x kafka node
   replicas: 5
   selector:
     matchLabels:
@@ -123,8 +123,8 @@ metadata:
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
-  # 2x infra node
-  replicas: 2
+  # 3x infra node
+  replicas: 3
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}

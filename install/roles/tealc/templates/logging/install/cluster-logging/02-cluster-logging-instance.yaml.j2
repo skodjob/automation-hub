@@ -7,6 +7,10 @@ metadata:
 spec:
   collection:
     type: vector
+    tolerations:
+      - effect: NoSchedule
+        key: nodetype
+        value: kafka
   logStore:
     lokistack:
       name: logging-loki
