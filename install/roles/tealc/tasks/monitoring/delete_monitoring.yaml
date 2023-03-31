@@ -77,20 +77,6 @@
   loop_control:
     loop_var: worker
 
-- name: Delete Grafana dashboards and Prometheus alerts
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
-    state: absent
-    verify_ssl: no
-    src: "templates/argo/metrics/{{ target_file }}"
-  loop:
-    - alerts.yaml
-    - argo-dashboard-cm.yaml
-    - grafana-argo-dashboards.yaml
-  loop_control:
-    loop_var: target_file
-
 - name: Delete Grafana data-source on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

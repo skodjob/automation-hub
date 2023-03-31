@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: observability-metrics-custom-allowlist
+data:
+  metrics_list.yaml: |
+    names:
+      - container_cpu_usage_seconds_total
+      - container_memory_usage_bytes
+    matches:
+      - __name__=~".*"
