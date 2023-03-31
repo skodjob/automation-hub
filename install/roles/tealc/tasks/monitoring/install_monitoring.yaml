@@ -174,26 +174,3 @@
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
-
-- name: Configure Grafana dashboards and Prometheus alerts on Infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_monitoring_namespace }}"
-    state: present
-    verify_ssl: no
-    apply: true
-    src: "templates/argo/metrics/{{ item }}"
-  loop:
-    - argo-dashboard-cm.yaml
-    - grafana-argo-dashboards.yaml
-
-- name: Configure Prometheus alerts on Infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    verify_ssl: no
-    apply: true
-    src: "templates/argo/metrics/{{ item }}"
-  loop:
-    - alerts.yaml

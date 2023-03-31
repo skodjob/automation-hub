@@ -1,5 +1,5 @@
 ---
-- name: Create Argo applications for Strimzi monitoring on source cluster
+- name: "Create Argo applications for Strimzi alerts on {{ workers.main_cluster.name }} cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -12,7 +12,7 @@
     namespace: "{{ workers.main_cluster.monitoring_namespace }}"
   with_fileglob: "templates/argo/applications/monitoring/alerts/{{ workers.main_cluster.name }}/*.j2"
 
-- name: Create Argo applications for Strimzi monitoring on target cluster
+- name: "Create Argo applications for Strimzi alerts on {{ workers.release_cluster.name }} cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -25,7 +25,7 @@
     namespace: "{{ workers.release_cluster.monitoring_namespace }}"
   with_fileglob: "templates/argo/applications/monitoring/alerts/{{ workers.release_cluster.name }}/*.j2"
 
-- name: Create Argo applications for Strimzi dashboards on infra cluster
+- name: Create Argo applications for dashboards on infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -36,3 +36,15 @@
   vars:
     cluster: "in-cluster"
   with_fileglob: 'templates/argo/applications/monitoring/dashboards/*.j2'
+
+- name: Create Argo applications for alerts on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    template: "{{ item }}"
+  vars:
+    cluster: "in-cluster"
+  with_fileglob: 'templates/argo/applications/monitoring/alerts/infra/*.j2'

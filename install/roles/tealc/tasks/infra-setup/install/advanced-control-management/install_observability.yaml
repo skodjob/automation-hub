@@ -28,7 +28,7 @@
     verify_ssl: no
   loop:
     - templates/acm/07-multicluster-observability.yaml.j2
-    - templates/acm/08-custom-metrics-allowlist.yaml.j2
+    - templates/acm/08-extend-default-metrics-allowlist.yaml.j2
   register: observability_setup
 
 - name: Sleep for 30 seconds and continue with play
