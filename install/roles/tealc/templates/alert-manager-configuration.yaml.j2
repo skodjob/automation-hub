@@ -47,6 +47,8 @@ stringData:
                 warning
             {{- else if eq .CommonLabels.severity "critical" -}}
                 danger
+            {{- else if eq .CommonLabels.severity "major" -}}
+                danger
             {{- else -}}
                 #439FE0
             {{- end -}}
