@@ -64,6 +64,8 @@
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ infra_context_name }}"
+    namespace: "open-cluster-management-observability"
+    suffix: "config"
 
 - name: Remove Alertmanager configuration for sending alerts on Worker clusters
   kubernetes.core.k8s:
@@ -73,6 +75,7 @@
     template: templates/alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ worker.value.name }}"
+    namespace: "openshift-monitoring"
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker

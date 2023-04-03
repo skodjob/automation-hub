@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: alertmanager-main
-  namespace: openshift-monitoring
+  name: alertmanager-{{ suffix }}
+  namespace: {{ namespace }}
   labels:
     project: tealc
 type: Opaque
@@ -25,6 +25,8 @@ stringData:
         *Severity:* `Critical`
         {{- else if eq .CommonLabels.severity "warning" -}}
         *Severity:* `Warning`
+        {{- else if eq .CommonLabels.severity "major" -}}
+        *Severity:* `Major`
         {{- else if eq .CommonLabels.severity "info" -}}
         *Severity:* `Info`
         {{- else -}}
@@ -99,8 +101,11 @@ stringData:
       receiver: 'default_blackhole'
       routes:
         - receiver: slack
-          match:
-            app: tealc
+          matchers:
+            - app = tealc
+        - receiver: slack
+          matchers:
+            - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|CollectorNodeDown|KubeNodeNotReady"
     receivers:
       - name: 'default_blackhole'
       - name: 'slack'
