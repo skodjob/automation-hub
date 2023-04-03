@@ -17,7 +17,7 @@
     namespace: "openshift-machine-api"
     state: present
     verify_ssl: no
-    template: templates/machine-sets.yaml.j2
+    template: templates/worker-machine-sets.yaml.j2
   vars:
     clusterName: "{{ worker.value.name }}"
     clusterId: "{{ get_cluster_id_out.stdout }}"
