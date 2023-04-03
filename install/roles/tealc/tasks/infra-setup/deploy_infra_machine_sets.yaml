@@ -1,0 +1,36 @@
+---
+- name: Get cluster ID
+  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: "get_cluster_id_out"
+
+- name: Get image name
+  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: "get_image_out"
+
+- name: Create new machine sets
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "openshift-machine-api"
+    state: present
+    verify_ssl: no
+    template: templates/infra-machine-sets.yaml.j2
+  vars:
+    clusterName: "{{ infra_context_name }}"
+    clusterId: "{{ get_cluster_id_out.stdout }}"
+    clusterImage: "{{ get_image_out.stdout }}"
+
+- name: Patch original worker machine set
+  kubernetes.core.k8s_json_patch:
+    kind: MachineSet
+    api_version: v1beta1
+    namespace: "openshift-machine-api"
+    verify_ssl: no
+    name: "{{ get_cluster_id_out.stdout }}-worker-0"
+    patch:
+      - op: replace
+        path: /spec/replicas
+        value: 5

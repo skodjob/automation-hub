@@ -24,8 +24,11 @@
   loop_control:
     loop_var: worker
 
+- import_tasks: infra-setup/deploy_infra_machine_sets.yaml
+  tags: [machine-sets, infra, never]
+
 - include_tasks:
-    file: infra-setup/deploy_machine_sets.yaml
+    file: infra-setup/deploy_worker_machine_sets.yaml
     apply:
       tags: [machine-sets, infra, never]
   tags: [machine-sets, infra, never]
