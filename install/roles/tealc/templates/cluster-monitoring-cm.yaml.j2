@@ -11,3 +11,9 @@ data:
     prometheusK8s:
       externalLabels:
         clusterName: {{ clusterName }}
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard-csi
+          resources:
+            requests:
+              storage: 40Gi
