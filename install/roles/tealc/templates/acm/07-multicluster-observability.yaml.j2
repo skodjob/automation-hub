@@ -8,6 +8,13 @@ spec:
   observabilityAddonSpec:
     enableMetrics: true
     interval: 300
+  tolerations:
+    - effect: NoSchedule
+      key: nodetype
+      operator: Equal
+      value: observability
+  nodeSelector:
+    nodetype: observability
   storageConfig:
     alertmanagerStorageSize: 5Gi
     compactStorageSize: 100Gi
