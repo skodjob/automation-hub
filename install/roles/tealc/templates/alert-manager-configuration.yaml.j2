@@ -105,7 +105,7 @@ stringData:
             - app = tealc
         - receiver: slack
           matchers:
-            - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|CollectorNodeDown|KubeNodeNotReady"
+            - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|KubeNodeNotReady"
     receivers:
       - name: 'default_blackhole'
       - name: 'slack'
