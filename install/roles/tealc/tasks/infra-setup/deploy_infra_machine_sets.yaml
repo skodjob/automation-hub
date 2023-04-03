@@ -30,6 +30,7 @@
     namespace: "openshift-machine-api"
     verify_ssl: no
     name: "{{ get_cluster_id_out.stdout }}-worker-0"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     patch:
       - op: replace
         path: /spec/replicas
