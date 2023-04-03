@@ -27,6 +27,9 @@ spec:
           - days: 1
             priority: 1
             selector: '{kubernetes_pod_name=~"kronos.*"}'
+          - days: 1
+            priority: 1
+            selector: '{kubernetes_pod_name=~".*twitter-parser.*"}'
           - days: 5
             priority: 1
             selector: '{log_type="infrastructure"}'
