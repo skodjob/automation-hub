@@ -35,3 +35,13 @@
       - op: replace
         path: /spec/replicas
         value: 5
+
+- name: Apply chrony configuration
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: present
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/chrony/99-master-chrony.yaml.j2
+    - templates/chrony/99-worker-chrony.yaml.j2

@@ -24,14 +24,14 @@
   loop_control:
     loop_var: worker
 
-- import_tasks: infra-setup/deploy_infra_machine_sets.yaml
-  tags: [machine-sets, infra, never]
+- import_tasks: infra-setup/configure_infra_cluster.yaml
+  tags: [machine-sets, chrony, infra, never]
 
 - include_tasks:
-    file: infra-setup/deploy_worker_machine_sets.yaml
+    file: infra-setup/configure_worker_cluster.yaml
     apply:
-      tags: [machine-sets, infra, never]
-  tags: [machine-sets, infra, never]
+      tags: [machine-sets, chrony, infra, never]
+  tags: [machine-sets, chrony, infra, never]
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
