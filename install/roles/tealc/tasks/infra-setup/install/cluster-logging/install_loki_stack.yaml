@@ -2,11 +2,15 @@
 - name: "Create namespace for Loki operator on {{ clusterName }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
-    name: "{{ item }}"
-    api_version: v1
-    kind: Namespace
-    verify_ssl: no
     state: present
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          'openshift.io/cluster-monitoring': "true"
   loop:
     - "{{ openshift_logging_namespace }}"
     - "openshift-operators-redhat"

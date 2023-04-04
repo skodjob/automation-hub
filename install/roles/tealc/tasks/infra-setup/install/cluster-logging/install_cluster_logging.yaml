@@ -2,11 +2,15 @@
 - name: "Create logging namespace on {{ clusterName }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
-    name: "{{ openshift_logging_namespace }}"
-    api_version: v1
-    kind: Namespace
-    verify_ssl: no
     state: present
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ openshift_logging_namespace }}"
+        labels:
+          'openshift.io/cluster-monitoring': "true"
 
 - name: "Create OpenShift Logging operator group and subscription on {{ clusterName }}"
   kubernetes.core.k8s:
