@@ -56,12 +56,12 @@
   loop_control:
     loop_var: worker
 
-- name: Remove Alertmanager  configuration for sending alerts on Infra cluster
+- name: Remove Alertmanager configuration for sending alerts on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: absent
     verify_ssl: no
-    template: templates/alert-manager-configuration.yaml.j2
+    template: templates/acm/09-alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ infra_context_name }}"
     namespace: "open-cluster-management-observability"
@@ -72,7 +72,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
     state: absent
     verify_ssl: no
-    template: templates/alert-manager-configuration.yaml.j2
+    template: templates/acm/09-alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ worker.value.name }}"
     namespace: "openshift-monitoring"
