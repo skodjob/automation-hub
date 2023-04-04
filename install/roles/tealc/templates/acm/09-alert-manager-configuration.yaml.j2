@@ -96,16 +96,16 @@ stringData:
     route:
       group_by: ['alertname']
       group_wait: 1m
-      group_interval: 2h
-      repeat_interval: 24h
+      group_interval: 1h
+      repeat_interval: 12h
       receiver: 'default_blackhole'
       routes:
-        - receiver: slack
+        - receiver: {{ receiver }}
           matchers:
             - app = tealc
-        - receiver: slack
+        - receiver: {{ receiver }}
           matchers:
-            - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|KubeNodeNotReady|CollectorNodeDown"
+            - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|KubeNodeNotReady|CollectorNodeDown|NodeClockNotSynchronising|ACMRemoteWriteError"
     receivers:
       - name: 'default_blackhole'
       - name: 'slack'
@@ -126,4 +126,3 @@ stringData:
               text: 'Silence :no_bell:'
               url: '{% raw %}{{ template "__alert_silence_link" . }}{% endraw %}'
     templates: ['/etc/alertmanager/config/**/*.tmpl']
-
