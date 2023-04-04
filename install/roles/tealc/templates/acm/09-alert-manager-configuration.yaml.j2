@@ -100,10 +100,10 @@ stringData:
       repeat_interval: 12h
       receiver: 'default_blackhole'
       routes:
-        - receiver: slack
+        - receiver: {{ receiver }}
           matchers:
             - app = tealc
-        - receiver: slack
+        - receiver: {{ receiver }}
           matchers:
             - alertname =~ "KubeAPIDown|etcdMembersDown|ClusterOperatorDown|KubeNodeNotReady|CollectorNodeDown|NodeClockNotSynchronising|ACMRemoteWriteError"
     receivers:

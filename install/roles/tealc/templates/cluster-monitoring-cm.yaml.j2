@@ -17,7 +17,3 @@ data:
           resources:
             requests:
               storage: 40Gi
-    {% if clusterName == infra_context_name -%}
-    alertmanagerMain:
-      enabled: false
-    {%- endif %}

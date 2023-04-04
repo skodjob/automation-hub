@@ -161,8 +161,12 @@
     template: templates/acm/09-alert-manager-configuration.yaml.j2
   vars:
     clusterName: "{{ infra_context_name }}"
-    namespace: "open-cluster-management-observability"
-    suffix: "config"
+    namespace: "{{ item.namespace }}"
+    suffix: "{{ item.suffix }}"
+    receiver: "{{ item.receiver }}"
+  loop:
+    - {namespace: "open-cluster-management-observability", suffix: "config", receiver: "slack"}
+    - {namespace: "openshift-monitoring", suffix: "main", receiver: "default_blackhole"}
 
 - name: "Configure default Alertmanager to surpass warnings - {{ clusterName }}"
   kubernetes.core.k8s:
@@ -175,6 +179,7 @@
     clusterName: "{{ clusterName }}"
     namespace: "openshift-monitoring"
     suffix: "main"
+    receiver: "slack"
   loop: "{{ worker_clusters }}"
   loop_control:
     loop_var: clusterName
