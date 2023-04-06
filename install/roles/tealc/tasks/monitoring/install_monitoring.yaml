@@ -166,7 +166,7 @@
     receiver: "{{ item.receiver }}"
   loop:
     - {namespace: "open-cluster-management-observability", suffix: "config", receiver: "slack"}
-    - {namespace: "openshift-monitoring", suffix: "main", receiver: "default_blackhole"}
+    - {namespace: "openshift-monitoring", suffix: "main", receiver: "slack"}
 
 - name: "Configure default Alertmanager to surpass warnings - {{ clusterName }}"
   kubernetes.core.k8s:
