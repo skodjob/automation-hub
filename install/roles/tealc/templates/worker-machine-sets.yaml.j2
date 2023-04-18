@@ -111,7 +111,7 @@ spec:
             - openshiftClusterID={{ clusterId }}
           image: {{ clusterImage }}
           apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.memory.medium
+          flavor: g.standard.xl
 ---
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineSet
@@ -166,4 +166,4 @@ spec:
             - openshiftClusterID={{ clusterId }}
           image: {{ clusterImage }}
           apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.memory.medium
+          flavor: g.standard.xl
