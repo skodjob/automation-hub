@@ -54,6 +54,9 @@
 - import_tasks: infra-setup/install/install_links.yaml
   tags: [infra, console-link, links, never]
 
+- import_tasks: infra-setup/install/install_kubed.yaml
+  tags: [kubed, infra, never]
+
 # Scenarios
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
@@ -91,3 +94,6 @@
 
 - import_tasks: infra-setup/delete/delete_acm.yaml
   tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
+
+- import_tasks: infra-setup/delete/delete_kubed.yaml
+  tags: [never, teardown, teardown-kubed]

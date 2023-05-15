@@ -24,8 +24,10 @@ spec:
       env:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
-        - name: YAML_BUNDLE_PATH
+        - name: SHARED_YAML_BUNDLE_FILES
           value: "./strimzi/cluster-operator/"
+        - name: YAML_BUNDLE_PATHS
+          value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
         - name: TARGET_ORG_REPO
           value: "quay.io/strimzi"
         - name: BRANCH
