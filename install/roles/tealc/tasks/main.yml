@@ -96,4 +96,4 @@
   tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
 
 - import_tasks: infra-setup/delete/delete_kubed.yaml
-  tags: [ never, teardown, teardown-kubed ]
+  tags: [never, teardown, teardown-kubed]
