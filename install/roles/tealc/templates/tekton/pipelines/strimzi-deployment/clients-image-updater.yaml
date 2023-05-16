@@ -67,7 +67,7 @@ spec:
       when:
         - input: $(tasks.status)
           operator: in
-          values: [ "Failed" ]
+          values: ["Failed"]
       taskRef:
         name: send-to-webhook-slack
       params:
