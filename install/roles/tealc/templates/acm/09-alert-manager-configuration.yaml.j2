@@ -91,7 +91,7 @@ stringData:
   alertmanager.yaml: |
     global:
       resolve_timeout: 10m
-      slack_api_url: {{ slack_api_url }}
+      slack_api_url: {{ slack_api_alerts_url }}
 
     route:
       group_by: ['alertname']

@@ -8,5 +8,7 @@ openshift_pipelines_namespace: openshift-pipelines
 openshift_operators_namespace: openshift-operators
 strimzi_twitter_connector_namespace: strimzi-kafka
 
+slack_pipeline_message: "Pipeline run `$(context.pipelineRun.name)` failed!"
+
 route: empty
 access_token: empty
