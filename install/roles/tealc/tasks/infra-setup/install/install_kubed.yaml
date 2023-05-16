@@ -1,0 +1,20 @@
+- name: Deploy KubeD on infra clusters
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "kube-system"
+    state: present
+    apply: true
+    template: templates/kubed/kubed.yaml.j2
+    verify_ssl: no
+
+- name: Deploy KubeD on worker clusters
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "kube-system"
+    state: present
+    apply: true
+    template: templates/kubed/kubed.yaml.j2
+    verify_ssl: no
+  loop: "{{ workers | dict2items }}"
+  loop_control:
+    loop_var: worker

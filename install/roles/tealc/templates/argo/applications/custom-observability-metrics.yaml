@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: strimzi-twitter-app
+  name: custom-observability-metrics
 spec:
   generators:
     - matrix:
@@ -10,11 +10,9 @@ spec:
               repoURL: https://github.com/ExcelentProject/sokar
               revision: HEAD
               files:
-                - path: 'twitter-connector/**/argo-config.yaml'
-          - clusters:
-              selector:
-                matchLabels:
-                  environment: 'upstream-latest'
+                - path: "metrics/custom-observability/argo-config.yaml"
+          # Deploy over all clusters
+          - clusters: {}
   template:
     metadata:
       name: '{{appname}}-{{name}}'

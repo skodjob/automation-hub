@@ -22,9 +22,12 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-if [[ -z "${YAML_BUNDLE_PATH}" ]]; then
-    echo "Missing yaml bundle path: YAML_BUNDLE_PATH"
+if [[ -z "${YAML_BUNDLE_PATHS}" ]]; then
+    echo "Missing yaml bundle path: YAML_BUNDLE_PATHS"
     exit 1
+elif [[ -z "${SHARED_YAML_BUNDLE_FILES}" ]]; then
+      echo "Missing yaml bundle path: SHARED_YAML_BUNDLE_FILES"
+      exit 1
 elif [[ -z "${CURRENT_DEPLOYMENT_REPO}" ]]; then
     echo "Missing deployment repo: CURRENT_DEPLOYMENT_REPO"
     exit 2
@@ -55,55 +58,95 @@ TARGET_DIR="${WORKING_DIR}/current_deployment"
 echo $TARGET_DIR
 echo "Cloning repository: ${CURRENT_DEPLOYMENT_REPO}"
 echo "================================================"
-git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR
+git clone "$CURRENT_DEPLOYMENT_REPO" $TARGET_DIR -b ${BRANCH}
 
-DEPLOYMENT_FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
-echo "[INFO] Deployment filename: ${DEPLOYMENT_FILE_NAME}"
-echo "================================================"
-echo "Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
+# Load yaml paths
+IFS=',' read -r -a YAML_BUNDLE_PATH_ARRAY <<< "$YAML_BUNDLE_PATHS"
+echo "YAML_BUNDLE_PATHS: $YAML_BUNDLE_PATHS"
+echo "YAML_BUNDLE_PATH_ARRAY: ${YAML_BUNDLE_PATH_ARRAY[0]}"
 
+echo "[INFO] Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
 SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
 git clone "$SYNC_CRD_REPO" $SYNC_CRD_DIR
+echo "================================================"
 
-# Storing must have values
-export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-export ENV_FEATURE_GATES=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-export ENV_LOG_LEVEL=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
-
-# Cyklus pres vsechny a postupny ulozeni - copy - restore
-
-FILE_NAMES=$(ls $SYNC_CRD_DIR/$SYNC_CRD_PATH | tr '\n' ';')
-IFS=';' read -r -a FILES <<< $FILE_NAMES
-for C_FILE in "${FILES[@]}"
+for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"
 do
-    echo $C_FILE
+    echo "Working on: $YAML_BUNDLE_PATH"
 
-    if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
-        export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
-    else
-      echo "File $TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE does not exists. Skipping metadata backup."
-    fi
+    DEPLOYMENT_FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
+    echo "[INFO] Deployment filename: ${DEPLOYMENT_FILE_NAME}"
+    echo "================================================"
 
-    cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
+    # Storing must have values
+    export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export ENV_FEATURE_GATES=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export ENV_LOG_LEVEL=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LOG_LEVEL")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export ENV_LEADER_ELECTION=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LEADER_ELECTION_LEASE_NAME")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export ENV_RESOURCE_SELECTOR=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_CUSTOM_RESOURCE_SELECTOR")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export SELECTOR=$(yq e '.spec.selector' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export TEMPLATE_METADATA=$(yq e '.spec.template.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export VOLUMES=$(yq e '.spec.template.spec.volumes' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
 
-    if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
-        yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
-    fi
+    # Cyklus pres vsechny a postupny ulozeni - copy - restore
+
+    FILE_NAMES=$(ls $SYNC_CRD_DIR/$SYNC_CRD_PATH | tr '\n' ';')
+    IFS=';' read -r -a FILES <<< $FILE_NAMES
+    for C_FILE in "${FILES[@]}"
+    do
+        echo "Filename for sync: $C_FILE"
+
+		if [[ $C_FILE == *"(Crd|ClusterRole-)"* ]]; then
+			if test -f "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"; then
+				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE")
+			else
+			  echo "File $TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE does not exists. Skipping metadata backup."
+			fi
+
+			cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/
+
+			if test -f "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"; then
+				yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"
+			fi
+		elif [[ $C_FILE == *"Deployment-"* ]]; then
+			if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
+				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
+			else
+			  echo "File $TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE does not exists. Skipping metadata backup."
+			fi
+
+			cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$YAML_BUNDLE_PATH/
+
+			if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
+				yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
+			fi
+		fi
+    done
+
+    # We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
+    yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")) = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+    ## We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
+    yq e -i '.spec.template.spec.containers[0].env += env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+    ## We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
+    yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")) = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+	## We need to keep STRIMZI_LEADER_ELECTION_LEASE_NAME configuration which will be (hopefully) always as the first item in the env list
+	yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_LEADER_ELECTION_LEASE_NAME")) = env(ENV_LEADER_ELECTION)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+	## We need to keep STRIMZI_CUSTOM_RESOURCE_SELECTOR configuration which will be (hopefully) always as the first item in the env list
+	yq e -i '.spec.template.spec.containers[0].env += env(ENV_RESOURCE_SELECTOR)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+    #
+    ## We need to keep resources configuration as well
+    yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+    ## We need to keep affinity configuration as well
+    yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+	## We need to keep selector configuration as well
+	yq e -i '.spec.selector = env(SELECTOR)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+	## We need to keep template metadata configuration as well
+	yq e -i '.spec.template.metadata = env(TEMPLATE_METADATA)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+	## We need to keep volumes configuration as well
+	yq e -i '.spec.template.spec.volumes = env(VOLUMES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 done
-
-# We need to keep STRIMZI_NAMESPACE configuration which will be (hopefully) always as the first item in the env list
-yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")) = env(ENV_NAMESPACE)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-## We need to keep STRIMZI_LOG_LEVEL configuration which will be (hopefully) always as the first item in the env list
-yq e -i '.spec.template.spec.containers[0].env += env(ENV_LOG_LEVEL)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-## We need to keep STRIMZI_FEATURE_GATES configuration which will be (hopefully) always as the first item in the env list
-yq e -i '(.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_FEATURE_GATES")) = env(ENV_FEATURE_GATES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-#
-## We need to keep resources configuration as well
-yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
-## We need to keep affinity configuration as well
-yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 
 echo "================================================"
 echo "Moving into synced deployment repository"
@@ -125,7 +168,8 @@ else
 fi
 
 # Change floating tags to random digest
-IMAGES_TAGS=$(cat "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
+# shellcheck disable=SC2002
+IMAGES_TAGS=$(cat "${YAML_BUNDLE_PATH_ARRAY[0]}"/"$DEPLOYMENT_FILE_NAME" | grep "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2- | cut -d '/' -f3- | sort -u | tr '\n' ';')
 echo "$IMAGES_TAGS"
 IFS=';' read -r -a IMGS <<< "$IMAGES_TAGS"
 T=11111
@@ -136,10 +180,16 @@ do
     IMAGE_NAME=$(echo $ELEMENT_O | cut -d ':' -f1)
     NEW_DIGEST="$IMAGE_NAME@sha:$T"
     T=$((T+1))
-    $SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
+
+    for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"
+    do
+    	$SED -i 's#'"$IMAGE_NAME$CURRENT_TAG"'#'"$NEW_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
+	done
+
 done
 
-IMAGES_PLAIN=$(cat "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
+# shellcheck disable=SC2002
+IMAGES_PLAIN=$(cat "${YAML_BUNDLE_PATH_ARRAY[0]}"/"$DEPLOYMENT_FILE_NAME" | $GREP "$TARGET_ORG_REPO"/ | sort -u | awk '{$1=$1};1' | cut -d ' ' -f2-| tr '\n' ';')
 IFS=';' read -r -a IMAGES <<< "$IMAGES_PLAIN"
 
 echo "================================================"
@@ -152,22 +202,25 @@ do
     #Parse image with prefix = kafka
     if [[ $ELEMENT == *"="* ]]; then
         PREFIX=$(echo $ELEMENT | cut -d '=' -f1)
-        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE":latest-kafka-"$PREFIX"  --format "{{ .Digest }}")
+        LATEST_DIGEST=$(skopeo inspect --override-arch amd64 --override-os linux docker://"$TARGET_ORG_REPO"/"$IMAGE":latest-kafka-"$PREFIX"  --format "{{ .Digest }}")
     elif [[ $ELEMENT == *"kafka@"* ]]; then
         continue
     else
-        LATEST_DIGEST=$(skopeo inspect docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
+        LATEST_DIGEST=$(skopeo inspect  --override-arch amd64 --override-os linux docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
     fi
     
     if [[ $CURRENT_DIGEST != $LATEST_DIGEST ]]; then
         echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
-        $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
+		for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"
+		do
+			$SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH"/"$DEPLOYMENT_FILE_NAME"
+		done
     fi
 done
 
 echo "================================================"
 echo "Adding changes to repository"
-git add "$YAML_BUNDLE_PATH"/*
+git add "$SHARED_YAML_BUNDLE_FILES"../*
 git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd

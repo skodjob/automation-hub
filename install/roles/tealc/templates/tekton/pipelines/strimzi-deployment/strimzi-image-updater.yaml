@@ -24,8 +24,10 @@ spec:
       env:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
-        - name: YAML_BUNDLE_PATH
-          value: "./strimzi/cluster-operator/"
+        - name: SHARED_YAML_BUNDLE_FILES
+          value: "./strimzi/cluster-operator-common/"
+        - name: YAML_BUNDLE_PATHS
+          value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
         - name: TARGET_ORG_REPO
           value: "quay.io/strimzi"
         - name: BRANCH
@@ -67,6 +69,19 @@ spec:
       workspaces:
         - name: task-ws
           workspace: pipeline-ws
+  finally:
+    - name: notify-slack
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Failed"]
+      taskRef:
+        name: send-to-webhook-slack
+      params:
+        - name: webhook-secret
+          value: webhook-secret
+        - name: message
+          value: "Pipeline run `$(context.pipelineRun.name)` failed!"
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
