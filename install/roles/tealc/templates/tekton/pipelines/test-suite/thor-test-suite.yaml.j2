@@ -23,7 +23,7 @@ spec:
             secretKeyRef:
               name: worker-01-tekton
               key: password
-        - name: WORKER_01_API_URL
+        - name: WORKER_01_URL
           valueFrom:
             secretKeyRef:
               name: worker-01-tekton
@@ -38,7 +38,7 @@ spec:
             secretKeyRef:
               name: worker-02-tekton
               key: password
-        - name: WORKER_02_API_URL
+        - name: WORKER_02_URL
           valueFrom:
             secretKeyRef:
               name: worker-02-tekton
@@ -53,7 +53,7 @@ spec:
             secretKeyRef:
               name: worker-03-tekton
               key: password
-        - name: WORKER_03_API_URL
+        - name: WORKER_03_URL
           valueFrom:
             secretKeyRef:
               name: worker-03-tekton
