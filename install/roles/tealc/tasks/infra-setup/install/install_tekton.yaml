@@ -77,3 +77,29 @@
   shell: "oc apply -f https://github.com/bigkevmcd/tekton-polling-operator/releases/download/v0.4.0/release-v0.4.0.yaml --namespace {{ infra_ci_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  retries: 20
+  delay: 5
+
+- name: Install slack task
+  shell: "oc apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/send-to-webhook-slack/0.1/raw --namespace {{ infra_ci_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  retries: 20
+  delay: 5
+
+- name: Install slack secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    definition:
+      kind: Secret
+      apiVersion: v1
+      metadata:
+        name: webhook-secret
+        namespace: "{{ infra_ci_namespace }}"
+      stringData:
+        url: "{{ slack_api_pipelines_url }}"
+  retries: 20
+  delay: 5
