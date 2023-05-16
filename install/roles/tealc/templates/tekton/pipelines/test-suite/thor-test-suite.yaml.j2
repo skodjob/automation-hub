@@ -13,31 +13,55 @@ spec:
     - name: execute-tests
       image: quay.io/mk-ci-cd/mas-ci-tools:latest
       env:
-        - name: OC_USERNAME
+        - name: WORKER_01_USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ name }}-tekton
+              name: worker-01-tekton
               key: username
-        - name: OC_PASSWORD
+        - name: WORKER_01_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ name }}-tekton
+              name: worker-01-tekton
               key: password
-        - name: OC_API_URL
+        - name: WORKER_01_API_URL
           valueFrom:
             secretKeyRef:
-              name: {{ name }}-tekton
+              name: worker-01-tekton
+              key: server
+        - name: WORKER_02_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: worker-02-tekton
+              key: username
+        - name: WORKER_02_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: worker-02-tekton
+              key: password
+        - name: WORKER_02_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: worker-02-tekton
+              key: server
+        - name: WORKER_03_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: worker-03-tekton
+              key: username
+        - name: WORKER_03_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: worker-03-tekton
+              key: password
+        - name: WORKER_03_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: worker-03-tekton
               key: server
       script: |
-        set +x
-
-        oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
-
         mkdir -p /opt/thor
         cd /opt/thor
 
-        set -x
-        
         git clone https://github.com/ExcelentProject/thor.git
         
         cd thor
