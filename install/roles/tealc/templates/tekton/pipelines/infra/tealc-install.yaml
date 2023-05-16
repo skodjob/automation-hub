@@ -11,6 +11,9 @@ spec:
     - name: pipeline-ws
   tasks:
     - name: tealc-install
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
       taskSpec:
         workspaces:
           - name: pipeline-ws
@@ -29,9 +32,6 @@ spec:
               echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
               cd $CURRENT_DIR && git crypt unlock crypt-key
               cd $CURRENT_DIR && ansible-playbook install/tealc-play.yaml --tags="infra,strimzi-infra,twitter-app"
-      workspaces:
-        - name: pipeline-ws
-          workspace: pipeline-ws
   finally:
     - name: notify-slack
       when:

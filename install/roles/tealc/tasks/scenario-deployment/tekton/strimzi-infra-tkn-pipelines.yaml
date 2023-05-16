@@ -44,6 +44,18 @@
   vars:
     name: "{{ workers.main_cluster.name }}"
 
+- name: Create Tekton pipelines for test suites
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    template: "{{ item }}"
+  with_fileglob: 'templates/tekton/pipelines/test-suite/*.j2'
+  vars:
+    name: "{{ workers.main_cluster.name }}"
+
 - name: Create Tekton pipelines from jinja templates for release_cluster and downstream_cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -51,7 +63,7 @@
     state: present
     verify_ssl: no
     apply: true
-    template: "templates/tekton/pipelines/upgrade-worker-cluster.yaml.j2"
+    template: "templates/tekton/pipelines/infra/upgrade-worker-cluster.yaml.j2"
   loop: "{{ workers | dict2items }}"
   loop_control:
     loop_var: worker
