@@ -27,17 +27,17 @@ spec:
               - name: OC_USERNAME
                 valueFrom:
                   secretKeyRef:
-                    name: { { name } }-tekton
+                    name: {{ name }}-tekton
                     key: username
               - name: OC_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: { { name } }-tekton
+                    name: {{ name }}-tekton
                     key: password
               - name: OC_API_URL
                 valueFrom:
                   secretKeyRef:
-                    name: { { name } }-tekton
+                    name: {{ name }}-tekton
                     key: server
             script: |
               set +x

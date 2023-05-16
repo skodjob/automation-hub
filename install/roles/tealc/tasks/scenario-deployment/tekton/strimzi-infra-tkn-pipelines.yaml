@@ -32,6 +32,18 @@
     apply: true
     src: "templates/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
 
+- name: Create Tekton pipelines from jinja templates for main_cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    template: "{{ item }}"
+  with_fileglob: 'templates/tekton/pipelines/*.j2'
+  vars:
+    name: "{{ workers.main_cluster.name }}"
+
 - name: Create Tekton pipelines for test suites
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
