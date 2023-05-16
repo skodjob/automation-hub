@@ -1,6 +1,6 @@
 ENABLE_LOGGING ?= false
 
-all: install_infra install_rp install_strimzi twitter_app
+all: install_infra install_strimzi twitter_app
 
 install_infra:
 	ansible-playbook install/tealc-play.yaml --tags=infra --extra-vars log_sensitive_data=$(ENABLE_LOGGING)
