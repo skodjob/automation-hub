@@ -2,7 +2,7 @@
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineSet
 metadata:
-  name: {{ clusterId }}-observability-0
+  name: {{ clusterId }}-monitoring-0
   namespace: openshift-machine-api
   labels:
     machine.openshift.io/cluster-api-cluster: {{ clusterId }}
@@ -13,22 +13,18 @@ spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-observability-0
+      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-monitoring-0
   template:
     metadata:
       labels:
         machine.openshift.io/cluster-api-cluster: {{ clusterId }}
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-observability-0
+        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-monitoring-0
     spec:
       metadata:
         labels:
-          nodetype: observability
-      taints:
-        - key: nodetype
-          value: observability
-          effect: NoSchedule
+          nodetype: monitoring
       providerSpec:
         value:
           cloudName: openstack
@@ -83,10 +79,6 @@ spec:
       metadata:
         labels:
           nodetype: worker
-      taints:
-        - key: nodetype
-          value: observability
-          effect: NoSchedule
       providerSpec:
         value:
           cloudName: openstack
