@@ -12,9 +12,9 @@ spec:
     - effect: NoSchedule
       key: nodetype
       operator: Equal
-      value: monitoring
+      value: observability
   nodeSelector:
-    nodetype: monitoring
+    nodetype: observability
   storageConfig:
     alertmanagerStorageSize: 5Gi
     compactStorageSize: 100Gi
