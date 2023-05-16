@@ -25,7 +25,7 @@ spec:
         - name: CURRENT_DEPLOYMENT_REPO
           value: "https://github.com/ExcelentProject/sokar"
         - name: SHARED_YAML_BUNDLE_FILES
-          value: "./strimzi/cluster-operator/"
+          value: "./strimzi/cluster-operator-common/"
         - name: YAML_BUNDLE_PATHS
           value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
         - name: TARGET_ORG_REPO

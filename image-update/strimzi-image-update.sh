@@ -102,7 +102,7 @@ do
 			if test -f "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"; then
 				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE")
 			else
-			  echo "File $TARGET_DIR/$SHARED_YAML_BUNDLE_FILESH/$C_FILE does not exists. Skipping metadata backup."
+			  echo "File $TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE does not exists. Skipping metadata backup."
 			fi
 
 			cp -r $SYNC_CRD_DIR/$SYNC_CRD_PATH/$C_FILE $TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/
@@ -220,7 +220,7 @@ done
 
 echo "================================================"
 echo "Adding changes to repository"
-git add "$YAML_BUNDLE_PATH"/*
+git add "$SHARED_YAML_BUNDLE_FILES"../*
 git diff --staged --quiet || git commit -m "Strimzi images update: $($DATE "+%Y-%m-%d %T")"
 git push origin "$BRANCH"
 popd
