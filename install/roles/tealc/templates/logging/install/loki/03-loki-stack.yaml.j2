@@ -5,6 +5,8 @@ metadata:
   namespace: openshift-logging
 spec:
   managementState: Managed
+  replicationFactor: 2
+  # This is unsupported configuration, but we want to have lower requirements for pods, it should work fine, if not, pelase use 1x.small
   size: 1x.extra-small
   storage:
     schemas:
@@ -16,6 +18,63 @@ spec:
   storageClassName: standard-csi
   tenants:
     mode: openshift-logging
+  template:
+    ingester:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    compactor:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    distributor:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    gateway:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    indexGateway:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    querier:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
+    queryFrontend:
+      nodeSelector:
+        nodetype: monitoring
+      tolerations:
+        - effect: NoSchedule
+          key: nodetype
+          operator: Equal
+          value: monitoring
   limits:
     global:
       retention:
@@ -34,5 +93,11 @@ spec:
             priority: 1
             selector: '{log_type="infrastructure"}'
       ingestion:
-        ingestionRate: 10
-        ingestionBurstSize: 20
+        ingestionBurstSize: 60
+        ingestionRate: 40
+        maxGlobalStreamsPerTenant: 50000
+      queries:
+        maxChunksPerQuery: 2000000
+        maxEntriesLimitPerQuery: 10000
+        maxQuerySeries: 3000
+        queryTimeout: 1m
