@@ -2,61 +2,6 @@
 {% set name = worker.value.name %}
 {% endif %}
 apiVersion: tekton.dev/v1beta1
-kind: Task
-metadata:
-  name: upgrade-{{ name }}-cluster-task
-  labels:
-    project: tealc
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-spec:
-  workspaces:
-    - name: task-ws
-  steps:
-    - name: execute-tests
-      image: quay.io/tealc/apophis:latest
-      env:
-        - name: OC_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ name }}-tekton
-              key: username
-        - name: OC_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ name }}-tekton
-              key: password
-        - name: OC_API_URL
-          valueFrom:
-            secretKeyRef:
-              name: {{ name }}-tekton
-              key: server
-      script: |
-        set +x
-
-        oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
-
-        set -x
-
-        oc get clusterversion
-
-        oc adm upgrade
-
-        oc adm upgrade --to-latest=true
-
-        sleep 120
-
-        IS_UPGRADING="true"
-        while [[ $IS_UPGRADING == "true" ]]; do
-          if [[ "$(oc get clusterversion -o=jsonpath='{.items[0].status.history[0].completionTime}')" == "null" ]]; then
-            echo "Cluster is in upgrade state"
-          else
-            IS_UPGRADING="false"
-          fi
-          sleep 10
-        done
----
-apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: upgrade-{{ name }}-cluster-pipeline
@@ -69,12 +14,55 @@ spec:
     - name: pipeline-ws
   tasks:
     - name: upgrade
-      taskRef:
-        name: upgrade-{{ name }}-cluster-task
       timeout: 4h
       workspaces:
-        - name: task-ws
-          workspace: pipeline-ws
+        - name: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: execute-tests
+            image: quay.io/tealc/apophis:latest
+            env:
+              - name: OC_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: { { name } }-tekton
+                    key: username
+              - name: OC_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: { { name } }-tekton
+                    key: password
+              - name: OC_API_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: { { name } }-tekton
+                    key: server
+            script: |
+              set +x
+
+              oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
+
+              set -x
+
+              oc get clusterversion
+
+              oc adm upgrade
+
+              oc adm upgrade --to-latest=true
+
+              sleep 120
+
+              IS_UPGRADING="true"
+              while [[ $IS_UPGRADING == "true" ]]; do
+                if [[ "$(oc get clusterversion -o=jsonpath='{.items[0].status.history[0].completionTime}')" == "null" ]]; then
+                  echo "Cluster is in upgrade state"
+                else
+                  IS_UPGRADING="false"
+                fi
+                sleep 10
+              done
   finally:
     - name: notify-slack
       when:
