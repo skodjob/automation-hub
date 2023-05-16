@@ -74,7 +74,7 @@ spec:
         - name: webhook-secret
           value: webhook-secret
         - name: message
-          value: "{{ slack_pipeline_message }}"
+          value: "Pipeline run `$(context.pipelineRun.name)` failed!"
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
