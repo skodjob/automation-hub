@@ -20,6 +20,7 @@ spec:
     mode: openshift-logging
   template:
     ingester:
+      replicas: 3
       nodeSelector:
         nodetype: monitoring
       tolerations:
@@ -28,6 +29,7 @@ spec:
           operator: Equal
           value: monitoring
     compactor:
+      replicas: 3
       nodeSelector:
         nodetype: monitoring
       tolerations:
@@ -36,6 +38,7 @@ spec:
           operator: Equal
           value: monitoring
     distributor:
+      replicas: 3
       nodeSelector:
         nodetype: monitoring
       tolerations:
