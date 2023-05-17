@@ -7,6 +7,8 @@ metadata:
     kubed.appscode.com/sync: ""
 data:
   uwl_metrics_list.yaml: |
-    names: []
+    names: 
+      - container_memory_usage_bytes
+      - container_cpu_usage_seconds_total
     matches:
       - __name__=~".*"
