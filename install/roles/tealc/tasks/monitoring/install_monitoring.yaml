@@ -165,7 +165,8 @@
     suffix: "{{ item.suffix }}"
     receiver: "{{ item.receiver }}"
   loop:
-    - {namespace: "open-cluster-management-observability", suffix: "config", receiver: "slack"}
+    # Turn off notifications from Thanos alert manager because the one from original monitoring stack is better configured now for user alerts
+    - {namespace: "open-cluster-management-observability", suffix: "config", receiver: "default_blackhole"}
     - {namespace: "openshift-monitoring", suffix: "main", receiver: "slack"}
 
 - name: "Configure default Alertmanager to surpass warnings - {{ clusterName }}"
