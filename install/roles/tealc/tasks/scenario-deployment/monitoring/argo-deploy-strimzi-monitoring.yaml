@@ -48,3 +48,12 @@
   vars:
     cluster: "in-cluster"
   with_fileglob: 'templates/argo/applications/monitoring/alerts/infra/*.j2'
+
+- name: Create Argo applications custom-observability config map
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    src: "templates/argo/applications/custom-observability-metrics.yaml"
