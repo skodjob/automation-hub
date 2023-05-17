@@ -6,6 +6,12 @@ metadata:
   annotations:
     kubed.appscode.com/sync: ""
 data:
+  metrics_list.yaml: |
+    names:
+      - container_cpu_usage_seconds_total
+      - container_memory_usage_bytes
+    matches:
+      - __name__=~".*"
   uwl_metrics_list.yaml: |
     names: 
       - container_memory_usage_bytes
