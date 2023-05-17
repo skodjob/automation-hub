@@ -51,3 +51,15 @@
       reason: Ready
   retries: 60
   delay: 10
+
+- name: "Create multicluster observability config map for custom metrics on {{  }} cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    namespace: "kube-system"
+    state: present
+    apply: true
+    template: "templates/acm/08-extend-default-metrics-allowlist.yaml.j2"
+    verify_ssl: no
+  loop: "{{ workers | dict2items }}"
+  loop_control:
+    loop_var: worker
