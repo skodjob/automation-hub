@@ -16,6 +16,7 @@ data:
     names: 
       - container_memory_usage_bytes
       - container_cpu_usage_seconds_total
+      - process_open_fds
     matches:
       - __name__=~".*(kafka|strimzi|jvm|argo).*"
       - container=~".*(dmt|kafka|strimzi).*"
