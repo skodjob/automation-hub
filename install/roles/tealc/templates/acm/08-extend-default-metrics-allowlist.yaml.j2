@@ -18,3 +18,4 @@ data:
       - container_cpu_usage_seconds_total
     matches:
       - __name__=~".*(kafka|strimzi|jvm|argo).*"
+      - container=~".*dmt.*"
