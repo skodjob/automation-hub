@@ -11,6 +11,7 @@ data:
     prometheusK8s:
       externalLabels:
         clusterName: {{ clusterName }}
+        pod_name_label: $(POD_NAME)
       volumeClaimTemplate:
         spec:
           storageClassName: standard-csi
