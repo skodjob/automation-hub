@@ -27,6 +27,12 @@ spec:
     storeStorageSize: 10Gi
   # For more info see https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html-single/apis/index
   advanced:
+    receive:
+      replicas: 3
+      resources:
+        limits:
+          cpu: 4
+          memory: 15Gi
     retentionConfig:
       blockDuration: 2h
       deleteDelay: 48h
