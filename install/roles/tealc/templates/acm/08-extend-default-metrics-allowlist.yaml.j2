@@ -11,10 +11,10 @@ data:
       - container_cpu_usage_seconds_total
       - container_memory_usage_bytes
     matches:
-      - __name__=~".*kafka|strimzi|jvm|argo.*"
+      - __name__=~".*(kafka|strimzi|jvm|argo).*"
   uwl_metrics_list.yaml: |
     names: 
       - container_memory_usage_bytes
       - container_cpu_usage_seconds_total
     matches:
-      - __name__=~".*kafka|strimzi|jvm|argo.*"
+      - __name__=~".*(kafka|strimzi|jvm|argo).*"
