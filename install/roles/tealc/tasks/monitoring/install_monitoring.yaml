@@ -11,6 +11,7 @@
         name: "{{ infra_monitoring_namespace }}"
         labels:
           'argocd.argoproj.io/managed-by': "{{ infra_argo_namespace }}"
+          project: "tealc"
 
 - name: Enable & configure user-workload on infra cluster
   kubernetes.core.k8s:

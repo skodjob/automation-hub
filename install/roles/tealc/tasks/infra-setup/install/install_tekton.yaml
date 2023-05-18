@@ -11,6 +11,7 @@
         name: "{{ infra_ci_namespace }}"
         labels:
           'argocd.argoproj.io/managed-by': "{{ infra_argo_namespace }}"
+          project: "tealc"
 
 - name: Create Tekton subscription
   kubernetes.core.k8s:

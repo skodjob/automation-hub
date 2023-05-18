@@ -2,11 +2,14 @@
 - name: Create Argo namespace on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    name: "{{ infra_argo_namespace }}"
     api_version: v1
     kind: Namespace
     verify_ssl: no
     state: present
+    metadata:
+      name: "{{ infra_monitoring_namespace }}"
+      labels:
+        project: "tealc"
 
 - name: Create image pull secret on infra cluster
   kubernetes.core.k8s:
