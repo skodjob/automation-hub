@@ -10,7 +10,7 @@ data:
     prometheus:
       externalLabels:
         clusterName: {{ clusterName }}
-        pod_name_label: $(POD_NAME)
+        prometheus_pod: $(POD_NAME)
       volumeClaimTemplate:
         spec:
           storageClassName: standard-csi
