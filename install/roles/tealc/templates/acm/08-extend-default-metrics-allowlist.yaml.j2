@@ -18,5 +18,5 @@ data:
       - container_cpu_usage_seconds_total
       - process_open_fds
     matches:
-      - __name__=~".*(kafka|strimzi|jvm|argo).*"
+      - __name__=~".*(kafka|strimzi|jvm|argo|debezium).*"
       - container=~".*(dmt|kafka|strimzi).*"
