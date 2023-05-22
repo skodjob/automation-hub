@@ -4,6 +4,7 @@ Collection of deployments and tools for continuous testing of applications
 ## Requirements
 ```
 ansible
+oc/kubectl
 podman/docker #in case you want to use ansible navigator
 ```
 
