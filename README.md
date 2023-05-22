@@ -1,4 +1,4 @@
-# TEALC CICD tooling
+# TEALC CI/CD tooling
 Collection of deployments and tools for continuous testing of applications
 
 ## Requirements
