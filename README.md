@@ -6,6 +6,7 @@ Collection of deployments and tools for continuous testing of applications
 ansible
 oc
 kubectl
+jq
 podman/docker #in case you want to use ansible navigator
 ```
 
