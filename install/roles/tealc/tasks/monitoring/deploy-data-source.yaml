@@ -3,13 +3,13 @@
 #  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ target.sa_namespace }}"
   shell: "oc get  $(oc get secret -o name -n {{ target.sa_namespace }} | grep {{ target.sa_name }}-token) -n {{ target.sa_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ target.name }}"
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ target.target_cluster_name }}"
   register: "access_token_out"
 
-- name: "Set facts for access token {{ target.name }}"
+- name: "Set facts for access token {{ target.target_cluster_name }}"
   set_fact: access_token="{{ access_token_out.stdout }}"
 
-- name: "Check that token exists {{ target.name }}"
+- name: "Check that token exists {{ target.target_cluster_name }}"
   fail:
     msg: "Token is not properly stored!\n{{ access_token }}"
   when: access_token | length == 0
