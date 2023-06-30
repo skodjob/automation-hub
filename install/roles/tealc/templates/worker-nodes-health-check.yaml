@@ -16,4 +16,4 @@ spec:
     - type: Ready
       status: 'False'
       timeout: 600s
-  maxUnhealthy: 40%
+  maxUnhealthy: 80%

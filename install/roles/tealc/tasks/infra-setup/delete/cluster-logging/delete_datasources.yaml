@@ -6,8 +6,8 @@
     namespace: "{{ openshift_logging_namespace }}"
     apply: true
     definition:
-      apiVersion: integreatly.org/v1alpha1
-      kind: GrafanaDataSource
+      apiVersion: grafana.integreatly.org/v1beta1
+      kind: GrafanaDatasource
       metadata:
         name: "loki-{{ clusterName }}-{{ loki_tenant_id }}"
         namespace: "{{ infra_monitoring_namespace }}"
@@ -16,20 +16,23 @@
           managed: "true"
       spec:
         name: "loki-{{ clusterName }}-{{ loki_tenant_id }}"
-        datasources:
-          - access: proxy
-            type: loki
-            url: "https://{{ loki_gateway_route_url }}:443/api/logs/v1/{{ loki_tenant_id }}"
-            editable: true
-            jsonData:
-              httpHeaderName1: X-Scope-OrgID
-              httpHeaderName2: Authorization
-              tlsAuthWithCACert: true
-            name: "Loki-{{ clusterName }}-{{ loki_tenant_id }}"
-            secureJsonData:
-              httpHeaderValue1: "{{ loki_tenant_id }}"
-              httpHeaderValue2: "Bearer {{ loki_gateway_token }}"
-              tlsCACert: "{{ loki_gateway_ca_cert }}"
+        instanceSelector:
+          matchLabels:
+            dashboards: "tealc"
+        datasource:
+          access: proxy
+          type: loki
+          url: "https://{{ loki_gateway_route_url }}:443/api/logs/v1/{{ loki_tenant_id }}"
+          editable: true
+          jsonData:
+            httpHeaderName1: X-Scope-OrgID
+            httpHeaderName2: Authorization
+            tlsAuthWithCACert: true
+          name: "Loki-{{ clusterName }}-{{ loki_tenant_id }}"
+          secureJsonData:
+            httpHeaderValue1: "{{ loki_tenant_id }}"
+            httpHeaderValue2: "Bearer {{ loki_gateway_token }}"
+            tlsCACert: "{{ loki_gateway_ca_cert }}"
   vars:
     loki_gateway_token: "null"
     loki_gateway_route_url: "null"
