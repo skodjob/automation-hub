@@ -10,7 +10,7 @@ spec:
               repoURL: https://github.com/ExcelentProject/sokar
               revision: HEAD
               files:
-                - path: "debezium/**/argo-config.yaml"
+                - path: "debezium/**[^mongo|mongo\\-operator]**/argo-config.yaml"
           - clusters:
               selector:
                 matchLabels:
