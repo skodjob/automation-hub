@@ -155,11 +155,11 @@
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
     - {name: "tealc-thanos", sa_namespace: "{{ infra_user_namespace }}",
-        sa_name: "tealc-sa",
-        monitoring_namespace: "{{ infra_monitoring_namespace }}",
-        target_cluster_name: "{{ infra_context_name }}",
-        context: "{{ infra_context_name }}",
-        url: "http://observability-thanos-query.open-cluster-management-observability.svc.cluster.local:9090"}
+       sa_name: "tealc-sa",
+       monitoring_namespace: "{{ infra_monitoring_namespace }}",
+       target_cluster_name: "{{ infra_context_name }}",
+       context: "{{ infra_context_name }}",
+       url: "http://observability-thanos-query.open-cluster-management-observability.svc.cluster.local:9090"}
   loop_control:
     loop_var: target
 
