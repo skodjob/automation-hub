@@ -98,7 +98,7 @@ do
     do
         echo "Filename for sync: $C_FILE"
 
-		if [[ $C_FILE == *"(Crd|ClusterRole-)"* ]]; then
+		if [[ $C_FILE == *".*(Crd|ClusterRole-)"* ]]; then
 			echo "Syncing $C_FILE to $SHARED_YAML_BUNDLE_FILES"
 			if test -f "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"; then
 				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE")
