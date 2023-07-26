@@ -99,6 +99,7 @@ do
         echo "Filename for sync: $C_FILE"
 
 		if [[ $C_FILE == *"(Crd|ClusterRole-)"* ]]; then
+			echo "Syncing $C_FILE to $SHARED_YAML_BUNDLE_FILES"
 			if test -f "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"; then
 				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE")
 			else
@@ -111,6 +112,7 @@ do
 				yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$SHARED_YAML_BUNDLE_FILES/$C_FILE"
 			fi
 		elif [[ $C_FILE == *"Deployment-"* ]]; then
+			echo "Syncing $C_FILE to $YAML_BUNDLE_PATH"
 			if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
 				export METADATA=$(yq e '.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE")
 			else
@@ -122,6 +124,8 @@ do
 			if test -f "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"; then
 				yq e -i '.metadata = env(METADATA)' "$TARGET_DIR/$YAML_BUNDLE_PATH/$C_FILE"
 			fi
+		else
+			echo "File $C_FILE didn't match any regex!"
 		fi
     done
 
