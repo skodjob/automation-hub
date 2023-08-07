@@ -15,7 +15,7 @@ ansible-playbook
 ```
 cd install
 ansible-galaxy collection install -r collections/requirements.yml
-ansible-playbook tealc-play.yaml --tags=infra,strimzi-infra,twitter-app
+ansible-playbook tealc-play.yaml --tags=infra,strimzi-infra
 ```
 
 makefile
