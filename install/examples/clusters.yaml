@@ -10,7 +10,6 @@ infra_token: zdepa
 kubeconfig_path: configpath
 github_secret_path: configpath/install/examples/github-secret.yaml
 grafana_docker_secret_path: configpath/install/examples/docker-secret.yaml
-twitter_secret_path: configpath/install/examples/twitter
 
 # Workers
 workers:

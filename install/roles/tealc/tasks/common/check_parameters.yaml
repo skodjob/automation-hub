@@ -4,11 +4,6 @@
     msg: "Variable 'github_secret_path' is not defined"
   when: github_secret_path is not defined
 
-- name: Check that 'twitter_secret_path' is not defined
-  fail:
-    msg: "Variable 'twitter_secret_path' is not defined"
-  when: twitter_secret_path is not defined
-
 - name: Check that 'workers' is not defined
   fail:
     msg: "Variable 'workers' is not defined"

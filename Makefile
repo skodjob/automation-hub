@@ -1,4 +1,4 @@
-all: install_infra install_strimzi twitter_app
+all: install_infra install_strimzi
 
 install_infra:
 	ansible-playbook install/tealc-play.yaml --tags=infra
@@ -9,4 +9,4 @@ install_strimzi:
 remove_infra:
 	ansible-playbook install/tealc-play.yaml --tags=teardown
 
-.PHONY: install_infra install_strimzi twitter_app remove_infra
+.PHONY: install_infra install_strimzi remove_infra
