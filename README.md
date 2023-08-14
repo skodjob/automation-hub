@@ -21,7 +21,7 @@ ansible-playbook tealc-play.yaml --tags=infra,strimzi-infra
 makefile
 ```
 ansible-galaxy collection install -r install/collections/requirements.yml
-make install_infra install_strimzi twitter_app
+make install_infra install_strimzi 
 ```
 
 ansible-navigator
