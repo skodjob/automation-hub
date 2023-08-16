@@ -11,9 +11,9 @@ metadata:
 spec:
   # 5x kafka node
 {% if clusterName == "worker-01" %}
-  replicas: 5
-{% else %}
   replicas: 7
+{% else %}
+  replicas: 5
 {% endif %}
   selector:
     matchLabels:
@@ -73,7 +73,11 @@ metadata:
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
   # 5x connect node
+{% if clusterName == "worker-01" %}
   replicas: 5
+{% else %}
+  replicas: 3
+{% endif %}
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
@@ -127,8 +131,12 @@ metadata:
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
-  # 4x infra node
+  # infra nodes
+{% if clusterName == "worker-01" %}
   replicas: 4
+{% else %}
+  replicas: 2
+{% endif %}
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
