@@ -10,7 +10,7 @@ metadata:
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
   # 5x kafka node
-{ % if clusterName == "worker-01" % }
+{% if clusterName == "worker-01" %}
   replicas: 5
 {% else %}
   replicas: 7
