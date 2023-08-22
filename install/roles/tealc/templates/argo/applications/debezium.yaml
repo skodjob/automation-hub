@@ -22,7 +22,7 @@ spec:
         project: tealc
         app: debezium
     spec:
-      project: default
+      project: applications
       source:
         repoURL: https://github.com/ExcelentProject/sokar
         targetRevision: HEAD
