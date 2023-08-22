@@ -6,7 +6,7 @@ metadata:
   labels:
     project: tealc
 spec:
-  channel: stable
+  channel: latest
   installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
