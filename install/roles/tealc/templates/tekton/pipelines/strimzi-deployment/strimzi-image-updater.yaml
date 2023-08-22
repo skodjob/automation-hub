@@ -1,57 +1,4 @@
 apiVersion: tekton.dev/v1beta1
-kind: Task
-metadata:
-  name: strimzi-deployment-image-update-task
-  labels:
-    project: tealc
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-spec:
-  workspaces:
-    - name: task-ws
-  steps:
-    - name: tealc-clone
-      image: quay.io/wire/alpine-git
-      script: |
-        export CURRENT_DIR=$(workspaces.task-ws.path)/tealc
-        git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
-    # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
-    - name: wait-for-push
-      image: quay.io/tealc/apophis:latest
-      script: |
-        sleep 5m
-    - name: images-update
-      env:
-        - name: CURRENT_DEPLOYMENT_REPO
-          value: "https://github.com/ExcelentProject/sokar"
-        - name: SHARED_YAML_BUNDLE_FILES
-          value: "./strimzi/cluster-operator-common/"
-        - name: YAML_BUNDLE_PATHS
-          value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
-        - name: TARGET_ORG_REPO
-          value: "quay.io/strimzi"
-        - name: BRANCH
-          value: main
-        - name: SYNC_CRD_REPO
-          value: "https://github.com/strimzi/strimzi-kafka-operator"
-        - name: SYNC_CRD_PATH
-          value: "packaging/install/cluster-operator"
-        - name: GITHUB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: github-secret
-              key: USERNAME
-        - name: GITHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-secret
-              key: TOKEN
-      image: quay.io/tealc/apophis:latest
-      script: |
-        $(workspaces.task-ws.path)/tealc/image-update/strimzi-image-update.sh
-        echo "[INFO] Done!"
----
-apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: strimzi-deployment-image-update-pipeline
@@ -64,11 +11,53 @@ spec:
     - name: pipeline-ws
   tasks:
     - name: strimzi
-      taskRef:
-        name: strimzi-deployment-image-update-task
       workspaces:
-        - name: task-ws
+        - name: pipeline-ws
           workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: tealc-clone
+            image: quay.io/wire/alpine-git
+            script: |
+              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
+              git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
+          # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
+          - name: wait-for-push
+            image: quay.io/tealc/apophis:latest
+            script: |
+              sleep 5m
+          - name: images-update
+            env:
+              - name: CURRENT_DEPLOYMENT_REPO
+                value: "https://github.com/ExcelentProject/sokar"
+              - name: SHARED_YAML_BUNDLE_FILES
+                value: "./strimzi/cluster-operator-common/"
+              - name: YAML_BUNDLE_PATHS
+                value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
+              - name: TARGET_ORG_REPO
+                value: "quay.io/strimzi"
+              - name: BRANCH
+                value: main
+              - name: SYNC_CRD_REPO
+                value: "https://github.com/strimzi/strimzi-kafka-operator"
+              - name: SYNC_CRD_PATH
+                value: "packaging/install/cluster-operator"
+              - name: GITHUB_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: github-secret
+                    key: USERNAME
+              - name: GITHUB_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: github-secret
+                    key: TOKEN
+            image: quay.io/tealc/apophis:latest
+            script: |
+              $(workspaces.pipeline-ws.path)/tealc/image-update/strimzi-image-update.sh
+              echo "[INFO] Done!"
   finally:
     - name: notify-slack
       when:
