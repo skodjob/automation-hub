@@ -45,6 +45,7 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "100m"
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: metrics
