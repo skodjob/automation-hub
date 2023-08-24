@@ -87,7 +87,7 @@ spec:
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
             script: |
               cd $(workspaces.pipeline-ws.path)/thor/target/surefire-reports
-              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.cluster.local:8080/data; done
+              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
     - name: notify-slack
       when:
         - input: $(tasks.status)
