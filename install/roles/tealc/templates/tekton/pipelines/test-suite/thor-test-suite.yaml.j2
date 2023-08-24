@@ -67,8 +67,7 @@ spec:
                     name: worker-03-tekton
                     key: server
             script: |
-              mkdir -p /opt/thor
-              cd /opt/thor
+              cd $(workspaces.pipeline-ws.path)
 
               git clone https://github.com/ExcelentProject/thor.git
 
@@ -76,6 +75,19 @@ spec:
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
               mvn test --no-transfer-progress
   finally:
+    - name: sent-results
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: sent-results
+            image: quay.io/mk-ci-cd/mas-ci-tools:latest
+            script: |
+              cd $(workspaces.pipeline-ws.path)/thor/target/surefire-reports
+              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.cluster.local:8080/data; done
     - name: notify-slack
       when:
         - input: $(tasks.status)
