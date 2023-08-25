@@ -65,6 +65,16 @@
     apply: true
     src: "templates/tekton/pipelines/test-suite/metrics-collector.yaml"
 
+- name: "Rollout collector"
+  kubernetes.core.k8s_info:
+    kind: Rollout
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    name: "deployment/tealc-metrics-collector"
+    wait: true
+    wait_condition:
+      type: Succeeded
+
 - name: Create Tekton pipelines from jinja templates for release_cluster and downstream_cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
