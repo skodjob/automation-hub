@@ -40,7 +40,7 @@ spec:
       serviceAccountName: tealc-metrics-collector
       containers:
         - name: tealc-metrics-collector
-          image: quay.io/tealc/metrics-collector@sha256:d3cef0ead47a03d9c8e3eb3a74ac3475ae36d550f2a159ba3b868709825dad7a
+          image: quay.io/tealc/metrics-collector@sha256:f7adc0b119f1e4fb7df05575e504fd977e57d7fd79e21a1fa135ade15b27bb85
           resources:
             limits:
               memory: "128Mi"
