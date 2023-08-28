@@ -97,10 +97,5 @@ spec:
             selector: '{log_type="infrastructure"}'
       ingestion:
         ingestionBurstSize: 60
-        ingestionRate: 40
+        ingestionRate: 200
         maxGlobalStreamsPerTenant: 50000
-      queries:
-        maxChunksPerQuery: 2000000
-        maxEntriesLimitPerQuery: 10000
-        maxQuerySeries: 3000
-        queryTimeout: 1m
