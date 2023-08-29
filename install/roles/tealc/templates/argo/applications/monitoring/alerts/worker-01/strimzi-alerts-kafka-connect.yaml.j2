@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-alerts-kafka-connect
+  name: strimzi-alerts-kafka-{{ cluster }}
   labels:
     project: tealc
     app: strimzi
