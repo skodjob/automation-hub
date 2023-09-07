@@ -30,10 +30,12 @@ spec:
       metadata:
         labels:
           nodetype: kafka
+{% if clusterName != "worker-03 %}
       taints:
         - key: nodetype
           value: kafka
           effect: NoSchedule
+{% endif %}
       providerSpec:
         value:
           cloudName: openstack
