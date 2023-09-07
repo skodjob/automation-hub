@@ -30,7 +30,7 @@ spec:
       metadata:
         labels:
           nodetype: kafka
-{% if clusterName != "worker-03 %}
+{% if clusterName != "worker-03" %}
       taints:
         - key: nodetype
           value: kafka
