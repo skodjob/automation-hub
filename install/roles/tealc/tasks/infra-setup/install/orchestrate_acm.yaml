@@ -1,12 +1,12 @@
 ---
 - include_tasks:
-    file: advanced-control-management/install_acm.yaml
+    file: advanced-cluster-management/install_acm.yaml
 
 - include_tasks:
-    file: advanced-control-management/register_clusters.yaml
+    file: advanced-cluster-management/register_clusters.yaml
   loop: "{{ worker_clusters }}"
   loop_control:
     loop_var: clusterName
 
 - include_tasks:
-    file: advanced-control-management/install_observability.yaml
+    file: advanced-cluster-management/install_observability.yaml
