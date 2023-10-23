@@ -15,8 +15,9 @@ FROM $EE_BUILDER_IMAGE as builder
 
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
+ADD _build/requirements.txt requirements.txt
 ADD _build/bindep.txt bindep.txt
-RUN ansible-builder introspect --sanitize --user-bindep=bindep.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
+RUN ansible-builder introspect --sanitize --user-pip=requirements.txt --user-bindep=bindep.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
 RUN assemble
 
 FROM $EE_BASE_IMAGE
@@ -30,3 +31,4 @@ RUN /output/install-from-bindep && rm -rf /output/wheels
 RUN echo This is a post-install command!
 RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
 RUN /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.6.0/7.el8/x86_64/git-crypt-0.6.0-7.el8.x86_64.rpm
+RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.2.0/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
