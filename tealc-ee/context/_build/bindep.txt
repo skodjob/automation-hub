@@ -1,2 +1,3 @@
 tar
 wget
+jq
