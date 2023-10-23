@@ -40,8 +40,10 @@ cd install
 ansible-navigator run tealc-play.yaml
 ```
 
+### Testing United 2023 slides
+[Testing United 2023](https://docs.google.com/presentation/d/1E2mBTQfsJybLtWnGRRpw-Xw5dohwRjXtsXgPq0_wpwk/edit?usp=sharing)
+
 ### DevConf.cz 2022 presentation about TEALC in action
 [![TEALC_ON_DEVCONF](https://img.youtube.com/vi/oLAYig0zQgw/0.jpg)](https://www.youtube.com/watch?v=oLAYig0zQgw)
-
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
