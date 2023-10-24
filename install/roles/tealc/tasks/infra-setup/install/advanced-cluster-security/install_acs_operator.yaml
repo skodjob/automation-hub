@@ -1,0 +1,20 @@
+- name: "Create ACS namespace on {{ clusterName }} cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    api_version: v1
+    kind: Namespace
+    name: "{{ acs_namespace }}"
+    verify_ssl: no
+    state: present
+
+- name: "Create ACS operator group and subscription on {{ clusterName }} cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ acs_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/acs/00-operator-group.yaml.j2
+    - templates/acs/01-acs-subscription.yaml.j2

@@ -1,0 +1,18 @@
+---
+# Install operator on infra cluster
+- include_tasks:
+    file: advanced-cluster-security/install_acs_operator.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+# Install central on infra cluster
+- include_tasks:
+    file: advanced-cluster-security/install_acs_central.yaml
+
+# Register infra cluster as secured cluster
+- include_tasks:
+    file: advanced-cluster-security/register_cluster.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName

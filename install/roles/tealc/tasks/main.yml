@@ -72,6 +72,9 @@
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
 
+- import_tasks: infra-setup/install/orchestrate_acs.yaml
+  tags: [acs, infra, security, never]
+
 - import_tasks: infra-setup/install/install_links.yaml
   tags: [infra, console-link, links, never]
 
@@ -112,6 +115,9 @@
 
 - import_tasks: infra-setup/delete/delete_acm.yaml
   tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
+
+- import_tasks: infra-setup/delete/delete_acs.yaml
+  tags: [never, teardown-acs, teardown, teardown-security]
 
 - import_tasks: infra-setup/delete/delete_kubed.yaml
   tags: [never, teardown, teardown-kubed]

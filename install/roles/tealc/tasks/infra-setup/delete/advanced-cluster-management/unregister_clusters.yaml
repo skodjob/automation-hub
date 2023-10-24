@@ -4,8 +4,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ clusterName }}"
-    state: present
-    apply: true
+    state: absent
     template: templates/acm/05-klusterlet-addon-config.yaml.j2
     verify_ssl: no
 
@@ -13,8 +12,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ clusterName }}"
-    state: present
-    apply: true
+    state: absent
     template: templates/acm/04-managed-cluster.yaml.j2
     verify_ssl: no
 
@@ -22,10 +20,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     name: "{{ clusterName }}"
-    state: present
+    api_version: v1
+    kind: Namespace
     verify_ssl: no
-    definition:
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: "{{ clusterName }}"
+    state: absent
