@@ -1,0 +1,93 @@
+###############
+# Create FIPs #
+###############
+- name: "Create FIP API"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster_name }} API' -f value -c floating_ip_address {{ openstack_network }}"
+  environment:
+    OS_CLOUD: "{{ cloud }}"
+  register: "fip_api_output"
+
+- name: "Create FIP apps"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster_name }} APPS' -f value -c floating_ip_address {{ openstack_network }}"
+  environment:
+    OS_CLOUD: "{{ cloud }}"
+  register: "fip_apps_output"
+
+#############################
+# Create DNS records in AWS #
+#############################
+- name: "Prepare AWS DNS command for API of {{ cluster_name }}"
+  vars:
+    action: "UPSERT"
+    record_prefix: "api"
+    fip: "{{ fip_api_output.stdout }}"
+  template:
+    src: "templates/hive/aws_record.json.j2"
+    dest: "aws_record"
+- name: "Update DNS record for API of {{ cluster_name }}"
+  shell:  "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
+
+- name: "Prepare AWS DNS command for APPS of {{ cluster_name }}"
+  vars:
+    action: "UPSERT"
+    record_prefix: "*.apps"
+    fip: "{{ fip_apps_output.stdout }}"
+  template:
+    src: "templates/hive/aws_record.json.j2"
+    dest: "aws_record"
+- name: "Update DNS record for APPS of {{ cluster_name }}"
+  shell:  "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
+
+###############################
+# Create InstallConfig secret #
+###############################
+- name: "Create InstallConfig secret for {{ cluster_name }}"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ hive_namespace }}"
+    apply: true
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "{{ install_config_name }}"
+      data:
+        install_config.yaml: "{{ lookup('template', 'templates/hive/install-config.j2' ) | b64encode }}"
+  vars:
+    install_config_name: "{{ cluster_name }}-install-config"
+    fip_apps: "{{ fip_apps_output.stdout }}"
+    fip_api: "{{ fip_api_output.stdout }}"
+
+############################
+# Create ClusterDeployment #
+############################
+# This is not working properly - https://issues.redhat.com/browse/HIVE-2308
+#- name: "Create {{ clusterName }} MachinePool"
+#  kubernetes.core.k8s:
+#    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#    namespace: "{{ hive_namespace }}"
+#    state: present
+#    apply: true
+##    template: templates/hive/machine-pool.yaml.j2
+#    template: ../../../templates/hive/machine-pool.yaml.j2
+#    verify_ssl: no
+#  loop: "{{ cluster_machine_pools }}"
+#  loop_control:
+#    loop_var: machine_pool
+#  vars:
+#    node_type: "{{ machine_pool.node_type }}"
+#    node_flavor: "{{ machine_pool.node_flavor }}"
+#    node_replicas: "{{ machine_pool.node_replicas }}"
+
+- name: "Create {{ clusterName }} ClusterDeployment config"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ hive_namespace }}"
+    state: present
+    apply: true
+    template: templates/hive/cluster-provision.yaml.j2
+    verify_ssl: no
+  vars:
+    install_config_name: "{{ cluster_name }}-install-config"

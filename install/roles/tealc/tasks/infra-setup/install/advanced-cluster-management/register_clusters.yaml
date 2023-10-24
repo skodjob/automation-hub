@@ -12,18 +12,6 @@
       metadata:
         name: "{{ clusterName }}"
 
-- name: "Get server url from secret {{ clusterName }}-argo-access"
-  shell: "oc get secret {{ clusterName }}-argo-access -n {{ infra_argo_namespace }} -o=jsonpath='{.data.server}' | base64 -d"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-  register: "serverUrl"
-
-- name: "Get token from secret {{ clusterName }}-argo-access"
-  shell: "oc get secret {{ clusterName }}-argo-access -n {{ infra_argo_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-  register: "clusterToken"
-
 - name: "Create {{ clusterName }}'s auto-import secret on Infra cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -33,7 +21,7 @@
     template: templates/acm/03-auto-import-secret.yaml.j2
     verify_ssl: no
   vars:
-    clusterAccessToken: "{{ clusterToken.stdout }}"
+    clusterKubeconfig: "{{ kubeconfig_output.stdout }}"
     clusterApiUrl: "{{ serverUrl.stdout }}"
 
 - name: "Create {{ clusterName }}'s managed cluster on Infra cluster"
@@ -45,11 +33,11 @@
     template: templates/acm/04-managed-cluster.yaml.j2
     verify_ssl: no
 
-- name: "Create {{ clusterName }}'s klusterlet addon on Infra cluster"
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ clusterName }}"
-    state: present
-    apply: true
-    template: templates/acm/05-klusterlet-addon-config.yaml.j2
-    verify_ssl: no
+#- name: "Create {{ clusterName }}'s klusterlet addon on Infra cluster"
+#  kubernetes.core.k8s:
+#    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#    namespace: "{{ clusterName }}"
+#    state: present
+#    apply: true
+#    template: templates/acm/05-klusterlet-addon-config.yaml.j2
+#    verify_ssl: no

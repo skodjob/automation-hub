@@ -1,6 +1,9 @@
 ---
 - set_fact:
-    worker_clusters: []
+    worker_clusters: {}
+
+- set_fact:
+    clusters_dict: {}
 
 - name: Build worker cluster list
   set_fact:
@@ -14,3 +17,12 @@
 - name: Show generated cluster list
   debug:
     msg: "{{ clusters }}"
+
+- name: Generate clients dict
+  set_fact:
+      clusters_dict: "{{ clusters_dict | default({}) | combine({ item['name']: value }) }}"
+  loop: "{{ clusters }}"
+  vars:
+    keys: "{{ item.keys() }}"
+    vals: "{{ keys | map('extract', item) | list }}"
+    value: "{{ dict(keys | zip(vals)) }}"

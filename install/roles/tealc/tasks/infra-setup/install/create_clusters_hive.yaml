@@ -1,0 +1,18 @@
+---
+- include_tasks:
+    file: hive/00-prepare_secrets.yaml
+
+- include_tasks:
+    file: hive/01-check_cluster_exists.yaml
+
+- include_tasks:
+    file: hive/02-deploy_cluster.yaml
+  loop: "{{ clusters_dict }}"
+  loop_control:
+    loop_var: cluster
+
+- include_tasks:
+    file: hive/03-wait_for_cluster.yaml
+  loop: "{{ clusters_dict }}"
+  loop_control:
+    loop_var: cluster

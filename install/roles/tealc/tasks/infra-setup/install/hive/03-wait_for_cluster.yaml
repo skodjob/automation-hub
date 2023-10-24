@@ -1,0 +1,17 @@
+##############################
+# Wait for cluster readiness #
+##############################
+- name: "Wait for ClusterDeployment {{ cluster_name }} readiness"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ hive_namespace }}"
+    kind: ClusterDeployment
+    name: "{{ cluster_name }}"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Provisioned
+      status: True
+      reason: Provisioned
+  retries: 60
+  delay: 60

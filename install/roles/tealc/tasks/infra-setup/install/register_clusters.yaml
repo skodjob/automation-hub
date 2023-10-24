@@ -1,0 +1,6 @@
+---
+- include_tasks:
+    file: advanced-control-management/register_clusters.yaml
+  loop: "{{ clusters_dict }}"
+  loop_control:
+    loop_var: cluster

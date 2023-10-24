@@ -14,83 +14,83 @@
 - import_tasks: common/set_facts.yaml
   tags: [always]
 
-# infra installation
-- include_tasks:
-    file: infra-setup/prepare_access.yaml
-    apply:
-      tags: [setup-workers-access, infra, never]
-  tags: [setup-workers-access, infra, never]
-  loop: "{{ workers | dict2items }}"
-  loop_control:
-    loop_var: worker
-
-- import_tasks: infra-setup/configure_infra_cluster.yaml
-  tags: [machine-sets, chrony, infra, never]
-
-- include_tasks:
-    file: infra-setup/configure_worker_cluster.yaml
-    apply:
-      tags: [machine-sets, chrony, infra, never]
-  tags: [machine-sets, chrony, infra, never]
-  loop: "{{ workers | dict2items }}"
-  loop_control:
-    loop_var: worker
-
-- import_tasks: infra-setup/install/install_tekton.yaml
-  tags: [tekton, infra, never]
-
-- import_tasks: infra-setup/install/install_argo.yaml
-  tags: [argo, infra, never]
-
-- import_tasks: monitoring/install_monitoring.yaml
-  tags: [monitoring, grafana, infra, never]
-
-- import_tasks: infra-setup/install/orchestrate_logging.yaml
-  tags: [logging, infra, monitoring, never]
-
-- import_tasks: infra-setup/install/orchestrate_acm.yaml
-  tags: [acm, logging, infra, monitoring, never]
-
-- import_tasks: infra-setup/install/install_links.yaml
-  tags: [infra, console-link, links, never]
-
-- import_tasks: infra-setup/install/install_kubed.yaml
-  tags: [kubed, infra, never]
-
-# Scenarios
-- import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
-  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
-
-- import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
-  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
-
-- import_tasks: scenario-deployment/debezium/argo-deploy-debezium.yaml
-  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
-
-- import_tasks: scenario-deployment/monitoring/argo-deploy-strimzi-monitoring.yaml
-  tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
-
-- import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
-  tags: [tekton-pipelines, strimzi-infra, never]
-
-# Teardown
-- import_tasks: infra-setup/delete/delete_argo.yaml
-  tags: [never, teardown, teardown-argo]
-
-- import_tasks: infra-setup/delete/delete_tekton.yaml
-  tags: [never, teardown, teardown-tekton]
-
-- import_tasks: monitoring/delete_monitoring.yaml
-  tags: [never, teardown, teardown-monitoring]
-
-- import_tasks: infra-setup/delete/delete_logging.yaml
-  tags: [never, teardown-logging, teardown, teardown-monitoring]
-
-- import_tasks: infra-setup/delete/delete_links.yaml
-  tags: [never, teardown, teardown-links]
-
-- import_tasks: infra-setup/delete/delete_acm.yaml
-  tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
-
-- import_tasks: infra-setup/delete/delete_kubed.yaml
-  tags: [never, teardown, teardown-kubed]
+## infra installation
+#- include_tasks:
+#    file: infra-setup/prepare_access.yaml
+#    apply:
+#      tags: [setup-workers-access, infra, never]
+#  tags: [setup-workers-access, infra, never]
+#  loop: "{{ workers | dict2items }}"
+#  loop_control:
+#    loop_var: worker
+#
+#- import_tasks: infra-setup/configure_infra_cluster.yaml
+#  tags: [machine-sets, chrony, infra, never]
+#
+#- include_tasks:
+#    file: infra-setup/configure_worker_cluster.yaml
+#    apply:
+#      tags: [machine-sets, chrony, infra, never]
+#  tags: [machine-sets, chrony, infra, never]
+#  loop: "{{ workers | dict2items }}"
+#  loop_control:
+#    loop_var: worker
+#
+#- import_tasks: infra-setup/install/install_tekton.yaml
+#  tags: [tekton, infra, never]
+#
+#- import_tasks: infra-setup/install/install_argo.yaml
+#  tags: [argo, infra, never]
+#
+#- import_tasks: monitoring/install_monitoring.yaml
+#  tags: [monitoring, grafana, infra, never]
+#
+#- import_tasks: infra-setup/install/orchestrate_logging.yaml
+#  tags: [logging, infra, monitoring, never]
+#
+#- import_tasks: infra-setup/install/orchestrate_acm.yaml
+#  tags: [acm, logging, infra, monitoring, never]
+#
+#- import_tasks: infra-setup/install/install_links.yaml
+#  tags: [infra, console-link, links, never]
+#
+#- import_tasks: infra-setup/install/install_kubed.yaml
+#  tags: [kubed, infra, never]
+#
+## Scenarios
+#- import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
+#  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
+#
+#- import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
+#  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
+#
+#- import_tasks: scenario-deployment/debezium/argo-deploy-debezium.yaml
+#  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
+#
+#- import_tasks: scenario-deployment/monitoring/argo-deploy-strimzi-monitoring.yaml
+#  tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
+#
+#- import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
+#  tags: [tekton-pipelines, strimzi-infra, never]
+#
+## Teardown
+#- import_tasks: infra-setup/delete/delete_argo.yaml
+#  tags: [never, teardown, teardown-argo]
+#
+#- import_tasks: infra-setup/delete/delete_tekton.yaml
+#  tags: [never, teardown, teardown-tekton]
+#
+#- import_tasks: monitoring/delete_monitoring.yaml
+#  tags: [never, teardown, teardown-monitoring]
+#
+#- import_tasks: infra-setup/delete/delete_logging.yaml
+#  tags: [never, teardown-logging, teardown, teardown-monitoring]
+#
+#- import_tasks: infra-setup/delete/delete_links.yaml
+#  tags: [never, teardown, teardown-links]
+#
+#- import_tasks: infra-setup/delete/delete_acm.yaml
+#  tags: [never, teardown-acm, teardown-logging, teardown, teardown-monitoring]
+#
+#- import_tasks: infra-setup/delete/delete_kubed.yaml
+#  tags: [never, teardown, teardown-kubed]

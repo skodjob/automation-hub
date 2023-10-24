@@ -1,0 +1,18 @@
+{
+  "Comment": "Update A record for cluster APPS",
+  "Changes": [
+    {
+      "Action": "{{ action }}",
+      "ResourceRecordSet": {
+        "Name": "{{ record_prefix }}.{{ cluster_name }}.{{ cluster_domain }}",
+        "Type": "A",
+        "TTL": 172800,
+        "ResourceRecords": [
+          {
+            "Value": "{{ fip }}"
+          }
+        ]
+      }
+    }
+  ]
+}

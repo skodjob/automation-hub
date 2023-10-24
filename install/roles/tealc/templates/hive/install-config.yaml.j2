@@ -1,0 +1,35 @@
+apiVersion: v1
+baseDomain: strimzi.app-services-dev.net
+compute:
+  - name: worker
+    platform:
+      openstack:
+        type: {{ worker_flavor }}
+    replicas: {{ worker_node_count }}
+    architecture: amd64
+controlPlane:
+  name: master
+  platform:
+    openstack:
+      type: {{ master_flavor }}
+  replicas: {{ master_node_count }}
+  architecture: amd64
+metadata:
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
+  machineNetwork:
+    - cidr: 192.169.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork:
+    - 172.30.0.0/16
+platform:
+  openstack:
+    cloud: {{ cloud }}
+    externalDNS: null
+    externalNetwork: {{ openstack_network }}
+    ingressFloatingIP: {{ fip_apps }}
+    apiFloatingIP: {{ fip_api }}
+fips: false
