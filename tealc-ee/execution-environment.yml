@@ -1,14 +1,28 @@
+---
 version: 3
 
 dependencies:
+  ansible_core:
+    package_pip: ansible-core>=2.15.0
+  ansible_runner:
+    package_pip: ansible-runner
   galaxy: ../install/collections/requirements.yml
-  system: bindep.txt
-  python: requirements.txt
+  system:
+    - tar
+    - wget
+    - jq
+  python:
+    - python-openstackclient
+    - awscli
+
+images:
+  base_image:
+    name: quay.io/ansible/awx-ee:latest
 
 additional_build_steps:
-  prepend: |
-    RUN whoami
-  append:
+  prepend_base:
+    - RUN $PKGMGR install -y gcc
+  append_final:
     - RUN echo This is a post-install command!
     - RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
     - RUN /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.6.0/7.el8/x86_64/git-crypt-0.6.0-7.el8.x86_64.rpm
