@@ -2,11 +2,11 @@
 # Get FIPs #
 ############
 - name: "Collect floating IP for api"
-  shell: "oc get secret {{ clusterName }}-install-config -n {{ hive_namespace }} -o=jsonpath='{.data.install-config\.yaml}' | base64 -d | yq '.platform.openstack.apiFloatingIP'"
+  shell: "oc get secret {{ clusterName }}-install-config -n {{ hive_namespace }} -o=jsonpath='{\.data.install-config\.yaml}' | base64 -d | yq '.platform.openstack.apiFloatingIP'"
   register: fip_api_output
 
 - name: "Collect floating IP for apps"
-  shell: "oc get secret {{ clusterName }}-install-config -n {{ hive_namespace }} -o=jsonpath='{.data.install-config\.yaml}' | base64 -d | yq '.platform.openstack.ingressFloatingIP'"
+  shell: "oc get secret {{ clusterName }}-install-config -n {{ hive_namespace }} -o=jsonpath='{\.data.install-config\.yaml}' | base64 -d | yq '.platform.openstack.ingressFloatingIP'"
   register: fip_apps_output
 
 ############################

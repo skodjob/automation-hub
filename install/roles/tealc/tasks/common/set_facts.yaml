@@ -20,7 +20,7 @@
 
 - name: Generate clients dict
   set_fact:
-      clusters_dict: "{{ clusters_dict | default({}) | combine({ item['name']: value }) }}"
+    clusters_dict: "{{ clusters_dict | default({}) | combine({ item['name']: value }) }}"
   loop: "{{ workers }}"
   vars:
     keys: "{{ item.keys() }}"

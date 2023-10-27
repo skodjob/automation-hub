@@ -79,19 +79,19 @@
   tags: [kubed, infra, never]
 
 ## Scenarios - Has to be migrated to the new format!!!
-#- import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
+# - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
 #  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
 #
-#- import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
+# - import_tasks: scenario-deployment/infra/argo-deploy-amq-streams-infra.yaml
 #  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
 #
-#- import_tasks: scenario-deployment/debezium/argo-deploy-debezium.yaml
+# - import_tasks: scenario-deployment/debezium/argo-deploy-debezium.yaml
 #  tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
 #
-#- import_tasks: scenario-deployment/monitoring/argo-deploy-strimzi-monitoring.yaml
+# - import_tasks: scenario-deployment/monitoring/argo-deploy-strimzi-monitoring.yaml
 #  tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
 #
-#- import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
+# - import_tasks: scenario-deployment/tekton/strimzi-infra-tkn-pipelines.yaml
 #  tags: [tekton-pipelines, strimzi-infra, never]
 
 # Teardown
