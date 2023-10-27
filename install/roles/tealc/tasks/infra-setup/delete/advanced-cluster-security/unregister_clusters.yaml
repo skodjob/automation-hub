@@ -1,0 +1,17 @@
+---
+- name: "Delete {{ clusterName }} secured cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ acs_stackrox_namespace }}"
+    state: absent
+    template: templates/acs/03-secure-cluster.yaml.j2
+    verify_ssl: no
+
+- name: "Delete {{ clusterName }} namespace on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ acs_stackrox_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: absent

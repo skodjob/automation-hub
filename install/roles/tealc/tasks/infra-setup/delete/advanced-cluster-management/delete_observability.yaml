@@ -3,8 +3,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ acm_observability_namespace }}"
-    state: present
-    apply: true
+    state: absent
     template: templates/acm/07-multicluster-observability.yaml.j2
     verify_ssl: no
   register: observability_setup
@@ -13,8 +12,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ acm_observability_namespace }}"
-    state: present
-    apply: true
+    state: absent
     template: templates/acm/06-thanos-storage-secret.yaml.j2
     verify_ssl: no
 
@@ -25,4 +23,4 @@
     api_version: v1
     kind: Namespace
     verify_ssl: no
-    state: present
+    state: absent
