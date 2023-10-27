@@ -37,7 +37,7 @@
 
 - name: Get deployment files for stackrox
   shell: |
-    oc get secret stackrox-init-bundle -o jsonpath={.data.deploy} | base64 -d > {{ acs_init_secrets }}
+    oc get secret stackrox-init-bundle -n {{ acs_namespace }} -o jsonpath={.data.deploy} | base64 -d > {{ acs_init_secrets }}
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
