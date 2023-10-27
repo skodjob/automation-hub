@@ -2,21 +2,21 @@
 # Create FIPs #
 ###############
 - name: "Create FIP API"
-  shell: "openstack floating ip create --description 'Tealc - {{ cluster_name }} API' -f value -c floating_ip_address {{ openstack_network }}"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} API' -f value -c floating_ip_address {{ cluster.openstack_network }}"
   environment:
-    OS_CLOUD: "{{ cloud }}"
+    OS_CLOUD: "{{ cluster.cloud }}"
   register: "fip_api_output"
 
 - name: "Create FIP apps"
-  shell: "openstack floating ip create --description 'Tealc - {{ cluster_name }} APPS' -f value -c floating_ip_address {{ openstack_network }}"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} APPS' -f value -c floating_ip_address {{ cluster.openstack_network }}"
   environment:
-    OS_CLOUD: "{{ cloud }}"
+    OS_CLOUD: "{{ cluster.cloud }}"
   register: "fip_apps_output"
 
 #############################
 # Create DNS records in AWS #
 #############################
-- name: "Prepare AWS DNS command for API of {{ cluster_name }}"
+- name: "Prepare AWS DNS command for API of {{ cluster.name }}"
   vars:
     action: "UPSERT"
     record_prefix: "api"
@@ -24,10 +24,10 @@
   template:
     src: "templates/hive/aws_record.json.j2"
     dest: "aws_record"
-- name: "Update DNS record for API of {{ cluster_name }}"
+- name: "Update DNS record for API of {{ cluster.name }}"
   shell:  "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
 
-- name: "Prepare AWS DNS command for APPS of {{ cluster_name }}"
+- name: "Prepare AWS DNS command for APPS of {{ cluster.name }}"
   vars:
     action: "UPSERT"
     record_prefix: "*.apps"
@@ -35,13 +35,13 @@
   template:
     src: "templates/hive/aws_record.json.j2"
     dest: "aws_record"
-- name: "Update DNS record for APPS of {{ cluster_name }}"
+- name: "Update DNS record for APPS of {{ cluster.name }}"
   shell:  "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
 
 ###############################
 # Create InstallConfig secret #
 ###############################
-- name: "Create InstallConfig secret for {{ cluster_name }}"
+- name: "Create InstallConfig secret for {{ cluster.name }}"
   kubernetes.core.k8s:
     state: present
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -54,9 +54,9 @@
       metadata:
         name: "{{ install_config_name }}"
       data:
-        install_config.yaml: "{{ lookup('template', 'templates/hive/install-config.j2' ) | b64encode }}"
+        install-config.yaml: "{{ lookup('template', 'templates/hive/install-config.yaml.j2' ) | b64encode }}"
   vars:
-    install_config_name: "{{ cluster_name }}-install-config"
+    install_config_name: "{{ cluster.name }}-install-config"
     fip_apps: "{{ fip_apps_output.stdout }}"
     fip_api: "{{ fip_api_output.stdout }}"
 
@@ -90,4 +90,4 @@
     template: templates/hive/cluster-provision.yaml.j2
     verify_ssl: no
   vars:
-    install_config_name: "{{ cluster_name }}-install-config"
+    install_config_name: "{{ cluster.name }}-install-config"

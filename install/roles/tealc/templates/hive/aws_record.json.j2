@@ -4,7 +4,7 @@
     {
       "Action": "{{ action }}",
       "ResourceRecordSet": {
-        "Name": "{{ record_prefix }}.{{ cluster_name }}.{{ cluster_domain }}",
+        "Name": "{{ record_prefix }}.{{ cluster.name }}.{{ cluster_domain }}",
         "Type": "A",
         "TTL": 172800,
         "ResourceRecords": [

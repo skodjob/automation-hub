@@ -1,7 +1,11 @@
+{% if cluster.url is defined %}
+{% set url = cluster.url %}
+{% endif %}
+---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
-  name: {{ target.name }}-source
+  name: {{ cluster.name }}-source
   labels:
     project: "tealc"
     managed: "true"
@@ -16,17 +20,17 @@ spec:
       dashboards: "tealc"
   name: middleware.yaml
   datasource:
-    name: {{ target.name }}
+    name: {{ cluster.name }}
     type: prometheus
     access: proxy
     # url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
-    url: {{ target.url }}
+    url: {{ url }}
     basicAuth: false
     basicAuthUser: internal
     isDefault: false
     version: 1
     editable: true
-{% if target.name != 'tealc-thanos' %}
+{% if cluster.name != 'tealc-thanos' %}
     jsonData:
       tlsSkipVerify: true
       timeInterval: "5s"

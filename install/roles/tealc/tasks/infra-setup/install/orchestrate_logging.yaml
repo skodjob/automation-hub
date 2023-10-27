@@ -15,6 +15,6 @@
 
 - include_tasks:
     file: cluster-logging/setup_datasources.yaml
-  loop: "{{ worker_clusters }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
-    loop_var: clusterName
+    loop_var: cluster

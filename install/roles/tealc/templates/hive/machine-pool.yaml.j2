@@ -1,11 +1,11 @@
 apiVersion: hive.openshift.io/v1
 kind: MachinePool
 metadata:
-  name: {{ cluster_name }}-{{ node_type }}
+  name: {{ cluster.name }}-{{ node_type }}
   namespace: {{ hive_namespace }}
 spec:
   clusterDeploymentRef:
-    name: {{ cluster_name }}
+    name: {{ cluster.name }}
   name: {{ node_type }}
   platform:
     openstack:

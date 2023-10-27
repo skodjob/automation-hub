@@ -3,10 +3,8 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ hive_namespace }}"
-    kind: ClusterPool
-    name: {{ cluster_name }}-pool
+    kind: ClusterDeployment
+    name: "{{ cluster_name }}"
     wait: false
     verify_ssl: no
   register: cluster_present
-
-# Maybe add check that cluster is reachable via API?

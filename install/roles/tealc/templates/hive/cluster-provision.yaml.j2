@@ -1,21 +1,21 @@
 apiVersion: hive.openshift.io/v1
 kind: ClusterImageSet
 metadata:
-  name: {{ cluster_name }}-imageset
+  name: {{ cluster.name }}-imageset
 spec:
-  releaseImage: quay.io/openshift-release-dev/ocp-release:{{ ocp_version }}-x86_64
+  releaseImage: quay.io/openshift-release-dev/ocp-release:{{ cluster.version }}-x86_64
 ---
 apiVersion: hive.openshift.io/v1
 kind: ClusterDeployment
 metadata:
-  name: {{ cluster_name }}
+  name: {{ cluster.name }}
   namespace: {{ hive_namespace }}
 spec:
   baseDomain: {{ cluster_domain }}
-  clusterName: {{ cluster_name }}
+  clusterName: {{ cluster.name }}
   platform:
     openstack:
-      cloud: {{ cloud }}
+      cloud: {{ cluster.cloud }}
       credentialsSecretRef:
         name: {{ openstack_clouds_yaml }}
   provisioning:
@@ -24,6 +24,6 @@ spec:
     sshPrivateKeySecretRef:
       name: {{ kafka_ssh_secret_name }}
     imageSetRef:
-      name: {{ cluster_name }}-imageset
+      name: {{ cluster.name }}-imageset
   pullSecretRef:
     name: {{ openshift_pull_secret_name }}

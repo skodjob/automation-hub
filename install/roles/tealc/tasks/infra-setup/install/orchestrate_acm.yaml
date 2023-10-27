@@ -1,6 +1,0 @@
----
-- include_tasks:
-    file: advanced-cluster-management/install_acm.yaml
-
-- include_tasks:
-    file: advanced-cluster-management/install_observability.yaml

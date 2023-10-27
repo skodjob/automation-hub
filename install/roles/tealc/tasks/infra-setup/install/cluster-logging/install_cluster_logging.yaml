@@ -25,13 +25,13 @@
     - templates/logging/install/cluster-logging/01-openshift-logging-subscription.yaml.j2
   register: cluster_logging
 
-- name: Sleep for 30 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 30
+    timeout: 5
   when: cluster_logging.changed
 
 - name: "Wait for OpenShift logging operator on {{ clusterName }}"
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
     namespace: "{{ openshift_logging_namespace }}"
     kind: Deployment

@@ -57,7 +57,7 @@
       metadata:
         name: "{{ install_config_name }}"
       data:
-        install_config.yaml: "{{ lookup('template', 'templates/hive/install-config.j2' ) | b64encode }}"
+        install-config.yaml: "{{ lookup('template', 'templates/hive/install-config.yaml.j2' ) | b64encode }}"
   vars:
     install_config_name: "{{ cluster_name }}-install-config"
     fip_apps: "{{ fip_apps_output.stdout }}"

@@ -1,24 +1,35 @@
 ---
-- name: "Export access token {{ target.name }}"
-#  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ target.sa_namespace }}"
-  shell: "oc get  $(oc get secret -o name -n {{ target.sa_namespace }} | grep {{ target.sa_name }}-token) -n {{ target.sa_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
+# Get Grafana access token and update clusters data
+- name: "Export access token {{ cluster.name }}"
+  #  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ target.sa_namespace }}"
+  shell: "oc get  $(oc get secret -o name -n {{ cluster.monitoring_namespace }} | grep {{ sa_name }}-token) -n {{ cluster.monitoring_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ target.target_cluster_name }}"
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster.name }}"
   register: "access_token_out"
 
-- name: "Set facts for access token {{ target.target_cluster_name }}"
-  set_fact: access_token="{{ access_token_out.stdout }}"
+- name: "Update facts for {{ cluster.name }}"
+  ansible.utils.update_fact:
+    updates:
+      - path: "clusters_dict['{{ cluster.name }}'].grafana"
+        value: {}
+      - path: "clusters_dict['{{ cluster.name }}'].grafana.token"
+        value: "{{ access_token_out.stdout }}"
+      - path: "clusters_dict['{{ cluster.name }}'].grafana.url"
+        value: "https://thanos-querier-openshift-monitoring.apps.{{ cluster.name }}.{{ cluster_domain }}:443"
+  register: updated_data
+  when: is_worker is defined
 
-- name: "Check that token exists {{ target.target_cluster_name }}"
-  fail:
-    msg: "Token is not properly stored!\n{{ access_token }}"
-  when: access_token | length == 0
+- set_fact:
+    clusters_dict: "{{ updated_data.clusters_dict }}"
+  when: is_worker is defined
 
-- name: "Create Grafana data-source {{ target.name }}"
+- name: "Create Grafana data-source {{ cluster.name }}"
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ target.context }}"
-    namespace: "{{ target.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ cluster.monitoring_namespace }}"
     state: present
     apply: true
     template: templates/grafana/grafana-data-source.yaml.j2
     verify_ssl: no
+  vars:
+    access_token: "{{ access_token_out.stdout }}"
