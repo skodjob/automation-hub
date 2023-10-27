@@ -7,3 +7,5 @@ install/kubeconfig
 **/ansible-navigator.log
 *-artifact-*
 **/aws_record
+install/init-bundle.yaml
+install/acs_api_token
