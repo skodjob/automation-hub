@@ -20,22 +20,19 @@
 
 - name: Generate api token
   shell: |
-    curl -k -X POST -u "admin:`oc get secret central-htpasswd -o yaml -n tealc-rhacs | grep "password" | awk '{print $2}' | base64 -d`" "$ROX_ENDPOINT/v1/apitokens/generate" -d '{"name":"admin-$RAND_STR", "role": "Admin"}' | jq .token > {{ acs_api_token_file }}
+    curl -k -X POST -u "admin:`oc get secret central-htpasswd -o yaml -n {{ acs_namespace }} | grep "password" | awk '{print $2}' | base64 -d`" "$ROX_ENDPOINT/v1/apitokens/generate" -d '{"name":"admin-{{ lookup('community.general.random_string', length=4, special=False) }}", "role": "Admin"}' | jq .token > {{ acs_api_token_file }}
     oc create secret generic stackrox-api-token --from-file token={{ acs_api_token_file }} -n "{{ acs_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    RAND_STR: "{{ lookup('community.general.random_string', base64=True, length=4) }}"
   when: token.resources | length == 0
 
 - name: Generate init bundle
   shell: |
-    ROX_API_TOKEN=$(oc get secret stackrox-api-token -o jsonpath={.data.token} | base64 -d)
-    roxctl -e "$ROX_CENTRAL_ADDRESS" central init-bundles generate init-bundle-$RAND_STR --output-secrets {{ acs_init_secrets }}
+    oc get secret stackrox-api-token -n {{ acs_namespace }} -o jsonpath={.data.token} | base64 -d > {{ acs_api_token_file }}
+    roxctl -e {{ acs_central_url }} --token-file={{ acs_api_token_file }} central init-bundles generate init-bundle-{{ lookup('community.general.random_string', length=4, special=False) }} --insecure-skip-tls-verify --output-secrets {{ acs_init_secrets }}
     oc create secret generic stackrox-init-bundle --from-file deploy={{ acs_init_secrets }} -n "{{ acs_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    RAND_STR: "{{ lookup('community.general.random_string', base64=True, length=4) }}"
-    ROX_CENTRAL_ADDRESS: "{{ acs_central_url }}"
   when: init_bundle.resources | length == 0
 
 - name: Get deployment files for stackrox
