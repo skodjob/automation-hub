@@ -2,38 +2,33 @@
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineSet
 metadata:
-  name: {{ clusterName }}-kafka-worker-0
+  name: {{ clusterName }}-{{ node_type }}-worker-0
   namespace: openshift-machine-api
   labels:
     machine.openshift.io/cluster-api-cluster: {{ clusterId }}
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
-  # 5x kafka node
-{% if clusterName == "worker-01" %}
-  replicas: 7
-{% else %}
-  replicas: 5
-{% endif %}
+  replicas: {{ node_replicas }}
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-kafka-worker-0
+      machine.openshift.io/cluster-api-machineset: {{ clusterId }}-{{ node_type }}-worker-0
   template:
     metadata:
       labels:
         machine.openshift.io/cluster-api-cluster: {{ clusterId }}
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-kafka-worker-0
+        machine.openshift.io/cluster-api-machineset: {{ clusterId }}-{{ node_type }}-worker-0
     spec:
       metadata:
         labels:
-          nodetype: kafka
-{% if clusterName != "worker-03" %}
+          nodetype: {{ node_type }}
+{% if node_type != "infra" %}
       taints:
         - key: nodetype
-          value: kafka
+          value: {{ node_type }}
           effect: NoSchedule
 {% endif %}
       providerSpec:
@@ -62,181 +57,4 @@ spec:
             - openshiftClusterID={{ clusterId }}
           image: {{ clusterImage }}
           apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.standard.xxl
----
-apiVersion: machine.openshift.io/v1beta1
-kind: MachineSet
-metadata:
-  name: {{ clusterName }}-connect-worker-0
-  namespace: openshift-machine-api
-  labels:
-    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-    machine.openshift.io/cluster-api-machine-role: worker
-    machine.openshift.io/cluster-api-machine-type: worker
-spec:
-  # 5x connect node
-{% if clusterName == "worker-01" %}
-  replicas: 5
-{% else %}
-  replicas: 3
-{% endif %}
-  selector:
-    matchLabels:
-      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-connect-worker-0
-  template:
-    metadata:
-      labels:
-        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-        machine.openshift.io/cluster-api-machine-role: worker
-        machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-connect-worker-0
-    spec:
-      metadata:
-        labels:
-          nodetype: connect
-      providerSpec:
-        value:
-          cloudName: openstack
-          networks:
-            - subnets:
-                - filter:
-                    name: {{ clusterId }}-nodes
-                    tags: openshiftClusterID={{ clusterId }}
-          userDataSecret:
-            name: worker-user-data
-          serverGroupName: {{ clusterId }}-worker
-          cloudsSecret:
-            name: openstack-cloud-credentials
-            namespace: openshift-machine-api
-          serverMetadata:
-            Name: {{ clusterId }}-worker
-            openshiftClusterID: {{ clusterId }}
-          securityGroups:
-            - filter: {}
-              name: {{ clusterId }}-worker
-          trunk: true
-          kind: OpenstackProviderSpec
-          tags:
-            - openshiftClusterID={{ clusterId }}
-          image: {{ clusterImage }}
-          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.standard.xl
----
-apiVersion: machine.openshift.io/v1beta1
-kind: MachineSet
-metadata:
-  name: {{ clusterName }}-infra-worker-0
-  namespace: openshift-machine-api
-  labels:
-    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-    machine.openshift.io/cluster-api-machine-role: worker
-    machine.openshift.io/cluster-api-machine-type: worker
-spec:
-  # infra nodes
-{% if clusterName == "worker-01" %}
-  replicas: 4
-{% else %}
-  replicas: 2
-{% endif %}
-  selector:
-    matchLabels:
-      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-infra-worker-0
-  template:
-    metadata:
-      labels:
-        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-        machine.openshift.io/cluster-api-machine-role: worker
-        machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-infra-worker-0
-    spec:
-      metadata:
-        labels:
-          nodetype: infra
-      providerSpec:
-        value:
-          cloudName: openstack
-          networks:
-            - subnets:
-                - filter:
-                    name: {{ clusterId }}-nodes
-                    tags: openshiftClusterID={{ clusterId }}
-          userDataSecret:
-            name: worker-user-data
-          serverGroupName: {{ clusterId }}-worker
-          cloudsSecret:
-            name: openstack-cloud-credentials
-            namespace: openshift-machine-api
-          serverMetadata:
-            Name: {{ clusterId }}-worker
-            openshiftClusterID: {{ clusterId }}
-          securityGroups:
-            - filter: {}
-              name: {{ clusterId }}-worker
-          trunk: true
-          kind: OpenstackProviderSpec
-          tags:
-            - openshiftClusterID={{ clusterId }}
-          image: {{ clusterImage }}
-          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.standard.xl
----
-apiVersion: machine.openshift.io/v1beta1
-kind: MachineSet
-metadata:
-  name: {{ clusterName }}-monitoring-worker-0
-  namespace: openshift-machine-api
-  labels:
-    machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-    machine.openshift.io/cluster-api-machine-role: worker
-    machine.openshift.io/cluster-api-machine-type: worker
-spec:
-  # 2x monitoring node
-  replicas: 2
-  selector:
-    matchLabels:
-      machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterName }}-monitoring-worker-0
-  template:
-    metadata:
-      labels:
-        machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-        machine.openshift.io/cluster-api-machine-role: worker
-        machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterName }}-monitoring-worker-0
-    spec:
-      metadata:
-        labels:
-          nodetype: monitoring
-      taints:
-        - key: nodetype
-          value: monitoring
-          effect: NoSchedule
-      providerSpec:
-        value:
-          cloudName: openstack
-          networks:
-            - subnets:
-                - filter:
-                    name: {{ clusterId }}-nodes
-                    tags: openshiftClusterID={{ clusterId }}
-          userDataSecret:
-            name: worker-user-data
-          serverGroupName: {{ clusterId }}-worker
-          cloudsSecret:
-            name: openstack-cloud-credentials
-            namespace: openshift-machine-api
-          serverMetadata:
-            Name: {{ clusterId }}-worker
-            openshiftClusterID: {{ clusterId }}
-          securityGroups:
-            - filter: {}
-              name: {{ clusterId }}-worker
-          trunk: true
-          kind: OpenstackProviderSpec
-          tags:
-            - openshiftClusterID={{ clusterId }}
-          image: {{ clusterImage }}
-          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
-          flavor: g.standard.xxxl
+          flavor: {{ node_flavor }}

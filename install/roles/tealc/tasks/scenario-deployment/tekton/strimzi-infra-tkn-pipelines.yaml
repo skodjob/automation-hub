@@ -19,9 +19,9 @@
     apply: true
   with_fileglob: 'templates/tekton/pipelines/infra/*.yaml'
 
-- name: Sleep for 20 seconds and continue with play (wait tull everything is setup)
+- name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
-    timeout: 20
+    timeout: 5
 
 - name: Create Strimzi related Tekton pipeline runs
   kubernetes.core.k8s:

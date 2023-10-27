@@ -28,13 +28,13 @@
     - templates/logging/install/loki/01-loki-operator-sub.yaml.j2
   register: loki
 
-- name: Sleep for 30 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 30
+    timeout: 5
   when: loki.changed
 
 - name: "Wait for Loki operator on {{ clusterName }}"
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
     namespace: "openshift-operators-redhat"
     kind: Deployment
@@ -86,6 +86,7 @@
     state: present
     apply: true
     verify_ssl: no
+    force: true
     template: "{{ item }}"
   loop:
     - templates/logging/install/loki/03-loki-stack.yaml.j2

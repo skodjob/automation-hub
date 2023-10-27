@@ -18,7 +18,7 @@
 
 - name: Create ServiceAccount for remote access
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "default"
     state: present
     verify_ssl: no
@@ -28,11 +28,21 @@
 #  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
   shell: "oc get  $(oc get secret -o name -n default | grep access-serviceaccount-token) -n default -o=jsonpath='{.data.token}' | base64 -d"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   register: "access_token_out"
 
 - name: Set facts for route host
   set_fact: access_token="{{ access_token_out.stdout }}"
+
+- name: "Update facts for {{ worker.name }}"
+  ansible.utils.update_fact:
+    updates:
+      - path: "clusters_dict['{{ worker.name }}'].token"
+        value: "{{ access_token }}"
+  register: updated_data
+
+- set_fact:
+    clusters_dict: "{{ updated_data.clusters_dict }}"
 
 - name: Check that token exists
   fail:
@@ -84,7 +94,7 @@
     verify_ssl: no
     apply: true
 
-- name: Create Argo cluster access secret
+- name: Create cluster Argo access secret
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -95,7 +105,7 @@
 
 - name: Create Quay access secret
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "default"
     state: present
     verify_ssl: no

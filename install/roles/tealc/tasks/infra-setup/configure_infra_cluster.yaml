@@ -11,18 +11,6 @@
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "get_image_out"
 
-- name: Create new machine sets
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "openshift-machine-api"
-    state: present
-    verify_ssl: no
-    template: templates/infra-machine-sets.yaml.j2
-  vars:
-    clusterName: "{{ infra_context_name }}"
-    clusterId: "{{ get_cluster_id_out.stdout }}"
-    clusterImage: "{{ get_image_out.stdout }}"
-
 - name: Patch original worker machine set
   kubernetes.core.k8s_json_patch:
     kind: MachineSet
@@ -35,6 +23,18 @@
       - op: replace
         path: /spec/replicas
         value: 5
+
+- name: Create new machine sets on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "openshift-machine-api"
+    state: present
+    verify_ssl: no
+    template: templates/infra-machine-sets.yaml.j2
+  vars:
+    clusterName: "{{ infra_context_name }}"
+    clusterId: "{{ get_cluster_id_out.stdout }}"
+    clusterImage: "{{ get_image_out.stdout }}"
 
 - name: Apply chrony configuration
   kubernetes.core.k8s:

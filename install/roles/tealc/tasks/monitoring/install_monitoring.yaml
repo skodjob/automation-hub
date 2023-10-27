@@ -29,40 +29,40 @@
 
 - name: Create monitoring namespace on worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
-    name: "{{ worker.value.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    name: "{{ worker.monitoring_namespace }}"
     api_version: v1
     kind: Namespace
     state: present
     verify_ssl: no
-  loop: "{{ workers | dict2items }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: worker
 
 - name: Enable user-workload on worker cluster
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "openshift-monitoring"
     state: present
     apply: true
     template: templates/cluster-monitoring-cm.yaml.j2
     verify_ssl: no
   vars:
-    clusterName: "{{ worker.value.name }}"
-  loop: "{{ workers | dict2items }}"
+    clusterName: "{{ worker.name }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: worker
 
 - name: Configure user-workload on worker cluster
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     state: present
     apply: true
     template: templates/user-workload-monitoring-cm.yaml.j2
     verify_ssl: no
   vars:
-    clusterName: "{{ worker.value.name }}"
-  loop: "{{ workers | dict2items }}"
+    clusterName: "{{ worker.name }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: worker
 
@@ -81,15 +81,15 @@
 
 - name: Setup Grafana access on Worker clusters
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ worker.value.name }}"
-    namespace: "{{ worker.value.monitoring_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster.name }}"
+    namespace: "{{ cluster.monitoring_namespace }}"
     state: present
     template: templates/grafana/grafana-setup.yaml.j2
     verify_ssl: no
     apply: true
-  loop: "{{ workers | dict2items }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
-    loop_var: worker
+    loop_var: cluster
 
 - name: Install Grafana operator on Infra cluster
   kubernetes.core.k8s:
@@ -100,18 +100,17 @@
     verify_ssl: no
     apply: true
 
-- name: Sleep for 20 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 20
+    timeout: 5
 
 - name: Wait for Grafana operator on Infra cluster
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_monitoring_namespace }}"
     kind: Deployment
     name: grafana-operator-controller-manager
     wait: true
-    apply: true
     verify_ssl: no
     wait_condition:
       type: Available
@@ -127,41 +126,35 @@
     template: templates/grafana/grafana.yaml.j2
     verify_ssl: no
 
-- name: Create data-sources on Infra cluster
+- name: Create data-sources on Infra cluster for worker clusters
+  include_tasks: deploy-data-source.yaml
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: cluster
+  vars:
+    is_worker: True
+    sa_name: "{{ cluster.name }}-grafana"
+    url: "https://thanos-querier-openshift-monitoring.apps.{{ cluster.name }}.{{ cluster_domain }}:443"
+
+- name: Create data-sources on Infra cluster for Infra data
   include_tasks: deploy-data-source.yaml
   loop:
-    - {name: "{{ workers.main_cluster.name }}", sa_namespace: "{{ workers.main_cluster.monitoring_namespace }}",
-       monitoring_namespace: "{{ infra_monitoring_namespace }}",
-       target_cluster_name: "{{ workers.main_cluster.name }}",
-       context: "{{ infra_context_name }}",
-       sa_name: "grafana-serviceaccount",
-       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.main_cluster.name }}.strimzi.app-services-dev.net:443"}
-    - {name: "{{ workers.release_cluster.name }}", sa_namespace: "{{ workers.release_cluster.monitoring_namespace }}",
-       sa_name: "grafana-serviceaccount",
-       monitoring_namespace: "{{ infra_monitoring_namespace }}",
-       target_cluster_name: "{{ workers.main_cluster.name }}",
-       context: "{{ infra_context_name }}",
-       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.release_cluster.name }}.strimzi.app-services-dev.net:443"}
-    - {name: "{{ workers.downstream_cluster.name }}", sa_namespace: "{{ workers.downstream_cluster.monitoring_namespace }}",
-       monitoring_namespace: "{{ infra_monitoring_namespace }}",
-       target_cluster_name: "{{ workers.main_cluster.name }}",
-       sa_name: "grafana-serviceaccount",
-       context: "{{ infra_context_name }}",
-       url: "https://thanos-querier-openshift-monitoring.apps.{{ workers.downstream_cluster.name }}.strimzi.app-services-dev.net:443"}
-    - {name: "{{ infra_context_name }}", sa_namespace: "{{ infra_user_namespace }}",
-       sa_name: "tealc-sa",
+    - {name: "{{ infra_context_name }}",
+       sa_namespace: "{{ infra_user_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        target_cluster_name: "{{ infra_context_name }}",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
-    - {name: "tealc-thanos", sa_namespace: "{{ infra_user_namespace }}",
-       sa_name: "tealc-sa",
+    - {name: "tealc-thanos",
+       sa_namespace: "{{ infra_user_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        target_cluster_name: "{{ infra_context_name }}",
        context: "{{ infra_context_name }}",
        url: "http://observability-thanos-query.open-cluster-management-observability.svc.cluster.local:9090"}
   loop_control:
-    loop_var: target
+    loop_var: cluster
+  vars:
+    sa_name: "tealc-sa"
 
 - name: Configure Alertmanager to for sending alerts on Infra cluster from all clusters
   kubernetes.core.k8s:

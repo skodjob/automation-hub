@@ -22,62 +22,62 @@ spec:
     ingester:
       replicas: 3
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     compactor:
       replicas: 3
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     distributor:
       replicas: 3
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     gateway:
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     indexGateway:
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     querier:
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
     queryFrontend:
       nodeSelector:
-        nodetype: monitoring
+        nodetype: observability
       tolerations:
         - effect: NoSchedule
           key: nodetype
           operator: Equal
-          value: monitoring
+          value: observability
   limits:
     global:
       retention:

@@ -1,8 +1,8 @@
 apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
-  name: {{ clusterName }}
-  namespace: {{ clusterName }}
+  name: {{ cluster.name }}
+  namespace: {{ cluster.name }}
 spec:
   applicationManager:
     enabled: true

@@ -1,13 +1,15 @@
-{% if worker is defined %} 
-{% set namespace = worker.value.monitoring_namespace %}
+{% if cluster is defined %}
+{% set namespace = cluster.monitoring_namespace %}
+{% set name = cluster.name %}
 {% else %} 
-{% set namespace = infra_monitoring_namespace %} 
+{% set namespace = infra_monitoring_namespace %}
+{% set name = infra_context_name %}
 {% endif %}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: grafana-serviceaccount
+  name: {{ name }}-grafana
   namespace: {{ namespace }}
   labels:
     app: tealc
@@ -26,7 +28,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     namespace: {{ namespace }}
-    name: grafana-serviceaccount
+    name: {{ name }}-grafana
 roleRef:
   kind: ClusterRole
   name: cluster-monitoring-view
@@ -65,7 +67,7 @@ roleRef:
   name: grafana-proxy
 subjects:
   - kind: ServiceAccount
-    name: grafana-serviceaccount
+    name: {{ name }}-grafana
     namespace: {{ namespace }}
 ---
 apiVersion: v1

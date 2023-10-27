@@ -28,13 +28,13 @@
     src: templates/argo/install/sub.yaml
   register: argo_sub
 
-- name: Sleep for 60 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 60
+    timeout: 5
   when: argo_sub.changed
 
 - name: Wait for argo operator on Infra cluster
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_operators_namespace }}"
     kind: Deployment
@@ -79,13 +79,13 @@
   retries: 5
   delay: 5
 
-- name: Sleep for 60 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 60
+    timeout: 5
   when: argo_app.changed
 
 - name: Wait for argo server on infra cluster
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
@@ -100,7 +100,7 @@
   delay: 5
 
 - name: Wait for argo dex on infra cluster
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment

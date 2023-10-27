@@ -33,13 +33,13 @@
     - templates/acm/02-multicluster-hub.yaml.j2
   register: acm_operator
 
-- name: Sleep for 30 seconds and continue with play
+- name: Sleep for 5 seconds and continue with play
   wait_for:
-    timeout: 30
+    timeout: 5
   when: acm_operator.changed
 
 - name: "Wait for MultiClusterHub custom resource on Infra cluster"
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ acm_namespace }}"
     kind: MultiClusterHub
