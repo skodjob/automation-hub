@@ -25,7 +25,7 @@
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     RAND_STR: "{{ lookup('community.general.random_string', base64=True, length=4) }}"
-  when: token.resources | length = 0
+  when: token.resources | length == 0
 
 - name: Generate init bundle
   shell: |
@@ -36,7 +36,7 @@
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     RAND_STR: "{{ lookup('community.general.random_string', base64=True, length=4) }}"
     ROX_CENTRAL_ADDRESS: "{{ acs_central_url }}"
-  when: init_bundle.resources | length = 0
+  when: init_bundle.resources | length == 0
 
 - name: Get deployment files for stackrox
   shell: |

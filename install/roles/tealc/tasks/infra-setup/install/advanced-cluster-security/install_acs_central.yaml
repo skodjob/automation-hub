@@ -8,7 +8,7 @@
     verify_ssl: no
     template: "{{ item }}"
   loop:
-    - templates/acm/02-central.yaml.j2
+    - templates/acs/02-central.yaml.j2
   register: acs_central
 
 - name: Sleep for 30 seconds and continue with play
@@ -21,6 +21,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ acs_namespace }}"
     kind: Central
+    api_version: platform.stackrox.io/v1alpha1
     name: stackrox-central-services
     wait: true
     verify_ssl: no
