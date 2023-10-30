@@ -15,7 +15,7 @@ dependencies:
     - python-openstackclient
     - awscli
   python_interpreter:
-    python_path: "/usr/local/lib/python3.10"
+    python_path: "/usr/bin/python3.10"
 
 images:
   base_image:
