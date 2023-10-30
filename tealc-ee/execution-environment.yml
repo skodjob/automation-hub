@@ -14,6 +14,8 @@ dependencies:
   python:
     - python-openstackclient
     - awscli
+  python_interpreter:
+    python_path: "/usr/local/lib/python3.10"
 
 images:
   base_image:
@@ -21,7 +23,12 @@ images:
 
 additional_build_steps:
   prepend_base:
-    - RUN $PKGMGR install -y gcc
+    - RUN $PKGMGR install -y  wget yum-utils make gcc openssl-devel bzip2-devel libffi-devel zlib-devel
+    - RUN wget https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz
+    - RUN tar xzf Python-3.10.8.tgz
+    - RUN cd Python-3.10.8 && ./configure --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions && make -j ${nproc} && make altinstall
+    - RUN rm Python-3.10.8.tgz
+    - RUN $PYCMD --version
   append_final:
     - RUN echo This is a post-install command!
     - RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
