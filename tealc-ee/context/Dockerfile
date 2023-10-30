@@ -1,5 +1,5 @@
 ARG EE_BASE_IMAGE="quay.io/ansible/awx-ee:latest"
-ARG PYCMD="/usr/bin/python3.10"
+ARG PYCMD="/usr/local/bin/python3.10"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
