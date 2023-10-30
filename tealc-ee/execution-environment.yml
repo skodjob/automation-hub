@@ -3,9 +3,9 @@ version: 3
 
 dependencies:
   ansible_core:
-    package_pip: ansible-core>=2.15.0
+    package_pip: ansible-core==2.15.3
   ansible_runner:
-    package_pip: ansible-runner
+    package_pip: ansible-runner==2.15.3
   galaxy: ../install/collections/requirements.yml
   system:
     - tar
