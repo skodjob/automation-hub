@@ -17,7 +17,8 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
-RUN $PKGMGR install -y  wget yum-utils make gcc libcurl-devel openssl-devel bzip2-devel libffi-devel zlib-devel jq
+RUN $PKGMGR groupinstall -y "Development Tools"
+RUN $PKGMGR install -y  wget yum-utils make gcc libcurl-devel libxslt-devel libxml2-devel openssl-devel bzip2-devel libffi-devel zlib-devel jq
 RUN wget https://www.python.org/ftp/python/3.11.3/Python-3.11.3.tgz
 RUN tar xzf Python-3.11.3.tgz
 RUN cd Python-3.11.3 && ./configure --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions && make -j ${nproc} && make altinstall
