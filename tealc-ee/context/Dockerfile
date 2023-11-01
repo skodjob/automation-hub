@@ -17,7 +17,8 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
-RUN $PKGMGR install -y python3.11 python3.11-devel
+RUN $PKGMGR groupinstall -y "Development Tools"
+RUN $PKGMGR install -y  yum-utils make gcc libcurl-devel libxslt-devel libxml2-devel openssl-devel bzip2-devel libffi-devel zlib-devel python3.11 python3.11-devel
 RUN $PYCMD --version
 RUN $PYCMD -m ensurepip
 RUN $PYCMD -m pip install --no-cache-dir $ANSIBLE_INSTALL_REFS
