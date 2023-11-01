@@ -1,0 +1,53 @@
+---
+- name: "Collect Route53 secrets"
+  ansible.builtin.set_fact:
+    route53_secret: "{{ lookup('community.hashi_vault.hashi_vault', 
+    'secret={{ route53_secret_path }} 
+    auth_method=approle 
+    role_id={{ vault_role_id }} 
+    secret_id={{ vault_secret_id }} 
+    url={{ vault_url }}
+    return_format=dict') }}"
+
+# Install Cert-Manager and create all resources
+- include_tasks:
+    file: cert-manager/00-install_cert_manager.yaml
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: cluster
+  vars:
+    cluster_name: "{{ cluster.name }}"
+
+- include_tasks:
+    file: cert-manager/00-install_cert_manager.yaml
+  vars:
+    cluster_name: "{{ infra_context_name }}"
+
+# Wait for Certificate generation
+- include_tasks:
+    file: cert-manager/01-wait_for_certificate.yaml
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: cluster
+  vars:
+    cluster_name: "{{ cluster.name }}"
+
+- include_tasks:
+    file: cert-manager/01-wait_for_certificate.yaml
+  vars:
+    cluster_name: "{{ infra_context_name }}"
+
+# Update cluster config
+- include_tasks:
+    file: cert-manager/02-update_openshift_config.yaml
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: cluster
+  vars:
+    cluster_name: "{{ cluster.name }}"
+
+- include_tasks:
+    file: cert-manager/02-update_openshift_config.yaml
+  vars:
+    cluster_name: "{{ infra_context_name }}"
+

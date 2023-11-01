@@ -1,0 +1,68 @@
+- name: "Wait for Certificate secret creation"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "openshift-config"
+    kind: Secret
+    name: "{{ cm_certificate_secret }}"
+    wait: true
+    wait_timeout: 120
+    wait_sleep: 10
+    verify_ssl: no
+
+#- name: "Patch ingress certificate"
+#  kubernetes.core.k8s_json_patch:
+#    kind: IngressController
+#    namespace: "openshift-ingress-operator"
+#    name: "default"
+#    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+#    patch:
+#      - op: merge
+#        path: /spec/defaultCertificate/name
+#        value: "{{ cm_certificate_secret }}"
+
+- name: "Patch ingress certificate on {{ cluster_name }}"
+  shell: "oc patch IngressController default -n openshift-ingress-operator --type=merge -p '{\"spec\":{\"defaultCertificate\":{\"name\":\"{{ cm_certificate_secret }}\"}}}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
+
+#- name: "Patch APIServer certificate"
+#  kubernetes.core.k8s_json_patch:
+#    kind: APIServer
+#    name: "cluster"
+#    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+#    patch:
+#      - op: merge
+#        path: /spec/servingCerts/namedCertificates/names
+#        value: ["api.{{ cluster_name }}.{{ cluster_domain }}"]
+#      - op: merge
+#        path: /spec/servingCerts/namedCertificates/servingCertificate
+#        value: "{{ cm_certificate_secret }}"
+#
+- name: "Patch APIServer certificate on {{ cluster_name }}"
+  shell: "oc patch Proxy cluster -n openshift-config --type=merge -p '{\"spec\":{\"servingCerts\":{\"namedCertificates\":{\"names\":[\"api.{{ cluster_name }}.{{ cluster_domain }}\"]},\"servingCertificate\":\"{{ cm_certificate_secret }}\"}}}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
+
+- name: "Get signed certificate"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.crt"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
+  register: fullchain_certificate_out
+
+- name: "Create config map with signed certificate on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    namespace: openshift-config
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ cm_certificate_secret }}"
+      data:
+        ca-bundle.crt: "{{ fullchain_certificate_out.stdout }}"
+    apply: yes
+
+- name: "Patch Proxy certificate on {{ cluster_name }}"
+  shell: "oc patch Proxy cluster -n openshift-config --type=merge -p '{\"spec\":{\"trustedCA\":{\"name\":\"{{ cm_certificate_secret }}\"}}}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
