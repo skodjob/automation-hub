@@ -9,35 +9,11 @@
     wait_sleep: 10
     verify_ssl: no
 
-#- name: "Patch ingress certificate"
-#  kubernetes.core.k8s_json_patch:
-#    kind: IngressController
-#    namespace: "openshift-ingress-operator"
-#    name: "default"
-#    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
-#    patch:
-#      - op: merge
-#        path: /spec/defaultCertificate/name
-#        value: "{{ cm_certificate_secret }}"
-
 - name: "Patch ingress certificate on {{ cluster_name }}"
   shell: "oc patch IngressController default -n openshift-ingress-operator --type=merge -p '{\"spec\":{\"defaultCertificate\":{\"name\":\"{{ cm_certificate_secret }}\"}}}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
 
-#- name: "Patch APIServer certificate"
-#  kubernetes.core.k8s_json_patch:
-#    kind: APIServer
-#    name: "cluster"
-#    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
-#    patch:
-#      - op: merge
-#        path: /spec/servingCerts/namedCertificates/names
-#        value: ["api.{{ cluster_name }}.{{ cluster_domain }}"]
-#      - op: merge
-#        path: /spec/servingCerts/namedCertificates/servingCertificate
-#        value: "{{ cm_certificate_secret }}"
-#
 - name: "Patch APIServer certificate on {{ cluster_name }}"
   shell: "oc patch Proxy cluster -n openshift-config --type=merge -p '{\"spec\":{\"servingCerts\":{\"namedCertificates\":{\"names\":[\"api.{{ cluster_name }}.{{ cluster_domain }}\"]},\"servingCertificate\":\"{{ cm_certificate_secret }}\"}}}'"
   environment:
