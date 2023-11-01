@@ -17,7 +17,7 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
-RUN $PKGMGR install -y python3.11
+RUN $PKGMGR install -y python3.11 python3.11-devel
 RUN $PYCMD --version
 RUN $PYCMD -m ensurepip
 RUN $PYCMD -m pip install --no-cache-dir $ANSIBLE_INSTALL_REFS

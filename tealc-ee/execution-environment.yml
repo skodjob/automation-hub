@@ -23,7 +23,7 @@ images:
 
 additional_build_steps:
   prepend_base:
-    - RUN $PKGMGR install -y python3.11
+    - RUN $PKGMGR install -y python3.11 python3.11-devel
     - RUN $PYCMD --version
   append_final:
     - RUN echo This is a post-install command!
