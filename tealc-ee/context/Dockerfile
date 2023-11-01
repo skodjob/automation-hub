@@ -1,9 +1,9 @@
 ARG EE_BASE_IMAGE="quay.io/ansible/awx-ee:latest"
-ARG PYCMD="/usr/bin/python3"
+ARG PYCMD="/usr/bin/python3.11"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
-ARG ANSIBLE_INSTALL_REFS="ansible-core>=2.15.0 ansible-runner"
+ARG ANSIBLE_INSTALL_REFS="ansible-core==2.15.3 ansible-runner==2.3.4"
 ARG PKGMGR="/usr/bin/dnf"
 
 # Base build stage
@@ -17,7 +17,9 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
-RUN $PKGMGR install -y gcc
+RUN $PKGMGR groupinstall -y "Development Tools"
+RUN $PKGMGR install -y  yum-utils make gcc libcurl-devel libxslt-devel libxml2-devel openssl-devel bzip2-devel libffi-devel zlib-devel python3.11 python3.11-devel
+RUN $PYCMD --version
 RUN $PYCMD -m ensurepip
 RUN $PYCMD -m pip install --no-cache-dir $ANSIBLE_INSTALL_REFS
 COPY _build/scripts/ /output/scripts/
@@ -77,8 +79,8 @@ COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 COPY --from=builder /output/ /output/
 RUN /output/scripts/install-from-bindep && rm -rf /output/wheels
 RUN chmod ug+rw /etc/passwd
-RUN mkdir -p /runner && chgrp 0 /runner && chmod -R ug+rwx /runner
-WORKDIR /runner
+RUN mkdir -p /build && chgrp 0 /build && chmod -R ug+rwx /build
+WORKDIR /build
 RUN $PYCMD -m pip install --no-cache-dir 'dumb-init==1.2.5'
 RUN echo This is a post-install command!
 RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
@@ -86,6 +88,6 @@ RUN /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-cry
 RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.2.0/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
-USER 1000
+USER root
 ENTRYPOINT ["/opt/builder/bin/entrypoint", "dumb-init"]
 CMD ["bash"]
