@@ -50,4 +50,3 @@
     file: cert-manager/02-update_openshift_config.yaml
   vars:
     cluster_name: "{{ infra_context_name }}"
-

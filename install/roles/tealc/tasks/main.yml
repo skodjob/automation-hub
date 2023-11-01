@@ -1,16 +1,16 @@
 ---
 # clusters connections
-#- import_tasks: common/check_parameters.yaml
-#  tags: [always, check-params]
-#
-#- import_tasks: common/check_clients.yaml
-#  tags: [always, check-clients]
+- import_tasks: common/check_parameters.yaml
+  tags: [always, check-params]
+
+- import_tasks: common/check_clients.yaml
+  tags: [always, check-clients]
 
 - import_tasks: common/set_facts.yaml
   tags: [always]
 
-#- import_tasks: common/prepare_kubeconfigs.yaml
-#  tags: [always, kubeconfigs]
+- import_tasks: common/prepare_kubeconfigs.yaml
+  tags: [always, kubeconfigs]
 
 # infra installation
 # Install ACM
