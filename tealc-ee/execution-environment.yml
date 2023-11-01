@@ -7,11 +7,15 @@ dependencies:
   ansible_runner:
     package_pip: ansible-runner==2.3.4
   galaxy: ../install/collections/requirements.yml
+  system:
+    - jq
+    - wget
+    - tar
   python:
     - python-openstackclient
     - awscli
   python_interpreter:
-    python_path: "/usr/local/bin/python3.11"
+    python_path: "/usr/bin/python3.11"
 
 images:
   base_image:
@@ -19,12 +23,7 @@ images:
 
 additional_build_steps:
   prepend_base:
-    - RUN $PKGMGR groupinstall -y "Development Tools"
-    - RUN $PKGMGR install -y  wget yum-utils make gcc libcurl-devel libxslt-devel libxml2-devel openssl-devel bzip2-devel libffi-devel zlib-devel jq
-    - RUN wget https://www.python.org/ftp/python/3.11.3/Python-3.11.3.tgz
-    - RUN tar xzf Python-3.11.3.tgz
-    - RUN cd Python-3.11.3 && ./configure --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions && make -j ${nproc} && make altinstall
-    - RUN rm Python-3.11.3.tgz
+    - RUN $PKGMGR install -y python3.11
     - RUN $PYCMD --version
   append_final:
     - RUN echo This is a post-install command!
