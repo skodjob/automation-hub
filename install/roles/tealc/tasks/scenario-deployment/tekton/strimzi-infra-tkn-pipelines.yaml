@@ -42,7 +42,7 @@
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/*.j2'
   vars:
-    name: "{{ workers.main_cluster.name }}"
+    name: "worker-01"
 
 - name: Create Tekton pipelines for test suites
   kubernetes.core.k8s:
@@ -54,7 +54,7 @@
     template: "{{ item }}"
   with_fileglob: 'templates/tekton/pipelines/test-suite/*.j2'
   vars:
-    name: "{{ workers.main_cluster.name }}"
+    name: "worker-01"
 
 - name: Create collector metrics for test suites
   kubernetes.core.k8s:
@@ -78,6 +78,6 @@
     verify_ssl: no
     apply: true
     template: "templates/tekton/pipelines/infra/upgrade-worker-cluster.yaml.j2"
-  loop: "{{ workers | dict2items }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
-    loop_var: worker
+    loop_var: cluster
