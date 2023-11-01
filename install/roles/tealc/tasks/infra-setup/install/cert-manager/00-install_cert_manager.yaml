@@ -1,0 +1,85 @@
+---
+- name: "Label namespaces for KubeD on {{ cluster_name }}"
+  kubernetes.core.k8s_json_patch:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    kind: Namespace
+    name: "{{ item }}"
+    patch:
+      - op: add
+        path: /metadata/labels/secret
+        value: cert-manager
+  loop:
+    - openshift-ingress
+    - openshift-config
+
+- name: "Create Cert-Manager namespace on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    api_version: v1
+    kind: Namespace
+    name: "{{ item }}"
+    verify_ssl: no
+    state: present
+  loop:
+    - "{{ cm_namespace }}"
+    - "{{ cm_operator_namespace }}"
+
+- name: "Create or Patch route53 secret {{ cluster_name }}"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ cm_namespace }}"
+    apply: true
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "{{ cm_route53_credentials }}"
+      data:
+        access-key: "{{ route53_secret['access-key'] | b64encode }}"
+        secret-key: "{{ route53_secret['secret-key'] | b64encode }}"
+
+- name: "Create Cert-Manager operator group and subscription on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ cm_operator_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/cert-manager/00-operator-group.yaml.j2
+    - templates/cert-manager/01-subscription.yaml.j2
+
+- name: "Wait for Cert-Manager operator on {{ cluster_name }}"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ cm_operator_namespace }}"
+    kind: CertManager
+    name: "cluster"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: cert-manager-cainjector-deploymentAvailable
+      status: True
+  retries: 20
+  delay: 5
+
+- name: "Create Certificate Issuer"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ cm_operator_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "templates/cert-manager/02-cluster-issuer.yaml.j2"
+
+- name: "Create Certificate"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ cm_operator_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "templates/cert-manager/03-certificate.yaml.j2"
