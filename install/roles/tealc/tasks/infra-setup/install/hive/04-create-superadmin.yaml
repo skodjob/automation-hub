@@ -1,0 +1,35 @@
+- name: "Collect superadmin secrets"
+  ansible.builtin.set_fact:
+    superadmin_secret: "{{ lookup('community.hashi_vault.hashi_vault', 
+    'secret={{ superadmin_secret_path }} 
+    auth_method=approle 
+    role_id={{ vault_role_id }} 
+    secret_id={{ vault_secret_id }} 
+    url={{ vault_url }}
+    return_format=dict',
+    validate_certs=False) }}"
+
+- name: "Add a user to a password file for {{ cluster_name }}"
+  shell: "htpasswd -c -B -b users.htpasswd {{ superadmin_secret['username'] }} {{ superadmin_secret['password'] }}"
+
+- name: "Create secret with superadmin user on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "superadmin-secret"
+        namespace: "openshift-config"
+      data:
+        htpasswd: "{{ lookup('file', 'users.htpasswd' ) | b64encode }}"
+
+- name: "Update on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "openshift-config"
+    state: present
+    verify_ssl: no
+    template: templates/hive/oauth.yaml.j2
