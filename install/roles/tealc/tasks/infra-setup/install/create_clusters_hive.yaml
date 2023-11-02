@@ -1,19 +1,19 @@
 ---
-- include_tasks:
-    file: hive/00-prepare_secrets.yaml
-
-- include_tasks:
-    file: hive/02-deploy_cluster.yaml
-  loop: "{{ clusters_dict.values() }}"
-  loop_control:
-    loop_var: cluster
-  when: not clusters_dict[cluster.name].exists
-
-- include_tasks:
-    file: hive/03-wait_for_cluster.yaml
-  loop: "{{ clusters_dict.values() }}"
-  loop_control:
-    loop_var: cluster
+#- include_tasks:
+#    file: hive/00-prepare_secrets.yaml
+#
+#- include_tasks:
+#    file: hive/02-deploy_cluster.yaml
+#  loop: "{{ clusters_dict.values() }}"
+#  loop_control:
+#    loop_var: cluster
+#  when: not clusters_dict[cluster.name].exists
+#
+#- include_tasks:
+#    file: hive/03-wait_for_cluster.yaml
+#  loop: "{{ clusters_dict.values() }}"
+#  loop_control:
+#    loop_var: cluster
 
 - include_tasks:
     file: hive/04-create-superadmin.yaml
