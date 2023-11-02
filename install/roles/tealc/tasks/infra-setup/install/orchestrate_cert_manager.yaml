@@ -7,7 +7,8 @@
     role_id={{ vault_role_id }} 
     secret_id={{ vault_secret_id }} 
     url={{ vault_url }}
-    return_format=dict') }}"
+    return_format=dict',
+    validate_certs=False) }}"
 
 # Install Cert-Manager and create all resources
 - include_tasks:
