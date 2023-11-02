@@ -1,0 +1,165 @@
+---
+- name: "Create SSO namespace on infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    api_version: v1
+    kind: Namespace
+    name: "{{ sso_namespace }}"
+    verify_ssl: no
+    state: present
+
+- name: "Create SSO operator group and subscription on infracluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/sso/00-operator-group.yaml.j2
+    - templates/sso/01-sso-subscription.yaml.j2
+
+- name: Wait for sso operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    kind: Deployment
+    name: rhsso-operator
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: "Create keycloak instance on infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: templates/sso/keycloak.yaml.j2
+
+- name: Wait for keycloak instance on infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    kind: Keycloak
+    api_version: keycloak.org/v1alpha1
+    name: tealc-sso
+    wait: true
+    wait_timeout: 600
+    wait_sleep: 10
+    field_selectors:
+      - status.ready = true
+  retries: 60
+  delay: 10
+
+- name: "Create realm on infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: templates/sso/realm.yaml.j2
+  vars:
+    realm_name: "{{ sso_main_realm }}"
+
+- name: "Create ocp-auth-client on infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: templates/sso/ocp-auth-client.yaml.j2
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- name: "Create admin user on infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ sso_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: templates/sso/user.yaml.j2
+  vars:
+    realm_name: "{{ sso_main_realm }}"
+    username: "{{ sso_cluster_admin_user }}"
+    user_password: "{{ ocp_client_auth_secret }}"
+    user_email: "tealc@redhat.com"
+    first_name: Tealc
+    last_name: Chulac
+
+- name: Get router certificate
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.crt"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: certificate_out
+
+- name: "Create config map with signed certificate on {{ clusterName }}"
+  kubernetes.core.k8s:
+    namespace: openshift-config
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: openid-ca-tealc
+      data:
+        ca.crt: "{{ certificate_out.stdout }}"
+    apply: yes
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- name: Create client secret
+  kubernetes.core.k8s:
+    namespace: openshift-config
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    apply: true
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: openid-client-secret
+      data:
+        clientSecret: "{{ ocp_client_auth_secret | b64encode }}"
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- name: Create oidc oauth config
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: openshift-config
+    state: present
+    apply: true
+    verify_ssl: no
+    template: templates/hive/oauth.yaml.j2
+  vars:
+    sso_ca_name: "openid-ca-tealc"
+    sso_ocp_client_secret: "openid-client-secret"
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- name: Sleep for 60 seconds and continue with play
+  wait_for:
+    timeout: 30
+
+- name: "Add admin rights to user"
+  shell: "oc adm policy add-cluster-role-to-user cluster-admin {{ sso_cluster_admin_user }} --rolebinding-name=cluster-admin"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ clusterName }}"
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: clusterName

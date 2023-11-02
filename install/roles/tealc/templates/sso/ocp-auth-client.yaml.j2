@@ -1,0 +1,23 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: ocp-{{ clusterName }}
+  labels:
+    app: tealc-sso
+spec:
+  realmSelector:
+    matchLabels:
+      app: {{ sso_main_realm }}
+  client:
+    clientId: ocp-{{ clusterName }}
+    directAccessGrantsEnabled: true
+    enabled: true
+    implicitFlowEnabled: false
+    name: ocp-{{ clusterName }}
+    id: ocp-{{ clusterName }}
+    protocol: openid-connect
+    publicClient: false
+    redirectUris:
+      - https://oauth-openshift.apps.{{ clusterName }}.{{ cluster_domain }}.net/*
+    secret: {{ ocp_client_auth_secret }}
+    standardFlowEnabled: true

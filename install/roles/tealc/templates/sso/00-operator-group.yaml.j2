@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: operator-group
+  namespace: {{ sso_namespace }}
+spec:
+  targetNamespaces:
+    - {{ sso_namespace }}
+  upgradeStrategy: Default

@@ -1,0 +1,16 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  labels:
+    app: {{ realm_name }}
+  name: {{ realm_name }}
+  namespace: {{ sso_namespace }}
+spec:
+  instanceSelector:
+    matchLabels:
+      app: tealc-sso
+  realm:
+    displayName: {{ realm_name }}
+    enabled: true
+    id: {{ realm_name }}
+    realm: {{ realm_name }}

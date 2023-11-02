@@ -93,6 +93,9 @@
 - import_tasks: infra-setup/install/orchestrate_cert_manager.yaml
   tags: [cert-manager, cm, infra, never]
 
+- import_tasks: infra-setup/install/sso/install_sso.yaml
+  tags: [sso, oauth, infra, never]
+
 # Scenarios - Has to be migrated to the new format!!!
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]

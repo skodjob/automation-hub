@@ -1,0 +1,22 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakUser
+metadata:
+  labels:
+    app: tealc-sso
+  name: {{ username }}
+  namespace: {{ sso_namespace }}
+spec:
+  realmSelector:
+    matchLabels:
+      app: {{ realm_name }}
+  user:
+    credentials:
+      - temporary: false
+        type: password
+        value: {{ user_password }}
+    email: {{ user_email }}
+    enabled: true
+    firstName: {{ first_name }}
+    lastName: {{ last_name }}
+    username: {{ username }}
+    emailVerified: true

@@ -1,0 +1,15 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  labels:
+    app: tealc-sso
+  name: tealc-sso
+  namespace: {{ sso_namespace }}
+spec:
+  externalAccess:
+    enabled: true
+  instances: 3
+  keycloakDeploymentSpec:
+    imagePullPolicy: Always
+  postgresDeploymentSpec:
+    imagePullPolicy: Always

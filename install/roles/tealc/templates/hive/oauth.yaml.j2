@@ -10,10 +10,9 @@ spec:
       htpasswd:
         fileData:
           name: superadmin-secret
-
 {% if sso_ca_name is defined %}
     - mappingMethod: claim
-      name: openid
+      name: Tealc-SSO
       openID:
         ca:
           name: {{ sso_ca_name }}
@@ -21,10 +20,12 @@ spec:
           email:
             - email
           name:
+            - username
             - name
           preferredUsername:
+            - username
             - preferred_username
-        clientID: ocp
+        clientID: ocp-{{ clusterName }}
         clientSecret:
           name: {{ sso_ocp_client_secret }}
         extraScopes: []
