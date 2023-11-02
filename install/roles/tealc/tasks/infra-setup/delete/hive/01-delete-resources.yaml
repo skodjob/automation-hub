@@ -77,8 +77,8 @@
 - name: "Update DNS record for API of {{ cluster_name }}"
   shell: "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
   environment:
-    AWS_ACCESS_KEY_ID: "aws_secret['aws_access_key_id']"
-    AWS_SECRET_ACCESS_KEY: "aws_secret['aws_secret_access_key']"
+    AWS_ACCESS_KEY_ID: "{{ aws_secret['aws_access_key_id'] }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret['aws_secret_access_key'] }}"
     AWS_DEFAULT_REGION: "us-west-2"
 
 - name: "Delete AWS DNS command for APPS of {{ cluster_name }}"
@@ -92,8 +92,8 @@
 - name: "Update DNS record for APPS of {{ cluster_name }}"
   shell: "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
   environment:
-    AWS_ACCESS_KEY_ID: "aws_secret['aws_access_key_id']"
-    AWS_SECRET_ACCESS_KEY: "aws_secret['aws_secret_access_key']"
+    AWS_ACCESS_KEY_ID: "{{ aws_secret['aws_access_key_id'] }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret['aws_secret_access_key'] }}"
     AWS_DEFAULT_REGION: "us-west-2"
 
 ###############
