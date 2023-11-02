@@ -33,3 +33,8 @@
     state: present
     verify_ssl: no
     template: templates/hive/oauth.yaml.j2
+
+- name: "Add admin rights to superadmin on {{ cluster_name }}"
+  shell: "oc adm policy add-cluster-role-to-user cluster-admin {{ superadmin_secret['username'] }} --rolebinding-name=cluster-admin"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster_name }}"
