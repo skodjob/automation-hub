@@ -11,6 +11,7 @@ spec:
     - name: pipeline-ws
   tasks:
     - name: tealc-install
+      timeout: "2h30m0s"
       workspaces:
         - name: pipeline-ws
           workspace: pipeline-ws
