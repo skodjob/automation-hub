@@ -24,6 +24,12 @@
 - import_tasks: common/prepare_kubeconfigs.yaml
   tags: [infra, kubeconfigs]
 
+- include_tasks:
+    file: infra-setup/install/hive/create-superadmin.yaml
+  loop: "{{ clusters }}"
+  loop_control:
+    loop_var: cluster_name
+
 # Create all secrets related to cluster connections
 - include_tasks:
     file: infra-setup/prepare_access.yaml

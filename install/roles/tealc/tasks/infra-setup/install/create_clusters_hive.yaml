@@ -14,9 +14,3 @@
   loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: cluster
-
-- include_tasks:
-    file: hive/04-create-superadmin.yaml
-  loop: "{{ clusters }}"
-  loop_control:
-    loop_var: cluster_name
