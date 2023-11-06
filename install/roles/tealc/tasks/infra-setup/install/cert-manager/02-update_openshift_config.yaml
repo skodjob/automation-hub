@@ -1,4 +1,4 @@
-- name: "Wait for Certificate secret creation"
+- name: "Wait for Certificate secret creation on {{ cluster_name }}"
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
     namespace: "openshift-config"

@@ -40,13 +40,13 @@
     kind: Deployment
     name: loki-operator-controller-manager
     wait: true
+    wait_sleep: 10
+    wait_timeout: 600
     verify_ssl: no
     wait_condition:
       type: Available
       status: True
       reason: MinimumReplicasAvailable
-  retries: 20
-  delay: 5
 
 - name: "Create Loki access secret on {{ clusterName }}"
   kubernetes.core.k8s:

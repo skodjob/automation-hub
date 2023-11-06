@@ -34,6 +34,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "openshift-machine-api"
     kind: MachineSet
+    api_version: machine.openshift.io/v1beta1
     name: "{{ worker.name }}-{{ machine_pool.node_type }}-worker-0"
     wait: true
     wait_timeout: 1800
@@ -44,6 +45,12 @@
   loop: "{{ worker.machine_pools }}"
   loop_control:
     loop_var: machine_pool
+  register: machine_sets_wait
+
+- name: Fail if MachineSets are not available
+  ansible.builtin.fail:
+    msg: "Machine sets are not available -> {{ machine_sets_wait.msg }}"
+  when: machine_sets_wait.results[0].resources == []
 
 - name: Delete original machine-set on {{ worker.name }}
   shell: "oc delete machineset -n openshift-machine-api {{ get_cluster_id_out.stdout }}-worker-0"
