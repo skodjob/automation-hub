@@ -66,7 +66,7 @@
   retries: 20
   delay: 5
 
-- name: "Create Certificate Issuer"
+- name: "Create Certificate Issuer on {{ cluster_name }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
     namespace: "{{ cm_operator_namespace }}"
@@ -75,7 +75,7 @@
     verify_ssl: no
     template: "templates/cert-manager/02-cluster-issuer.yaml.j2"
 
-- name: "Create Certificate"
+- name: "Create Certificate on {{ cluster_name }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
     namespace: "{{ cm_operator_namespace }}"
