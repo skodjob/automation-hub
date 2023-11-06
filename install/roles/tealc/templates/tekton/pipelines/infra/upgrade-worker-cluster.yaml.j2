@@ -24,16 +24,11 @@ spec:
           - name: execute-tests
             image: quay.io/tealc/apophis:latest
             env:
-              - name: OC_USERNAME
+              - name: OC_TOKEN
                 valueFrom:
                   secretKeyRef:
                     name: {{ name }}-tekton
-                    key: username
-              - name: OC_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ name }}-tekton
-                    key: password
+                    key: token
               - name: OC_API_URL
                 valueFrom:
                   secretKeyRef:
@@ -42,7 +37,7 @@ spec:
             script: |
               set +x
 
-              oc login -u $OC_USERNAME -p $OC_PASSWORD $OC_API_URL --insecure-skip-tls-verify=true
+              oc login --token $OC_TOKEN $OC_API_URL --insecure-skip-tls-verify=true
 
               set -x
 
