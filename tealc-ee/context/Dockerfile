@@ -86,6 +86,7 @@ RUN echo This is a post-install command!
 RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
 RUN /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.6.0/7.el8/x86_64/git-crypt-0.6.0-7.el8.x86_64.rpm
 RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.2.0/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
+RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash && mv kustomize /usr/bin/
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
 USER root
