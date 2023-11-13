@@ -37,7 +37,7 @@ spec:
                   secretKeyRef:
                     name: github-secret
                     key: TOKEN
-            image: quay.io/tealc/apophis:latest
+            image: quay.io/tealc/tealc-ee:latest
             script: |
               $(workspaces.pipeline-ws.path)/tealc/scripts/generate-odh.sh
               echo "[INFO] Done!"

@@ -22,7 +22,7 @@ spec:
                 name: odh-image-changer
           containers:
             - name: trigger
-              image: quay.io/tealc/apophis:latest
+              image: quay.io/tealc/tealc-ee:latest
               command:
                 - /workspace/entrypoint.sh
               volumeMounts:
