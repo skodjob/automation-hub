@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: thor-test-suite-pipeline
+  name: odh-e2e-test-suite-pipeline
   labels:
     project: tealc
   annotations:
@@ -10,7 +10,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: thor
+    - name: odh-e2e
       workspaces:
         - name: pipeline-ws
           workspace: pipeline-ws
@@ -21,58 +21,43 @@ spec:
           - name: execute-tests
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
             env:
-              - name: WORKER_01_OCP_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: worker-01-tekton
-                    key: token
-              - name: WORKER_01_URL
-                valueFrom:
-                  secretKeyRef:
-                    name: worker-01-tekton
-                    key: server
-              - name: WORKER_02_OCP_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: worker-02-tekton
-                    key: token
-              - name: WORKER_02_URL
-                valueFrom:
-                  secretKeyRef:
-                    name: worker-02-tekton
-                    key: server
-              - name: WORKER_03_OCP_TOKEN
+              - name: KUBE_TOKEN
                 valueFrom:
                   secretKeyRef:
                     name: worker-03-tekton
                     key: token
-              - name: WORKER_03_URL
+              - name: KUBE_URL
                 valueFrom:
                   secretKeyRef:
                     name: worker-03-tekton
                     key: server
+              - name: GITHUB_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: github-secret
+                    key: TOKEN
             script: |
               cd $(workspaces.pipeline-ws.path)
 
-              git clone https://github.com/ExcelentProject/thor.git
+              git clone https://github.com/ExcelentProject/odh-e2e.git
 
-              cd thor
+              cd odh-e2e
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-              mvn test --no-transfer-progress
+              mvn verify -Dit.test=io.odh.test.e2e.continuous.*IT  --settings ./settings.xml
   finally:
-    - name: sent-results
-      workspaces:
-        - name: pipeline-ws
-          workspace: pipeline-ws
-      taskSpec:
-        workspaces:
-          - name: pipeline-ws
-        steps:
-          - name: sent-results
-            image: quay.io/mk-ci-cd/mas-ci-tools:latest
-            script: |
-              cd $(workspaces.pipeline-ws.path)/thor/target/surefire-reports
-              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
+    #- name: sent-results
+    #  workspaces:
+    #    - name: pipeline-ws
+    #      workspace: pipeline-ws
+    #  taskSpec:
+    #    workspaces:
+    #      - name: pipeline-ws
+    #    steps:
+    #      - name: sent-results
+    #        image: quay.io/mk-ci-cd/mas-ci-tools:latest
+    #        script: |
+    #          cd $(workspaces.pipeline-ws.path)/odh-e2e/target/surefire-reports
+    #          for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
     - name: notify-slack
       when:
         - input: $(tasks.status)
@@ -90,7 +75,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: thor-test-suite-trigger-template
+  name: odh-e2e-test-suite-trigger-template
   labels:
     project: tealc
 spec:
@@ -98,17 +83,17 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: thor-test-suite-
+        generateName: odh-e2e-test-suite-
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: thor-test-suite-pipeline
+          name: odh-e2e-test-suite-pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
               metadata:
-                name: thor-test-suite-pipeline-pvc
+                name: odh-e2e-test-suite-pipeline-pvc
               spec:
                 accessModes:
                   - ReadWriteOnce
@@ -120,7 +105,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: thor-test-suite-triggerbinding
+  name: odh-e2e-test-suite-triggerbinding
   labels:
     project: tealc
 spec:
@@ -132,17 +117,17 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: thor-test-suite-event-listener
+  name: odh-e2e-test-suite-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
   triggers:
-    - name: thor-test-suite-webhook
+    - name: odh-e2e-test-suite-webhook
       bindings:
-        - ref: thor-test-suite-triggerbinding
+        - ref: odh-e2e-test-suite-triggerbinding
       template:
-        ref: thor-test-suite-trigger-template
+        ref: odh-e2e-test-suite-trigger-template
   resources:
     kubernetesResource:
       spec:
@@ -159,7 +144,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: thor-test-suite-cron
+  name: odh-e2e-test-suite-cron
   labels:
     project: tealc
 spec:
@@ -179,5 +164,5 @@ spec:
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-thor-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
+                - el-odh-e2e-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
           restartPolicy: Never
