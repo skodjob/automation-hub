@@ -2,13 +2,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: image-changer-trigger
+  name: open-data-hub-files-update-trigger
   labels:
     project: tealc
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  schedule: "*/10 * * * *"
+  schedule: "0 0 * * *"
   jobTemplate:
     spec:
       template:
@@ -19,7 +19,7 @@ spec:
             - name: configmap-volume
               configMap:
                 defaultMode: 0755
-                name: strimzi-image-changer
+                name: odh-image-changer
           containers:
             - name: trigger
               image: quay.io/tealc/apophis:latest
@@ -44,12 +44,11 @@ spec:
                   memory: 32Mi
           restartPolicy: Never
 
-
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: strimzi-image-changer
+  name: odh-image-changer
   labels:
     project: tealc
 data:
@@ -59,10 +58,5 @@ data:
     set -x
     set -e
     
-    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/zookeeper-mode/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
-    DIGEST_OPERATOR=$(skopeo inspect docker://quay.io/strimzi/operator:latest | jq -r '.Digest' )
-    
-    if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
-      echo "[INFO] Going to trigger Operator images update"
-      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
-    fi
+    echo "[INFO] Going to trigger Operator images update"
+    curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' open-data-hub-files-update-event-listener.tealc-pipelines.svc.cluster.local:8080  

@@ -6,10 +6,13 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 source "${DIR}/common.sh"
 
-if [ -z "$OPERATOR_IMAGE" ] ; then
-        err 'Missing OPERATOR_IMAGE env var' >&2
+if [ -z "$BRANCH" ] ; then
+        err 'Missing BRANCH env var' >&2
         exit 1
 fi
+
+DIGEST=$(skopeo inspect --override-arch amd64 --override-os linux docker://quay.io/opendatahub/opendatahub-operator:${BRANCH}  --format "{{ .Digest }}")
+OPERATOR_IMAGE="quay.io/opendatahub/opendatahub-operator@${DIGEST}"
 
 WORKING_DIR=/tmp/tealc
 SOKAR_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/sokar.git"
@@ -32,10 +35,10 @@ git clone $SOKAR_REPO $SOKAR_DIR
 mkdir -p ${SOKAR_ODH_OPERATOR_DIR}
 
 # Checkout ODH repo
-git clone $ODH_REPO $ODH_DIR
+git clone --branch $BRANCH $ODH_REPO $ODH_DIR
 
 pushd $ODH_DIR
-sed -i "s@/bin/bash@/usr/bin/env bash@" get_all_manifests.sh
+$SED -i "s@/bin/bash@/usr/bin/env bash@" get_all_manifests.sh
 ./get_all_manifests.sh
 
 for item in $(find odh-manifests -type d -name "crd")

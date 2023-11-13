@@ -1,14 +1,4 @@
 ---
-- name: Create Strimzi related Tekton pipelines
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_ci_namespace }}"
-    state: present
-    src: "{{ item }}"
-    verify_ssl: no
-    apply: true
-  with_fileglob: 'templates/tekton/pipelines/strimzi-deployment/*.yaml'
-
 - name: Create infra/worker cluster related Tekton pipelines
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -22,15 +12,6 @@
 - name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
     timeout: 5
-
-- name: Create Strimzi related Tekton pipeline runs
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_ci_namespace }}"
-    state: present
-    verify_ssl: no
-    apply: true
-    src: "templates/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
 
 - name: Create Tekton pipelines from jinja templates for main_cluster
   kubernetes.core.k8s:
