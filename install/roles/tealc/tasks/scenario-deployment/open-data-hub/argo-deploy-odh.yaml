@@ -15,4 +15,3 @@
     loop_var: file_template
   vars:
     cluster: "worker-03"
-
