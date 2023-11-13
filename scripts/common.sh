@@ -1,3 +1,16 @@
+SED=sed
+GREP=grep
+DATE=date
+
+UNAME_S=$(uname -s)
+if [ $UNAME_S = "Darwin" ];
+then
+    # MacOS GNU versions which can be installed through Homebrew
+    SED=gsed
+    GREP=ggrep
+    DATE=gdate
+fi
+
 ############################################################
 # LOGGER
 ############################################################

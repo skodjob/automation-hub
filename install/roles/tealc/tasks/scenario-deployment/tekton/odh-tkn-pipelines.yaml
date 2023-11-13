@@ -1,0 +1,23 @@
+---
+- name: Create ODH related Tekton pipelines
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    src: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob: 'templates/tekton/pipelines/open-data-hub/*.yaml'
+
+- name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
+  wait_for:
+    timeout: 5
+
+- name: Create ODH related Tekton pipeline runs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    verify_ssl: no
+    apply: true
+    src: "templates/tekton/pipelines/open-data-hub/run/pipeline-runs.yaml"
