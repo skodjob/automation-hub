@@ -1,3 +1,6 @@
 jq
 wget
 tar
+skopeo
+maven
+java-17-openjdk-devel
