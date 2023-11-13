@@ -43,7 +43,7 @@ spec:
 
               cd odh-e2e
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-              mvn verify --settings ./settings.xml
+              mvn verify -Dit.test=io.odh.test.e2e.continuous.*IT  --settings ./settings.xml
   finally:
     #- name: sent-results
     #  workspaces:
