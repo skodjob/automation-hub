@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-data-hub-resources
+  labels:
+    project: tealc
+    app: open-data-hub
+spec:
+  project: open-data-hub
+  source:
+    repoURL: https://github.com/ExcelentProject/sokar
+    targetRevision: HEAD
+    path: open-data-hub/resources
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+  destination:
+    name: {{ cluster }}
+    namespace: opendatahub
