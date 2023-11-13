@@ -9,13 +9,13 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 
 RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz -O /tmp/oc.tar.gz &&\
     tar -xzf /tmp/oc.tar.gz -C /tmp &&\
-    mv /tmp/oc /usr/bin/oc &&\
-    chmod +x /usr/bin/oc
+    mv /tmp/oc /usr/local/bin/oc &&\
+    chmod +x /usr/local/bin/oc
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &&\
-    chmod +x /usr/bin/yq
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/local/bin/yq &&\
+    chmod +x /usr/local/bin/yq
 
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash &&\
-     mv kustomize /usr/bin/
+     mv kustomize /usr/local/bin/
 
 USER root
