@@ -15,4 +15,7 @@ RUN wget https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/o
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 
+RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash &&\
+     mv kustomize /usr/bin/
+
 USER root
