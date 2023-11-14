@@ -25,7 +25,7 @@ spec:
       metadata:
         labels:
           nodetype: {{ node_type }}
-{% if node_type != "infra" %}
+{% if node_type != "infra" or node_type != "odh" %}
       taints:
         - key: nodetype
           value: {{ node_type }}
