@@ -6,7 +6,7 @@
       "ResourceRecordSet": {
         "Name": "{{ record_prefix }}.{{ cluster.name }}.{{ cluster_domain }}",
         "Type": "A",
-        "TTL": 172800,
+        "TTL": 60,
         "ResourceRecords": [
           {
             "Value": "{{ fip }}"
