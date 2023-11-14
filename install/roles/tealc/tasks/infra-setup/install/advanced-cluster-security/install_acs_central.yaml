@@ -1,4 +1,31 @@
 ---
+- name: "Get signed certificate"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.crt"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: fullchain_certificate_out
+
+- name: "Get signed certificate key"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.key"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: key_certificate_out
+
+- name: "Create secret with CRT"
+  kubernetes.core.k8s:
+    namespace: "{{ acs_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: central-default-tls-secret
+      data:
+        tls.crt: "{{ fullchain_certificate_out.stdout | b64encode }}"
+        tls.key: "{{ key_certificate_out.stdout | b64encode }}"
+      type: "kubernetes.io/tls"
+    apply: yes
+
 - name: "Create central on Infra cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
