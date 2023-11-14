@@ -18,11 +18,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
-    managedNamespaceMetadata:
-      labels:
-        app: open-data-hub
-        project: tealc
+      - CreateNamespace=false
   destination:
     name: {{ cluster }}
     namespace: opendatahub-operator-system
