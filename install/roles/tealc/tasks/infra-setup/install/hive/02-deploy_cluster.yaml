@@ -89,7 +89,7 @@
 #    node_flavor: "{{ machine_pool.node_flavor }}"
 #    node_replicas: "{{ machine_pool.node_replicas }}"
 
-- name: "Create {{ clusterName }} ClusterDeployment config"
+- name: "Create {{ cluster.name }} ClusterDeployment config"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ hive_namespace }}"
