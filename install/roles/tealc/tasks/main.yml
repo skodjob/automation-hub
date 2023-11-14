@@ -78,6 +78,9 @@
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana, infra, never]
 
+- import_tasks: infra-setup/install/orchestrate_cert_manager.yaml
+  tags: [cert-manager, cm, infra, never]
+
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
 
@@ -89,9 +92,6 @@
 
 - import_tasks: infra-setup/install/install_kubed.yaml
   tags: [kubed, infra, never]
-
-- import_tasks: infra-setup/install/orchestrate_cert_manager.yaml
-  tags: [cert-manager, cm, infra, never]
 
 # Scenarios - Has to be migrated to the new format!!!
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
