@@ -22,7 +22,7 @@ spec:
         project: tealc
         app: strimzi
     spec:
-      project: applications
+      project: strimzi
       source:
         repoURL: https://github.com/ExcelentProject/sokar
         targetRevision: HEAD
