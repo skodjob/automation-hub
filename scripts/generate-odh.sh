@@ -58,8 +58,6 @@ do
 	fi
 done
 
-# Generate CRDs
-kustomize build config/crd > ${SOKAR_ODH_OPERATOR_DIR}/crds.yaml
 # Generate install files
 pushd config/manager
 kustomize edit set image controller=${OPERATOR_IMAGE}
