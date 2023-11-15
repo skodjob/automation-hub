@@ -32,7 +32,7 @@
 - name: Wait for MachineSets readiness - {{ worker.name }}
   shell: "oc get machineset -n openshift-machine-api {{ worker.name }}-{{ machine_pool.node_type }}-worker-0 -o=jsonpath='{.status.readyReplicas}'"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster.name }}"
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   loop: "{{ worker.machine_pools }}"
   loop_control:
     loop_var: machine_pool
