@@ -39,7 +39,7 @@ spec:
                   "tekton.dev/pipeline"}}{{"\n"}}{{end}}' | uniq);
               env:
                 - name: NUM_TO_KEEP
-                  value: '1'
+                  value: '2'
               resources:
                 limits:
                   cpu: 100m
