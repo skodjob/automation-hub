@@ -21,6 +21,11 @@ SOKAR_ODH_DIR="open-data-hub"
 SOKAR_ODH_OPERATOR_DIR="${WORKING_DIR}/${SOKAR_DIR}/${SOKAR_ODH_DIR}/install"
 ODH_REPO="https://github.com/opendatahub-io/opendatahub-operator.git"
 ODH_DIR="odh-operator"
+CRDS_ODH_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/opendatahub-crds.git"
+CRDS_ODH_DIR="opendatahub-crds"
+ODH_E2E_SUITE_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/odh-e2e.git"
+ODH_E2E_SUITE_DIR="odh-e2e"
+
 
 info "[INFO] Clearing ${WORKING_DIR}"
 rm -rf ${WORKING_DIR}
@@ -73,8 +78,36 @@ git config user.email "$GITHUB_USERNAME@redhat.com"
 git config user.name "$GITHUB_USERNAME"
 
 git add "."
+CLI_CRDS_CHANGED=$(git diff --name-status --staged | grep "open-data-hub/client" )
+ODH_CRDS_CHANGED=$(git diff --staged --unified=0 | grep -Po '(?<=^\+)(?!\+\+).*' | grep -v image)
 git diff --staged --quiet || git commit -m "ODH Install files update: $($DATE '+%Y-%m-%d %T')"
 git push origin "main"
+
+if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]]; then
+  echo "CRDS Updated -> releasing a new version of fluent classes"
+  cd ${WORKING_DIR}
+  git clone "${CRDS_ODH_REPO}" "${CRDS_ODH_DIR}"
+  git clone "${ODH_E2E_SUITE_REPO}" "${ODH_E2E_SUITE_DIR}"
+
+  cd ${CRDS_ODH_DIR}
+  mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion} versions:commit
+  VERSION_CRDS=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+  git add "."
+  git diff --staged --quiet || git commit -m "Version bump: $($DATE '+%Y-%m-%d %T')"
+  git push origin "main"
+
+  echo "Take some time to build and release package"
+  sleep 300
+
+  cd ..
+  cd "${ODH_E2E_SUITE_DIR}"
+  mvn versions:set-property -Dproperty=opedatahub-crds.version -DnewVersion=$VERSION_CRDS
+  git add "."
+  git diff --staged --quiet || git commit -m "Bump version of opendatahub-crds dependency: $($DATE '+%Y-%m-%d %T')"
+  git push origin "main"
+  cd ..
+fi
+
 info "Cleaning ${WORKING_DIR}"
 rm -rf ${WORKING_DIR}
 exit 0
