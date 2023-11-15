@@ -114,3 +114,6 @@ spec:
         cpu: 250m
         memory: 1Gi
     sharding: {}
+    tls:
+      ca:
+        secretName: tealc-signed-certificate

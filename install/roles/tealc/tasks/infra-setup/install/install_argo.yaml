@@ -11,6 +11,7 @@
         name: "{{ infra_ci_namespace }}"
         labels:
           project: "tealc"
+          secret: "cert-manager"
 
 - name: Create image pull secret on infra cluster
   kubernetes.core.k8s:
