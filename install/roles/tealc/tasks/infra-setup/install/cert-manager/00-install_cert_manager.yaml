@@ -61,7 +61,7 @@
     wait: true
     verify_ssl: no
     wait_condition:
-      type: cert-manager-cainjector-deploymentAvailable
+      type: cert-manager-controller-deploymentAvailable
       status: True
   retries: 20
   delay: 5
