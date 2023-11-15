@@ -90,7 +90,7 @@ if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]
   git clone "${ODH_E2E_SUITE_REPO}" "${ODH_E2E_SUITE_DIR}"
 
   cd ${CRDS_ODH_DIR}
-  mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion} versions:commit
+  mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit
   VERSION_CRDS=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
   git add "."
   git diff --staged --quiet || git commit -m "Version bump: $($DATE '+%Y-%m-%d %T')"
