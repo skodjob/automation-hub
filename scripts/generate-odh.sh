@@ -86,8 +86,6 @@ git push origin "main"
 if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]]; then
   echo "CRDS Updated -> releasing a new version of fluent classes"
   cd ${WORKING_DIR}
-  git config user.email "$GITHUB_USERNAME@redhat.com"
-  git config user.name "$GITHUB_USERNAME"
   git clone "${CRDS_ODH_REPO}" "${CRDS_ODH_DIR}"
   git clone "${ODH_E2E_SUITE_REPO}" "${ODH_E2E_SUITE_DIR}"
 
@@ -105,6 +103,8 @@ if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]
 
   cd ..
   cd "${ODH_E2E_SUITE_DIR}"
+  git config user.email "$GITHUB_USERNAME@redhat.com"
+  git config user.name "$GITHUB_USERNAME"
   mvn versions:set-property -Dproperty=opedatahub-crds.version -DnewVersion=$VERSION_CRDS
   git add "."
   git diff --staged --quiet || git commit -m "Bump version of opendatahub-crds dependency: $($DATE '+%Y-%m-%d %T')"
