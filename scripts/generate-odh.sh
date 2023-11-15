@@ -97,7 +97,7 @@ if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]
   git push origin "main"
 
   echo "Take some time to build and release package"
-  sleep 300
+  sleep 480
 
   cd ..
   cd "${ODH_E2E_SUITE_DIR}"
