@@ -28,16 +28,7 @@ ansible-navigator
 ```
 cd install
 ansible-navigator #default all tags
-ansible-navigator run tealc-play.yaml --tags infra
-```
-
-
-### Show sensitive data during debugging ansible locally
-```
-ansible-playbook install/tealc-play.yaml --tags=strimzi-infra
-#or
-cd install
-ansible-navigator run tealc-play.yaml
+ansible-navigator run tealc-play.yaml --senv ANSIBLE_RUN_TAGS=infra
 ```
 
 ### Testing United 2023 slides
