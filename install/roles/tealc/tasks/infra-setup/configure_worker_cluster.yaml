@@ -52,12 +52,6 @@
     msg: "Machine sets are not available -> {{ machine_sets_wait.msg }}"
   when: machine_sets_wait.results[0].resources == []
 
-- name: Delete original machine-set on {{ worker.name }}
-  shell: "oc delete machineset -n openshift-machine-api {{ get_cluster_id_out.stdout }}-worker-0"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
-  ignore_errors: yes
-
 - name: Apply chrony configuration on {{ worker.name }}
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
