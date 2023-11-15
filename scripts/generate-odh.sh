@@ -78,18 +78,22 @@ git config user.email "$GITHUB_USERNAME@redhat.com"
 git config user.name "$GITHUB_USERNAME"
 
 git add "."
-CLI_CRDS_CHANGED=$(git diff --name-status --staged | grep "open-data-hub/client" )
-ODH_CRDS_CHANGED=$(git diff --staged --unified=0 | grep -Po '(?<=^\+)(?!\+\+).*' | grep -v image)
+CLI_CRDS_CHANGED=$(git diff --name-status --staged | { grep "open-data-hub/client" || true; })
+ODH_CRDS_CHANGED=$(git diff --staged --unified=0 | grep -Po '(?<=^\+)(?!\+\+).*' | { grep -v image || true; })
 git diff --staged --quiet || git commit -m "ODH Install files update: $($DATE '+%Y-%m-%d %T')"
 git push origin "main"
 
 if [[ "${CLI_CRDS_CHANGED}" == *"client"* ]] || [[ "${ODH_CRDS_CHANGED}" != "" ]]; then
   echo "CRDS Updated -> releasing a new version of fluent classes"
   cd ${WORKING_DIR}
+  git config user.email "$GITHUB_USERNAME@redhat.com"
+  git config user.name "$GITHUB_USERNAME"
   git clone "${CRDS_ODH_REPO}" "${CRDS_ODH_DIR}"
   git clone "${ODH_E2E_SUITE_REPO}" "${ODH_E2E_SUITE_DIR}"
 
   cd ${CRDS_ODH_DIR}
+  git config user.email "$GITHUB_USERNAME@redhat.com"
+  git config user.name "$GITHUB_USERNAME"
   mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit
   VERSION_CRDS=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
   git add "."
