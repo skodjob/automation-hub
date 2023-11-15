@@ -7,7 +7,7 @@ metadata:
 spec:
   server:
     autoscale:
-      enabled: false
+      enabled: true
     grpc:
       ingress:
         enabled: false
@@ -15,8 +15,8 @@ spec:
       enabled: false
     resources:
       limits:
-        cpu: 500m
-        memory: 256Mi
+        cpu: 1000m
+        memory: 1Gi
       requests:
         cpu: 125m
         memory: 128Mi
@@ -49,8 +49,8 @@ spec:
   applicationSet:
     resources:
       limits:
-        cpu: '2'
-        memory: 1Gi
+        cpu: '3'
+        memory: 2Gi
       requests:
         cpu: 250m
         memory: 512Mi
@@ -98,17 +98,18 @@ spec:
   redis:
     resources:
       limits:
-        cpu: 500m
-        memory: 256Mi
+        cpu: 1000m
+        memory: 512Mi
       requests:
         cpu: 250m
         memory: 128Mi
   controller:
     processors: {}
+    logLevel: debug
     resources:
       limits:
         cpu: '2'
-        memory: 2Gi
+        memory: 3Gi
       requests:
         cpu: 250m
         memory: 1Gi
