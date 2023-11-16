@@ -92,15 +92,7 @@ spec:
           name: upgrade-{{ name }}-cluster-pipeline
         workspaces:
           - name: pipeline-ws
-            volumeClaimTemplate:
-              metadata:
-                name: upgrade-{{ name }}-cluster-pvc
-              spec:
-                accessModes:
-                  - ReadWriteOnce
-                resources:
-                  requests:
-                    storage: 500Mi
+            emptyDir: {}
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding

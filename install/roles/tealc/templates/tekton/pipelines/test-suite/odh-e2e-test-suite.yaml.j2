@@ -91,15 +91,7 @@ spec:
           name: odh-e2e-test-suite-pipeline
         workspaces:
           - name: pipeline-ws
-            volumeClaimTemplate:
-              metadata:
-                name: odh-e2e-test-suite-pipeline-pvc
-              spec:
-                accessModes:
-                  - ReadWriteOnce
-                resources:
-                  requests:
-                    storage: 500Mi
+            emptyDir: {}
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
