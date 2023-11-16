@@ -59,4 +59,4 @@ data:
     set -e
     
     echo "[INFO] Going to trigger Operator images update"
-    curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' open-data-hub-files-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
+    curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-open-data-hub-files-update-event-listener.tealc-pipelines.svc.cluster.local:8080
