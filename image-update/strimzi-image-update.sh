@@ -86,6 +86,7 @@ do
     export ENV_RESOURCE_SELECTOR=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_CUSTOM_RESOURCE_SELECTOR")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
     export RES=$(yq e '.spec.template.spec.containers[0].resources' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
     export AFFINITY=$(yq e '.spec.template.spec.affinity' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+    export TOLERATIONS=$(yq e '.spec.template.spec.tolerations' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
     export SELECTOR=$(yq e '.spec.selector' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
     export TEMPLATE_METADATA=$(yq e '.spec.template.metadata' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
     export VOLUMES=$(yq e '.spec.template.spec.volumes' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
@@ -144,6 +145,8 @@ do
     yq e -i '.spec.template.spec.containers[0].resources = env(RES)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
     ## We need to keep affinity configuration as well
     yq e -i '.spec.template.spec.affinity = env(AFFINITY)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
+    ## We need to keep tolerations configuration as well
+	yq e -i '.spec.template.spec.tolerations = env(TOLERATIONS)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 	## We need to keep selector configuration as well
 	yq e -i '.spec.selector = env(SELECTOR)' $TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME
 	## We need to keep template metadata configuration as well
