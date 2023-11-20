@@ -60,7 +60,7 @@ spec:
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineSet
 metadata:
-  name: {{ clusterId }}-observability-0
+  name: {{ clusterId }}-logging-0
   namespace: openshift-machine-api
   labels:
     machine.openshift.io/cluster-api-cluster: {{ clusterId }}
@@ -71,21 +71,21 @@ spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
-      machine.openshift.io/cluster-api-machineset: {{ clusterId }}-observability-0
+      machine.openshift.io/cluster-api-machineset: {{ clusterId }}-logging-0
   template:
     metadata:
       labels:
         machine.openshift.io/cluster-api-cluster: {{ clusterId }}
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: {{ clusterId }}-observability-0
+        machine.openshift.io/cluster-api-machineset: {{ clusterId }}-logging-0
     spec:
       metadata:
         labels:
-          nodetype: observability
+          nodetype: logging
       taints:
         - key: nodetype
-          value: observability
+          value: logging
           effect: NoSchedule
       providerSpec:
         value:
