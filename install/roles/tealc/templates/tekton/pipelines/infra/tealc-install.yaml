@@ -32,7 +32,7 @@ spec:
               git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
               echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
               cd $CURRENT_DIR && git crypt unlock crypt-key
-              cd $CURRENT_DIR && ansible-playbook install/tealc-play.yaml --tags="infra,strimzi-infra" -vv
+              cd $CURRENT_DIR && ansible-playbook install/tealc-play.yaml --tags="infra,strimzi-infra,odh" -v
   finally:
     - name: notify-slack
       when:
