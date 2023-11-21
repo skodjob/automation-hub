@@ -45,7 +45,7 @@ spec:
         - name: webhook-secret
           value: webhook-secret
         - name: message
-          value: "PipelineRun `$(context.pipelineRun.name)` failed!"
+          value: "PipelineRun `$(context.pipelineRun.name)` has status: `$(tasks.status)!`"
         - name: title
           value: "$(context.pipeline.name)"
         - name: status
