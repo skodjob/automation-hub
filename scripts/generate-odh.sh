@@ -15,15 +15,15 @@ DIGEST=$(skopeo inspect --override-arch amd64 --override-os linux docker://quay.
 OPERATOR_IMAGE="quay.io/opendatahub/opendatahub-operator@${DIGEST}"
 
 WORKING_DIR=/tmp/tealc
-SOKAR_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/sokar.git"
+SOKAR_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/skodjob/sokar.git"
 SOKAR_DIR="sokar"
 SOKAR_ODH_DIR="open-data-hub"
 SOKAR_ODH_OPERATOR_DIR="${WORKING_DIR}/${SOKAR_DIR}/${SOKAR_ODH_DIR}/install"
 ODH_REPO="https://github.com/opendatahub-io/opendatahub-operator.git"
 ODH_DIR="odh-operator"
-CRDS_ODH_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/opendatahub-crds.git"
+CRDS_ODH_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/skodjob/opendatahub-crds.git"
 CRDS_ODH_DIR="opendatahub-crds"
-ODH_E2E_SUITE_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/ExcelentProject/odh-e2e.git"
+ODH_E2E_SUITE_REPO="https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/skodjob/odh-e2e.git"
 ODH_E2E_SUITE_DIR="odh-e2e"
 
 

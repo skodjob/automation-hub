@@ -22,7 +22,7 @@ spec:
             image: quay.io/wire/alpine-git
             script: |
               export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
-              git clone https://github.com/ExcelentProject/tealc.git $CURRENT_DIR
+              git clone https://github.com/skodjob/tealc.git $CURRENT_DIR
           - name: images-update
             env:
               - name: BRANCH
