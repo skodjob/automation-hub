@@ -170,8 +170,8 @@
     receiver: "{{ item.receiver }}"
   loop:
     # Turn off notifications from Thanos alert manager because the one from original monitoring stack is better configured now for user alerts
-    - {namespace: "open-cluster-management-observability", suffix: "config", receiver: "default_blackhole"}
-    - {namespace: "openshift-monitoring", suffix: "main", receiver: "slack"}
+    - {namespace: "open-cluster-management-observability", suffix: "config", receiver_infra: "default_blackhole", receiver_strimzi: "default_blackhole"}
+    - {namespace: "openshift-monitoring", suffix: "main", receiver_infra: "tealc-infra", receiver_strimzi: "strimzi"}
 
 - name: "Configure default Alertmanager to surpass warnings - {{ clusterName }}"
   kubernetes.core.k8s:
