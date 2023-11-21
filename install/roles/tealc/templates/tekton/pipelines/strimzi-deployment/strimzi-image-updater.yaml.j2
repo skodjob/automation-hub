@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: open-data-hub-files-update-pipeline
+  name: strimzi-deployment-image-update-pipeline
   labels:
     project: tealc
   annotations:
@@ -10,7 +10,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: odh
+    - name: strimzi
       workspaces:
         - name: pipeline-ws
           workspace: pipeline-ws
@@ -23,10 +23,27 @@ spec:
             script: |
               export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
               git clone https://github.com/skodjob/tealc.git $CURRENT_DIR
+          # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
+          - name: wait-for-push
+            image: quay.io/tealc/apophis:latest
+            script: |
+              sleep 5m
           - name: images-update
             env:
+              - name: CURRENT_DEPLOYMENT_REPO
+                value: "https://github.com/skodjob/sokar"
+              - name: SHARED_YAML_BUNDLE_FILES
+                value: "./strimzi/cluster-operator-common/"
+              - name: YAML_BUNDLE_PATHS
+                value: "./strimzi/zookeeper-mode/cluster-operator/,./strimzi/kraft-mode/cluster-operator"
+              - name: TARGET_ORG_REPO
+                value: "quay.io/strimzi"
               - name: BRANCH
-                value: "incubation"
+                value: main
+              - name: SYNC_CRD_REPO
+                value: "https://github.com/strimzi/strimzi-kafka-operator"
+              - name: SYNC_CRD_PATH
+                value: "packaging/install/cluster-operator"
               - name: GITHUB_USERNAME
                 valueFrom:
                   secretKeyRef:
@@ -37,9 +54,9 @@ spec:
                   secretKeyRef:
                     name: github-secret
                     key: TOKEN
-            image: quay.io/tealc/tealc-ee:latest
+            image: quay.io/tealc/apophis:latest
             script: |
-              $(workspaces.pipeline-ws.path)/tealc/scripts/generate-odh.sh
+              $(workspaces.pipeline-ws.path)/tealc/image-update/strimzi-image-update.sh
               echo "[INFO] Done!"
   finally:
     - name: notify-slack
@@ -53,13 +70,21 @@ spec:
         - name: webhook-secret
           value: webhook-secret
         - name: message
-          value: "Pipeline `$(context.pipeline.name)`:`$(context.pipelineRun.name)` failed!"
+          value: "PipelineRun `$(context.pipelineRun.name)` failed!"
+        - name: title
+          value: "$(context.pipeline.name)"
+        - name: color
+          value: "#FF0000"
+        - name: button_url
+          value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
+        - name: button_text
+          value: "Pipeline :tekton:"
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: open-data-hub-files-update-trigger-template
+  name: strimzi-deployment-image-update-trigger-template
   labels:
     project: tealc
 spec:
@@ -71,12 +96,12 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: open-data-hub-files-update-
+        generateName: strimzi-deployment-image-update-
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: open-data-hub-files-update-pipeline
+          name: strimzi-deployment-image-update-pipeline
         workspaces:
           - name: pipeline-ws
             emptyDir: {}
@@ -86,7 +111,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: open-data-hub-files-update-triggerbinding
+  name: strimzi-deployment-image-update-triggerbinding
   labels:
     project: tealc
 spec:
@@ -98,17 +123,17 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: open-data-hub-files-update-event-listener
+  name: strimzi-image-update-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
   triggers:
-    - name: open-data-hub-files-update-webhook
+    - name: strimzi-deployment-image-update-webhook
       bindings:
-        - ref: open-data-hub-files-update-triggerbinding
+        - ref: strimzi-deployment-image-update-triggerbinding
       template:
-        ref: open-data-hub-files-update-trigger-template
+        ref: strimzi-deployment-image-update-trigger-template
   resources:
     kubernetesResource:
       spec:
@@ -124,13 +149,13 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: el-open-data-hub-files-update-event-listener
+  name: el-strimzi-image-update-event-listener
   labels:
     project: tealc
 spec:
   to:
     kind: Service
-    name: el-open-data-hub-files-update-event-listener
+    name: el-strimzi-image-update-event-listener
     weight: 100
   port:
     targetPort: http-listener

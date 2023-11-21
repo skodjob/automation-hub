@@ -45,7 +45,15 @@ spec:
         - name: webhook-secret
           value: webhook-secret
         - name: message
-          value: "Pipeline `$(context.pipeline.name)`:`$(context.pipelineRun.name)` failed!"
+          value: "PipelineRun `$(context.pipelineRun.name)` failed!"
+        - name: title
+          value: "$(context.pipeline.name)"
+        - name: color
+          value: "#FF0000"
+        - name: button_url
+          value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
+        - name: button_text
+          value: "Pipeline :tekton:"
 ---
 
 apiVersion: polling.tekton.dev/v1alpha1

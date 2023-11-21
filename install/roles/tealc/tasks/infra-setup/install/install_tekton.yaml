@@ -82,9 +82,12 @@
   delay: 5
 
 - name: Install slack task
-  shell: "oc apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/send-to-webhook-slack/0.1/raw --namespace {{ infra_ci_namespace }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: present
+    namespace: "{{ infra_ci_namespace }}"
+    verify_ssl: no
+    src: templates/tekton/install/tekton-slack-task.yaml
   retries: 20
   delay: 5
 
