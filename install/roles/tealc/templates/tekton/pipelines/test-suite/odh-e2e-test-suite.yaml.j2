@@ -72,8 +72,8 @@ spec:
           value: "PipelineRun `$(context.pipelineRun.name)` failed!"
         - name: title
           value: "$(context.pipeline.name)"
-        - name: color
-          value: "#FF0000"
+        - name: status
+          value: "$(tasks.status)"
         - name: button_url
           value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
         - name: button_text

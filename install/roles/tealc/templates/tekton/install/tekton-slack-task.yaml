@@ -24,9 +24,9 @@ spec:
     - name: title
       type: string
       description: plain text title
-    - name: color
+    - name: status
       type: string
-      description: color code
+      description: Status of the reported task
       default: '#439FE0'
     - name: button_url
       type: string
@@ -39,8 +39,19 @@ spec:
       image: quay.io/tealc/tealc-ee:latest
       script: |
         #!/usr/bin/env sh
-        #MESSAGE=$(echo "${MESSAGE}" | sed -e 's/\"/\\\\"/g')
-        #BOTNAME=$(echo "${BOTNAME}" | sed -e 's/\"/\\\\"/g')
+
+        # Default color is blue
+        COLOR="#439FE0"
+        if [ "$STATUS" = "Failed" ]; then
+          # Set red color
+          COLOR="#FF0000"
+        elif [ "$STATUS" = "Succeeded" ]; then 
+          # Green
+          COLOR="#008000"
+        fi
+        echo "Status: $STATUS"
+        echo "Used color: $COLOR"
+        
         JSON="{\"attachments\":[{\"color\":\"${COLOR}\",\"blocks\":[{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":\"${TITLE}\",\"emoji\":true}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${MESSAGE}\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"${BUTTON_TEXT}\",\"emoji\":true},\"url\":\"${BUTTON_URL}\"}]}]}]}"
         curl -X POST -H 'Content-Type: application/json' --data "${JSON}" "${URL}"
       env:
@@ -53,8 +64,8 @@ spec:
           value: $(params.title)
         - name: MESSAGE
           value: $(params.message)
-        - name: COLOR
-          value: $(params.color)
+        - name: STATUS
+          value: $(params.status)
         - name: BUTTON_URL
           value: $(params.button_url)
         - name: BUTTON_TEXT
