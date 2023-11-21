@@ -59,7 +59,7 @@ data:
     set -x
     set -e
     
-    wget https://raw.githubusercontent.com/ExcelentProject/sokar/main/strimzi/zookeeper-mode/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
+    wget https://raw.githubusercontent.com/skodjob/sokar/main/strimzi/zookeeper-mode/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
     DIGEST_OPERATOR=$(skopeo inspect docker://quay.io/strimzi/operator:latest | jq -r '.Digest' )
     
     if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
