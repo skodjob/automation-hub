@@ -4,10 +4,10 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    src: "{{ item }}"
+    template: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob: 'templates/tekton/pipelines/strimzi-deployment/*.yaml'
+  with_fileglob: 'templates/tekton/pipelines/strimzi-deployment/*.yaml*'
 
 - name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
@@ -20,4 +20,4 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "templates/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"
+    template: "templates/tekton/pipelines/strimzi-deployment/run/pipeline-runs.yaml"

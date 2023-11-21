@@ -1,5 +1,5 @@
 ---
-- name: Create infra/worker cluster related Tekton pipelines
+- name: Create Tekton pipelines cleaner cron job
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
@@ -7,7 +7,19 @@
     src: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob: 'templates/tekton/pipelines/infra/*.yaml'
+  with_fileglob: 'templates/tekton/pipelines/cleaner/*.yaml'
+
+- name: Create infra/worker cluster related Tekton pipelines
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    template: "templates/tekton/pipelines/infra/{{ item }}"
+    verify_ssl: no
+    apply: true
+  loop:
+    - secret-copy.yaml.j2
+    - tealc-install.yaml.j2
 
 - name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
@@ -44,7 +56,7 @@
     state: present
     verify_ssl: no
     apply: true
-    src: "templates/tekton/pipelines/test-suite/metrics-collector.yaml"
+    template: "templates/tekton/pipelines/test-suite/metrics-collector.yaml"
 
 - name: "Rollout collector"
   shell: "oc rollout restart deployment/tealc-metrics-collector -n {{ infra_ci_namespace }}"

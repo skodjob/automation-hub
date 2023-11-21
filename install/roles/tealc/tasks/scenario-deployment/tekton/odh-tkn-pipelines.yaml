@@ -7,7 +7,7 @@
     src: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob: 'templates/tekton/pipelines/open-data-hub/*.yaml'
+  with_fileglob: 'templates/tekton/pipelines/open-data-hub/*.yaml*'
 
 - name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
