@@ -135,7 +135,7 @@ stringData:
       - name: 'strimzi'
         slack_configs:
         - channel: '#tealc-alerts-strimzi'
-           api_url: {{ slack_api_alerts_strimzi_url }}
+          api_url: {{ slack_api_alerts_strimzi_url }}
           color: '{% raw %}{{ template "slack.color" . }}{% endraw %}'
           title: '{% raw %}{{ template "slack.title" . }}{% endraw %}'
           text: '{% raw %}{{ template "slack.text" . }}{% endraw %}'
