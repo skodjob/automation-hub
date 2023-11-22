@@ -1,12 +1,12 @@
 ---
 - name: Get cluster ID of {{ worker.name }}
-  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   register: "get_cluster_id_out"
 
 - name: Get image name of {{ worker.name }}
-  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   register: "get_image_out"
@@ -30,7 +30,7 @@
     clusterImage: "{{ get_image_out.stdout }}"
 
 - name: Wait for MachineSets readiness - {{ worker.name }}
-  shell: "oc get machineset -n openshift-machine-api {{ worker.name }}-{{ machine_pool.node_type }}-worker-0 -o=jsonpath='{.status.readyReplicas}'"
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api {{ worker.name }}-{{ machine_pool.node_type }}-worker-0 -o=jsonpath='{.status.readyReplicas}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   loop: "{{ worker.machine_pools }}"
