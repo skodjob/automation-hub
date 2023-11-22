@@ -12,17 +12,9 @@
   register: "get_image_out"
 
 - name: Patch original worker machine set
-  kubernetes.core.k8s_json_patch:
-    kind: machinesets.machine.openshift.io
-    api_version: v1beta1
-    namespace: "openshift-machine-api"
-    verify_ssl: no
-    name: "{{ get_cluster_id_out.stdout }}-worker-0"
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    patch:
-      - op: replace
-        path: /spec/replicas
-        value: 5
+  shell: "oc patch machinesets.machine.openshift.io {{ get_cluster_id_out.stdout }}-worker-0 -n openshift-machine-api --type=merge -p '{\"spec\":{\"replicas\":5}}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
 - name: Create new machine sets on Infra cluster
   kubernetes.core.k8s:
