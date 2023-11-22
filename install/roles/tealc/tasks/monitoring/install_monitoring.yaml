@@ -185,7 +185,8 @@
     clusterName: "{{ clusterName }}"
     namespace: "openshift-monitoring"
     suffix: "main"
-    receiver: "slack"
+    receiver_infra: "tealc-infra"
+    receiver_strimzi: "strimzi"
   loop: "{{ worker_clusters }}"
   loop_control:
     loop_var: clusterName
