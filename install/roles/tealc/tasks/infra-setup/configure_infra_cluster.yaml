@@ -1,12 +1,12 @@
 ---
 - name: Get cluster ID - Infra
-  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "get_cluster_id_out"
 
 - name: Get image name - Infra
-  shell: "oc get machineset -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
   register: "get_image_out"

@@ -7,11 +7,11 @@ EXPECT_WORKER_NODES_COUNT=12
 echo "Worker node count: ${WORKER_NODES_COUNT}"
 
 if [ ${WORKER_NODES_COUNT} -lt ${EXPECT_WORKER_NODES_COUNT} ]; then
-  MS_NAME=$(oc get machinesets -n openshift-machine-api -o=jsonpath='{.items[0].metadata.name}')
+  MS_NAME=$(oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].metadata.name}')
   NODE_DIFF=$((${EXPECT_WORKER_NODES_COUNT} - ${WORKER_NODES_COUNT}))
-  CUR_MS_REP=$(oc get machinesets ${MS_NAME} -n openshift-machine-api -o=jsonpath='{.spec.replicas}')
+  CUR_MS_REP=$(oc get machinesets.machine.openshift.io ${MS_NAME} -n openshift-machine-api -o=jsonpath='{.spec.replicas}')
   NEW_REP=$(($NODE_DIFF + $CUR_MS_REP))
-  oc patch machinesets ${MS_NAME} -n openshift-machine-api --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
+  oc patch machinesets.machine.openshift.io ${MS_NAME} -n openshift-machine-api --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/replicas\", \"value\":${NEW_REP}}]"
   sleep 60
 fi
 
