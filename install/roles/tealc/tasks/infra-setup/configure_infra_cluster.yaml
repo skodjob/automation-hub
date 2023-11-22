@@ -13,7 +13,7 @@
 
 - name: Patch original worker machine set
   kubernetes.core.k8s_json_patch:
-    kind: MachineSet
+    kind: machinesets.machine.openshift.io
     api_version: v1beta1
     namespace: "openshift-machine-api"
     verify_ssl: no
