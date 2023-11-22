@@ -167,7 +167,8 @@
     clusterName: "{{ infra_context_name }}"
     namespace: "{{ item.namespace }}"
     suffix: "{{ item.suffix }}"
-    receiver: "{{ item.receiver }}"
+    receiver_infra: "{{ item.receiver_infra }}"
+    receiver_strimzi: "{{ item.receiver_strimzi }}"
   loop:
     # Turn off notifications from Thanos alert manager because the one from original monitoring stack is better configured now for user alerts
     - {namespace: "open-cluster-management-observability", suffix: "config", receiver_infra: "default_blackhole", receiver_strimzi: "default_blackhole"}
