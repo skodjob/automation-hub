@@ -1,0 +1,33 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+    - name: superadmin
+      mappingMethod: claim
+      type: HTPasswd
+      htpasswd:
+        fileData:
+          name: superadmin-secret
+
+{% if sso_ca_name is defined %}
+    - mappingMethod: claim
+      name: openid
+      openID:
+        ca:
+          name: {{ sso_ca_name }}
+        claims:
+          email:
+            - email
+          name:
+            - name
+          preferredUsername:
+            - preferred_username
+        clientID: ocp
+        clientSecret:
+          name: {{ sso_ocp_client_secret }}
+        extraScopes: []
+        issuer: https://keycloak-tealc-sso.apps.{{ infra_context_name }}.{{ cluster_domain }}/auth/realms/tealc-realm
+      type: OpenID
+{% endif %}

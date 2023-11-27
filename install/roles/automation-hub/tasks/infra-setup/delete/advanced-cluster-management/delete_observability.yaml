@@ -1,0 +1,26 @@
+---
+- name: "Delete multicluster observability on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_observability_namespace }}"
+    state: absent
+    template: templates/acm/07-multicluster-observability.yaml.j2
+    verify_ssl: no
+  register: observability_setup
+
+- name: "Delete Thanos storage secret on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_observability_namespace }}"
+    state: absent
+    template: templates/acm/06-thanos-storage-secret.yaml.j2
+    verify_ssl: no
+
+- name: "Delete {{ acm_observability_namespace }} namespace on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ acm_observability_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: absent

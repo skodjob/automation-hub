@@ -1,0 +1,77 @@
+---
+- name: Get cluster ID of {{ worker.name }}
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.serverMetadata.openshiftClusterID}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "get_cluster_id_out"
+
+- name: Get image name of {{ worker.name }}
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api -o=jsonpath='{.items[0].spec.template.spec.providerSpec.value.image}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  register: "get_image_out"
+
+- name: Create new machine sets on {{ worker.name }}
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "openshift-machine-api"
+    state: present
+    verify_ssl: no
+    template: templates/worker-machine-sets.yaml.j2
+  loop: "{{ worker.machine_pools }}"
+  loop_control:
+    loop_var: machine_pool
+  vars:
+    node_type: "{{ machine_pool.node_type }}"
+    node_flavor: "{{ machine_pool.node_flavor }}"
+    node_replicas: "{{ machine_pool.node_replicas }}"
+    clusterName: "{{ worker.name }}"
+    clusterId: "{{ get_cluster_id_out.stdout }}"
+    clusterImage: "{{ get_image_out.stdout }}"
+
+- name: Wait for MachineSets readiness - {{ worker.name }}
+  shell: "oc get machinesets.machine.openshift.io -n openshift-machine-api {{ worker.name }}-{{ machine_pool.node_type }}-worker-0 -o=jsonpath='{.status.readyReplicas}'"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+  loop: "{{ worker.machine_pools }}"
+  loop_control:
+    loop_var: machine_pool
+  register: machine_pool_status
+  until: machine_pool_status.stdout | int == machine_pool.node_replicas
+  retries: 30
+  delay: 60
+
+- name: Apply chrony configuration on {{ worker.name }}
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    state: present
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/chrony/99-master-chrony.yaml.j2
+    - templates/chrony/99-worker-chrony.yaml.j2
+
+- name: Create worker machines health check on {{ worker.name }}
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    state: present
+    verify_ssl: no
+    template: "templates/worker-nodes-health-check.yaml.j2"
+  loop: "{{ worker.machine_pools }}"
+  loop_control:
+    loop_var: machine_pool
+  vars:
+    node_type: "{{ machine_pool.node_type }}"
+    max_unhealthy: "{{ machine_pool.max_unhealthy }}"
+    clusterName: "{{ worker.name }}"
+    clusterId: "{{ get_cluster_id_out.stdout }}"
+
+- name: "Set anonymous pull rights on {{ worker.name }}"
+  shell: "oc patch --type=merge --patch='{ \"spec\": { \"registrySources\": { \"insecureRegistries\": [ \"default-route-openshift-image-registry.apps.{{ worker.name }}.{{ cluster_domain }}\" ] } } }' image.config.openshift.io/cluster"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+
+- name: "Set anonymous pull rights on {{ worker.name }}"
+  shell: "oc adm policy add-cluster-role-to-group registry-viewer system:unauthenticated --rolebinding-name=anonymous-registry-pull"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"

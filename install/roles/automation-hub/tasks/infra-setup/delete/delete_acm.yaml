@@ -1,0 +1,12 @@
+---
+- include_tasks:
+    file: advanced-cluster-management/delete_observability.yaml
+
+- include_tasks:
+    file: advanced-cluster-management/unregister_clusters.yaml
+  loop: "{{ worker_clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- include_tasks:
+    file: advanced-cluster-management/delete_acm.yaml

@@ -1,0 +1,67 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonConfig
+metadata:
+  name: config
+  labels:
+    project: tealc
+spec:
+  profile: all
+  targetNamespace: openshift-pipelines
+  dashboard:
+    readonly: false
+  pipeline:
+    default-timeout-minutes: 150
+    await-sidecar-readiness: true
+    default-service-account: pipeline
+    disable-affinity-assistant: true
+    embedded-status: full
+    enable-api-fields: stable
+    enable-bundles-resolver: true
+    enable-cluster-resolver: true
+    enable-custom-tasks: true
+    enable-git-resolver: true
+    enable-hub-resolver: true
+    metrics.pipelinerun.duration-type: histogram
+    metrics.pipelinerun.level: pipeline
+    metrics.taskrun.duration-type: histogram
+    metrics.taskrun.level: task
+    params:
+      - name: enableMetrics
+        value: "true"
+  addon:
+    params:
+      - name: clusterTasks
+        value: "true"
+      - name: pipelineTemplates
+        value: "true"
+      - name: communityClusterTasks
+        value: "true"
+  params:
+    - name: createRbacResource
+      value: "true"
+  platforms:
+    openshift:
+      pipelinesAsCode:
+        enable: true
+        settings:
+          application-name: Pipelines as Code CI
+          auto-configure-new-github-repo: "false"
+          bitbucket-cloud-check-source-ip: "true"
+          error-detection-from-container-logs: "false"
+          error-detection-max-number-of-lines: "50"
+          error-detection-simple-regexp: ^(?P<filename>[^:]*):(?P<line>[0-9]+):(?P<column>[0-9]+):([
+            ]*)?(?P<error>.*)
+          error-log-snippet: "true"
+          hub-catalog-name: tekton
+          hub-url: https://api.hub.tekton.dev/v1
+          remote-tasks: "true"
+          secret-auto-create: "true"
+          secret-github-app-token-scoped: "true"
+  trigger:
+    default-service-account: pipeline
+  pruner:
+    resources:
+      - pipelinerun
+      - taskrun
+    keep: 10
+    schedule: "0 8 * * *"

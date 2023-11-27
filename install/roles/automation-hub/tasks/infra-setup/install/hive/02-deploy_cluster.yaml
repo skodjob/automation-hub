@@ -1,0 +1,121 @@
+###############
+# Create FIPs #
+###############
+- name: "Create FIP API"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} API' -f value -c floating_ip_address {{ cluster.openstack_network }}"
+  environment:
+    OS_CLOUD: "{{ cluster.cloud }}"
+  register: "fip_api_output"
+  when: cluster.fip_api is undefined
+
+- name: "Create FIP apps"
+  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} APPS' -f value -c floating_ip_address {{ cluster.openstack_network }}"
+  environment:
+    OS_CLOUD: "{{ cluster.cloud }}"
+  register: "fip_apps_output"
+  when: cluster.fip_apps is undefined
+
+- name: "Set fip_api value"
+  set_fact:
+    fip_api: "{{ cluster.fip_api }}"
+  when: cluster.fip_apps is defined
+
+- name: "Set fip_api value"
+  set_fact:
+    fip_api: "{{ fip_api_output.stdout }}"
+  when: cluster.fip_api is undefined
+
+- name: "Set fip_apps value"
+  set_fact:
+    fip_apps: "{{ cluster.fip_apps }}"
+  when: cluster.fip_apps is defined
+
+- name: "Set fip_apps value"
+  set_fact:
+    fip_apps: "{{ fip_apps_output.stdout }}"
+  when: cluster.fip_apps is undefined
+
+#############################
+# Create DNS records in AWS #
+#############################
+- name: "Prepare AWS DNS command for API of {{ cluster.name }}"
+  vars:
+    action: "UPSERT"
+    record_prefix: "api"
+    fip: "{{ fip_api }}"
+  template:
+    src: "templates/hive/aws_record.json.j2"
+    dest: "aws_record"
+- name: "Update DNS record for API of {{ cluster.name }}"
+  shell: "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_secret['aws_access_key_id'] }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret['aws_secret_access_key'] }}"
+    AWS_DEFAULT_REGION: "us-west-2"
+
+- name: "Prepare AWS DNS command for APPS of {{ cluster.name }}"
+  vars:
+    action: "UPSERT"
+    record_prefix: "*.apps"
+    fip: "{{ fip_apps }}"
+  template:
+    src: "templates/hive/aws_record.json.j2"
+    dest: "aws_record"
+- name: "Update DNS record for APPS of {{ cluster.name }}"
+  shell: "aws route53 change-resource-record-sets --hosted-zone-id {{ hosted_zone_id }} --change-batch file://aws_record --output json"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_secret['aws_access_key_id'] }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret['aws_secret_access_key'] }}"
+    AWS_DEFAULT_REGION: "us-west-2"
+
+###############################
+# Create InstallConfig secret #
+###############################
+- name: "Create InstallConfig secret for {{ cluster.name }}"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ hive_namespace }}"
+    apply: true
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "{{ install_config_name }}"
+      data:
+        install-config.yaml: "{{ lookup('template', 'templates/hive/install-config.yaml.j2' ) | b64encode }}"
+  vars:
+    install_config_name: "{{ cluster.name }}-install-config"
+
+############################
+# Create ClusterDeployment #
+############################
+# This is not working properly - https://issues.redhat.com/browse/HIVE-2308
+# - name: "Create {{ clusterName }} MachinePool"
+#  kubernetes.core.k8s:
+#    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+#    namespace: "{{ hive_namespace }}"
+#    state: present
+#    apply: true
+##    template: templates/hive/machine-pool.yaml.j2
+#    template: ../../../templates/hive/machine-pool.yaml.j2
+#    verify_ssl: no
+#  loop: "{{ cluster_machine_pools }}"
+#  loop_control:
+#    loop_var: machine_pool
+#  vars:
+#    node_type: "{{ machine_pool.node_type }}"
+#    node_flavor: "{{ machine_pool.node_flavor }}"
+#    node_replicas: "{{ machine_pool.node_replicas }}"
+
+- name: "Create {{ cluster.name }} ClusterDeployment config"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ hive_namespace }}"
+    state: present
+    apply: true
+    template: templates/hive/cluster-provision.yaml.j2
+    verify_ssl: no
+  vars:
+    install_config_name: "{{ cluster.name }}-install-config"

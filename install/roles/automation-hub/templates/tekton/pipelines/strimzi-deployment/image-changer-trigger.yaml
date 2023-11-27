@@ -1,0 +1,68 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: image-changer-trigger
+  labels:
+    project: tealc
+spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: workspace
+              emptyDir: {}
+            - name: configmap-volume
+              configMap:
+                defaultMode: 0755
+                name: strimzi-image-changer
+          containers:
+            - name: trigger
+              image: quay.io/tealc/apophis:latest
+              command:
+                - /workspace/entrypoint.sh
+              volumeMounts:
+                - mountPath: /workspace
+                  name: workspace
+                - name: configmap-volume
+                  mountPath: /workspace/entrypoint.sh
+                  readOnly: true
+                  subPath: entrypoint.sh
+              env:
+                - name: WORKSPACE
+                  value: "/workspace"
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+          restartPolicy: Never
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strimzi-image-changer
+  labels:
+    project: tealc
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    
+    set -x
+    set -e
+    
+    wget https://raw.githubusercontent.com/skodjob/sokar/main/strimzi/zookeeper-mode/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml -O "${WORKSPACE}"/deployment-operator.yaml
+    DIGEST_OPERATOR=$(skopeo inspect docker://quay.io/strimzi/operator:latest | jq -r '.Digest' )
+    
+    if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
+      echo "[INFO] Going to trigger Operator images update"
+      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
+    fi

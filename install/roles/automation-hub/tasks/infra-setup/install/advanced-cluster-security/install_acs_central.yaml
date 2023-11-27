@@ -1,0 +1,60 @@
+---
+- name: "Get signed certificate"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.crt"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: fullchain_certificate_out
+
+- name: "Get signed certificate key"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.key"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: key_certificate_out
+
+- name: "Create secret with CRT"
+  kubernetes.core.k8s:
+    namespace: "{{ acs_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: central-default-tls-secret
+      data:
+        tls.crt: "{{ fullchain_certificate_out.stdout | b64encode }}"
+        tls.key: "{{ key_certificate_out.stdout | b64encode }}"
+      type: "kubernetes.io/tls"
+    apply: yes
+
+- name: "Create central on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acs_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/acs/02-central.yaml.j2
+  register: acs_central
+
+- name: Sleep for 30 seconds and continue with play
+  wait_for:
+    timeout: 30
+  when: acs_central.changed
+
+- name: "Wait for Central custom resource on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acs_namespace }}"
+    kind: Central
+    api_version: platform.stackrox.io/v1alpha1
+    name: stackrox-central-services
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Deployed
+      status: True
+      reason: UpgradeSuccessful
+  retries: 60
+  delay: 10

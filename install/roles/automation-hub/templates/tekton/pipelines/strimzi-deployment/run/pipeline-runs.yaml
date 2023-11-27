@@ -1,0 +1,22 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: strimzi-deployment-image-update-start
+  labels:
+    app: tealc
+    project: tealc
+spec:
+  pipelineRef:
+    name: strimzi-deployment-image-update-pipeline
+  workspaces:
+    - name: pipeline-ws
+      volumeClaimTemplate:
+        metadata:
+          name: strimzi-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 500Mi

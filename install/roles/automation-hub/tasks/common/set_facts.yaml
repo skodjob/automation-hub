@@ -1,0 +1,32 @@
+---
+- set_fact:
+    worker_clusters: []
+
+- set_fact:
+    clusters_dict: {}
+
+- name: Build worker cluster list
+  set_fact:
+    worker_clusters: "{{ worker_clusters + [ item.name ] }}"
+  loop: "{{ workers }}"
+
+- name: Add infra-cluster to cluster list
+  set_fact:
+    clusters: "{{ [ infra_context_name ] + worker_clusters }}"
+
+- name: Show generated cluster list
+  debug:
+    msg: "{{ clusters }}"
+
+- name: Generate clients dict
+  set_fact:
+    clusters_dict: "{{ clusters_dict | default({}) | combine({ item['name']: value }) }}"
+  loop: "{{ workers }}"
+  vars:
+    keys: "{{ item.keys() }}"
+    vals: "{{ keys | map('extract', item) | list }}"
+    value: "{{ dict(keys | zip(vals)) }}"
+
+- name: Show generated cluster dict
+  debug:
+    msg: "{{ clusters_dict }}"

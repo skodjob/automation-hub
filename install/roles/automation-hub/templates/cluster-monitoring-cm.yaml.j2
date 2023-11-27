@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+  labels:
+    project: tealc
+data:
+  config.yaml: |
+    enableUserWorkload: true
+    prometheusK8s:
+      externalLabels:
+        clusterName: {{ clusterName }}
+        prometheus_pod: $(POD_NAME)
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard-csi
+          resources:
+            requests:
+              storage: 100Gi
