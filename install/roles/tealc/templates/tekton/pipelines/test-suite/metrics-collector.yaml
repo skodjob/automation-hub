@@ -35,7 +35,7 @@ spec:
     metadata:
       labels:
         app: tealc-metrics-collector
-        tealc/kind: thor-exporter
+        tealc/kind: strimzi-e2e-exporter
     spec:
       serviceAccountName: tealc-metrics-collector
       containers:
@@ -58,11 +58,11 @@ kind: PodMonitor
 metadata:
   labels:
     app: tealc
-  name: thor-metrics
+  name: strimzi-e2e-metrics
 spec:
   podMetricsEndpoints:
     - path: /metrics
       port: metrics
   selector:
     matchLabels:
-      tealc/kind: thor-exporter
+      tealc/kind: strimzi-e2e-exporter

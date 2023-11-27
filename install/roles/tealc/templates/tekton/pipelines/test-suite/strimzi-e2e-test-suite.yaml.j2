@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: thor-test-suite-pipeline
+  name: strimzi-e2e-test-suite-pipeline
   labels:
     project: tealc
   annotations:
@@ -10,7 +10,7 @@ spec:
   workspaces:
     - name: pipeline-ws
   tasks:
-    - name: thor
+    - name: strimzi-e2e
       workspaces:
         - name: pipeline-ws
           workspace: pipeline-ws
@@ -54,9 +54,9 @@ spec:
             script: |
               cd $(workspaces.pipeline-ws.path)
 
-              git clone https://github.com/skodjob/thor.git
+              git clone https://github.com/skodjob/strimzi-e2e.git
 
-              cd thor
+              cd strimzi-e2e
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
               mvn test --no-transfer-progress
   finally:
@@ -71,7 +71,7 @@ spec:
           - name: sent-results
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
             script: |
-              cd $(workspaces.pipeline-ws.path)/thor/target/surefire-reports
+              cd $(workspaces.pipeline-ws.path)/strimzi-e2e/target/surefire-reports
               for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
     - name: notify-slack
       when:
@@ -98,7 +98,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: thor-test-suite-trigger-template
+  name: strimzi-e2e-test-suite-trigger-template
   labels:
     project: tealc
 spec:
@@ -106,17 +106,17 @@ spec:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: thor-test-suite-
+        generateName: strimzi-e2e-test-suite-
         labels:
           app: tealc
       spec:
         pipelineRef:
-          name: thor-test-suite-pipeline
+          name: strimzi-e2e-test-suite-pipeline
         workspaces:
           - name: pipeline-ws
             volumeClaimTemplate:
               metadata:
-                name: thor-test-suite-pipeline-pvc
+                name: strimzi-e2e-test-suite-pipeline-pvc
               spec:
                 accessModes:
                   - ReadWriteOnce
@@ -128,7 +128,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: thor-test-suite-triggerbinding
+  name: strimzi-e2e-test-suite-triggerbinding
   labels:
     project: tealc
 spec:
@@ -140,17 +140,17 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: thor-test-suite-event-listener
+  name: strimzi-e2e-test-suite-event-listener
   labels:
     listener: tealc
     project: tealc
 spec:
   triggers:
-    - name: thor-test-suite-webhook
+    - name: strimzi-e2e-test-suite-webhook
       bindings:
-        - ref: thor-test-suite-triggerbinding
+        - ref: strimzi-e2e-test-suite-triggerbinding
       template:
-        ref: thor-test-suite-trigger-template
+        ref: strimzi-e2e-test-suite-trigger-template
   resources:
     kubernetesResource:
       spec:
@@ -167,7 +167,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: thor-test-suite-cron
+  name: strimzi-e2e-test-suite-cron
   labels:
     project: tealc
 spec:
@@ -187,5 +187,5 @@ spec:
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-thor-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
+                - el-strimzi-e2e-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
           restartPolicy: Never
