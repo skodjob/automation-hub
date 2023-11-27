@@ -1,0 +1,65 @@
+---
+# For more info see https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html/observability/observing-environments-intro
+- name: "Create {{ acm_observability_namespace }} namespace on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    name: "{{ acm_observability_namespace }}"
+    api_version: v1
+    kind: Namespace
+    verify_ssl: no
+    state: present
+
+- name: "Create Thanos storage secret on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_observability_namespace }}"
+    state: present
+    apply: true
+    template: templates/acm/06-thanos-storage-secret.yaml.j2
+    verify_ssl: no
+
+- name: "Create multicluster observability on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_observability_namespace }}"
+    state: present
+    apply: true
+    template: "{{ item }}"
+    verify_ssl: no
+  loop:
+    - templates/acm/07-multicluster-observability.yaml.j2
+    - templates/acm/08-extend-default-metrics-allowlist.yaml.j2
+  register: observability_setup
+
+- name: Sleep for 5 seconds and continue with play
+  wait_for:
+    timeout: 5
+  when: observability_setup.changed
+
+- name: "Wait for MultiClusterObservability custom resource on Infra cluster"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ acm_namespace }}"
+    api_version: observability.open-cluster-management.io/v1beta2
+    kind: MultiClusterObservability
+    name: observability
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Ready
+      status: True
+      reason: Ready
+  retries: 60
+  delay: 10
+
+- name: "Create multicluster observability config map for custom metrics on {{ worker.name }} cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "kube-system"
+    state: present
+    apply: true
+    template: "templates/acm/08-extend-default-metrics-allowlist.yaml.j2"
+    verify_ssl: no
+  loop: "{{ clusters_dict }}"
+  loop_control:
+    loop_var: worker

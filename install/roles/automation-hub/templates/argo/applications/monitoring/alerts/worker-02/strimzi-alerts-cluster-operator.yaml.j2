@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-cluster-operator-{{ cluster }}
+  labels:
+    project: tealc
+    app: strimzi
+spec:
+  project: monitoring
+  source:
+    repoURL: https://github.com/skodjob/sokar
+    targetRevision: HEAD
+    path: metrics/alerts/strimzi-operator
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        project: tealc
+  destination:
+    name: {{ cluster }}
+    namespace: openshift-operators

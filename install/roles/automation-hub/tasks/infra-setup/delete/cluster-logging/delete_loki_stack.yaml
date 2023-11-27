@@ -1,0 +1,44 @@
+---
+- name: "Delete Loki stack on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: absent
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/loki/03-loki-stack.yaml.j2
+    - templates/logging/install/loki/04-grafana-access.yaml.j2
+
+- name: "Delete Loki access secret on {{ clusterName }}"
+  kubernetes.core.k8s:
+    state: absent
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    apply: true
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "logging-loki-s3"
+      data:
+        access_key_id: "{{ aws_access_key_id | b64encode }}"
+        access_key_secret: "{{ aws_access_key_secret | b64encode }}"
+        endpoint: "{{ aws_endpoint | b64encode }}"
+        region: "{{ aws_region | b64encode }}"
+        bucketnames: "{{ bucketname | b64encode }}"
+  vars:
+    bucketname: "tealc-{{ clusterName }}-loki"
+
+- name: "Delete Loki subscription on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "openshift-operators-redhat"
+    state: absent
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/loki/01-loki-operator-sub.yaml.j2

@@ -1,0 +1,42 @@
+---
+apiVersion: observability.open-cluster-management.io/v1beta2
+kind: MultiClusterObservability
+metadata:
+  name: observability
+spec:
+  enableDownsampling: true
+  observabilityAddonSpec:
+    enableMetrics: true
+    interval: 60
+  tolerations:
+    - effect: NoSchedule
+      key: nodetype
+      operator: Equal
+      value: monitoring
+  nodeSelector:
+    nodetype: monitoring
+  storageConfig:
+    alertmanagerStorageSize: 5Gi
+    compactStorageSize: 100Gi
+    metricObjectStorage:
+      key: thanos.yaml
+      name: thanos-object-storage
+    receiveStorageSize: 100Gi
+    ruleStorageSize: 10Gi
+    storageClass: standard-csi
+    storeStorageSize: 10Gi
+  # For more info see https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html-single/apis/index
+  advanced:
+    receive:
+      replicas: 3
+      resources:
+        limits:
+          cpu: 4
+          memory: 15Gi
+    retentionConfig:
+      blockDuration: 2h
+      deleteDelay: 48h
+      retentionInLocal: 12h
+      retentionResolutionRaw: 5d
+      retentionResolution5m: 30d
+      retentionResolution1h: 180d

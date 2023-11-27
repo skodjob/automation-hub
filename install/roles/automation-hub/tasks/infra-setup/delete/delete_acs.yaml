@@ -1,0 +1,14 @@
+---
+- include_tasks:
+    file: advanced-cluster-security/unregister_clusters.yaml
+  loop: "{{ worker_clusters }}"
+  loop_control:
+    loop_var: clusterName
+
+- include_tasks:
+    file: advanced-cluster-security/unregister_clusters.yaml
+  vars:
+    clusterName: "{{ infra_context_name }}"
+
+- include_tasks:
+    file: advanced-cluster-security/delete_acs.yaml

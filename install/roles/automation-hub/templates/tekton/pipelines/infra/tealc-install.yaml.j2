@@ -1,0 +1,79 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: tealc-install
+  labels:
+    project: tealc
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: tealc-install
+      timeout: "2h30m0s"
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: tealc-install
+            env:
+              - name: GIT_CRYPT_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: git-crypt-key
+                    key: key
+            image: quay.io/tealc/tealc-ee:latest
+            script: |
+              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/automation-hub
+              git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
+              echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
+              cd $CURRENT_DIR && git crypt unlock crypt-key
+              cd $CURRENT_DIR && ansible-playbook install/automation-hub-play.yaml --tags="infra,strimzi-infra,odh" -v
+  finally:
+    - name: notify-slack
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Failed"]
+      taskRef:
+        name: send-to-webhook-slack
+      params:
+        - name: webhook-secret
+          value: webhook-secret
+        - name: message
+          value: "PipelineRun `$(context.pipelineRun.name)` has status: `$(tasks.status)!`"
+        - name: title
+          value: "$(context.pipeline.name)"
+        - name: status
+          value: "$(tasks.status)"
+        - name: button_url
+          value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
+        - name: button_text
+          value: "Pipeline :tekton:"
+---
+
+apiVersion: polling.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: tealc-repository
+  labels:
+    project: tealc
+spec:
+  url: https://github.com/skodjob/automation-hub.git
+  ref: main
+  frequency: 5m
+  type: github
+  pipelineRef:
+    serviceAccountName: pipeline
+    name: tealc-install
+    workspaces:
+      - name: pipeline-ws
+        emptyDir: {}
+  auth:
+    secretRef:
+      name: github-secret
+    key: TOKEN

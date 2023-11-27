@@ -1,0 +1,125 @@
+---
+- name: Create Argo namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ infra_ci_namespace }}"
+        labels:
+          project: "tealc"
+          secret: "cert-manager"
+
+- name: Create image pull secret on infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    src: "{{ grafana_docker_secret_path }}"
+
+- name: Create argo subscription
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: present
+    verify_ssl: no
+    src: templates/argo/install/sub.yaml
+  register: argo_sub
+
+- name: Sleep for 5 seconds and continue with play
+  wait_for:
+    timeout: 5
+  when: argo_sub.changed
+
+- name: Wait for argo operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ openshift_operators_namespace }}"
+    kind: Deployment
+    name: gitops-operator-controller-manager
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Add proper rights to argocd sa
+  shell: "oc adm policy add-cluster-role-to-user cluster-admin -z {{ infra_argo_namespace }}-argocd-application-controller -n {{ infra_argo_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Add proper rights to dex sa
+  shell: "oc adm policy add-role-to-user admin -z {{ infra_argo_namespace }}-argocd-dex-server -n {{ infra_argo_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Create argo app
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    src: templates/argo/install/argocd.yaml
+    apply: true
+  retries: 20
+  delay: 5
+  register: argo_app
+
+- name: Delete default gitops service
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: absent
+    api_version: v1alpha1
+    kind: GitopsService
+    name: cluster
+    verify_ssl: no
+  retries: 5
+  delay: 5
+
+- name: Sleep for 5 seconds and continue with play
+  wait_for:
+    timeout: 5
+  when: argo_app.changed
+
+- name: Wait for argo server on infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    kind: Deployment
+    name: tealc-gitops-server
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
+
+- name: Wait for argo dex on infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    kind: Deployment
+    name: tealc-gitops-dex-server
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
+
+- name: Create argo app-projects
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    verify_ssl: no
+    src: templates/argo/app-project/app-project.yaml
+    apply: true

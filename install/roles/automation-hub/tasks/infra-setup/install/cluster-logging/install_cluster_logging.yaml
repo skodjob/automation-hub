@@ -1,0 +1,57 @@
+---
+- name: "Create logging namespace on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    state: present
+    verify_ssl: no
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ openshift_logging_namespace }}"
+        labels:
+          'openshift.io/cluster-monitoring': "true"
+
+- name: "Create OpenShift Logging operator group and subscription on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/cluster-logging/00-operator-group.yaml.j2
+    - templates/logging/install/cluster-logging/01-openshift-logging-subscription.yaml.j2
+  register: cluster_logging
+
+- name: Sleep for 5 seconds and continue with play
+  wait_for:
+    timeout: 5
+  when: cluster_logging.changed
+
+- name: "Wait for OpenShift logging operator on {{ clusterName }}"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    kind: Deployment
+    name: cluster-logging-operator
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+  retries: 20
+  delay: 5
+
+- name: "Create OpenShift Logging instance on {{ clusterName }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/logging/install/cluster-logging/02-cluster-logging-instance.yaml.j2

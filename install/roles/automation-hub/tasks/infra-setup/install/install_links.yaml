@@ -1,0 +1,17 @@
+---
+- name: Delete console link for tealc applications
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: absent
+    template: "{{ item }}"
+    verify_ssl: no
+  with_fileglob: 'templates/console-link/*.j2'
+
+- name: Create console link for tealc applications
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: false
+  with_fileglob: 'templates/console-link/*.j2'

@@ -1,0 +1,191 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: strimzi-e2e-test-suite-pipeline
+  labels:
+    project: tealc
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+spec:
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: strimzi-e2e
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: execute-tests
+            image: quay.io/mk-ci-cd/mas-ci-tools:latest
+            env:
+              - name: WORKER_01_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-01-tekton
+                    key: token
+              - name: WORKER_01_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-01-tekton
+                    key: server
+              - name: WORKER_02_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-02-tekton
+                    key: token
+              - name: WORKER_02_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-02-tekton
+                    key: server
+              - name: WORKER_03_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-03-tekton
+                    key: token
+              - name: WORKER_03_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: worker-03-tekton
+                    key: server
+            script: |
+              cd $(workspaces.pipeline-ws.path)
+
+              git clone https://github.com/skodjob/strimzi-e2e.git
+
+              cd strimzi-e2e
+              export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+              mvn test --no-transfer-progress
+  finally:
+    - name: sent-results
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: sent-results
+            image: quay.io/mk-ci-cd/mas-ci-tools:latest
+            script: |
+              cd $(workspaces.pipeline-ws.path)/strimzi-e2e/target/surefire-reports
+              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
+    - name: notify-slack
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Failed"]
+      taskRef:
+        name: send-to-webhook-slack
+      params:
+        - name: webhook-secret
+          value: webhook-secret
+        - name: message
+          value: "PipelineRun `$(context.pipelineRun.name)` has status: `$(tasks.status)!`"
+        - name: title
+          value: "$(context.pipeline.name)"
+        - name: status
+          value: "$(tasks.status)"
+        - name: button_url
+          value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
+        - name: button_text
+          value: "Pipeline :tekton:"
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: strimzi-e2e-test-suite-trigger-template
+  labels:
+    project: tealc
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: strimzi-e2e-test-suite-
+        labels:
+          app: tealc
+      spec:
+        pipelineRef:
+          name: strimzi-e2e-test-suite-pipeline
+        workspaces:
+          - name: pipeline-ws
+            volumeClaimTemplate:
+              metadata:
+                name: strimzi-e2e-test-suite-pipeline-pvc
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 500Mi
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: strimzi-e2e-test-suite-triggerbinding
+  labels:
+    project: tealc
+spec:
+  params:
+    - name: message
+      value: $(body)
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: strimzi-e2e-test-suite-event-listener
+  labels:
+    listener: tealc
+    project: tealc
+spec:
+  triggers:
+    - name: strimzi-e2e-test-suite-webhook
+      bindings:
+        - ref: strimzi-e2e-test-suite-triggerbinding
+      template:
+        ref: strimzi-e2e-test-suite-trigger-template
+  resources:
+    kubernetesResource:
+      spec:
+        template:
+          spec:
+            containers:
+            - resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "50m"
+
+---
+# cron job as trigger
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: strimzi-e2e-test-suite-cron
+  labels:
+    project: tealc
+spec:
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  schedule: "0 */1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: notify
+              image: quay.io/tealc/apophis:latest
+              args:
+                - curl
+                - -d
+                - "{}"
+                - -H
+                - 'Content-Type: application/json'
+                - el-strimzi-e2e-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
+          restartPolicy: Never
