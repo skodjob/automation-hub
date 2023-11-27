@@ -28,11 +28,11 @@ spec:
                     key: key
             image: quay.io/tealc/tealc-ee:latest
             script: |
-              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
-              git clone https://github.com/skodjob/tealc.git $CURRENT_DIR
+              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/automation-hub
+              git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
               echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
               cd $CURRENT_DIR && git crypt unlock crypt-key
-              cd $CURRENT_DIR && ansible-playbook install/tealc-play.yaml --tags="infra,strimzi-infra,odh" -v
+              cd $CURRENT_DIR && ansible-playbook install/automation-hub-play.yaml --tags="infra,strimzi-infra,odh" -v
   finally:
     - name: notify-slack
       when:
@@ -63,7 +63,7 @@ metadata:
   labels:
     project: tealc
 spec:
-  url: https://github.com/skodjob/tealc.git
+  url: https://github.com/skodjob/automation-hub.git
   ref: main
   frequency: 5m
   type: github

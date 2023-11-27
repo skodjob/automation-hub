@@ -1,7 +1,7 @@
 ansible-navigator:
   ansible:
     playbook:
-      path: tealc-play.yaml
+      path: automation-hub-play.yaml
 
   execution-environment:
     enabled: true

@@ -45,7 +45,7 @@ elif [[ -z ${BRANCH} ]]; then
     exit 5
 fi
 
-WORKING_DIR=/tmp/tealc
+WORKING_DIR=/tmp/automation-hub
 
 echo "[INFO] Clearing ${WORKING_DIR}"
 rm -rf ${WORKING_DIR}
