@@ -21,8 +21,8 @@ spec:
           - name: tealc-clone
             image: quay.io/wire/alpine-git
             script: |
-              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
-              git clone https://github.com/skodjob/tealc.git $CURRENT_DIR
+              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/automation-hub
+              git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
           - name: images-update
             env:
               - name: BRANCH
@@ -39,7 +39,7 @@ spec:
                     key: TOKEN
             image: quay.io/tealc/tealc-ee:latest
             script: |
-              $(workspaces.pipeline-ws.path)/tealc/scripts/generate-odh.sh
+              $(workspaces.pipeline-ws.path)/automation-hub/scripts/generate-odh.sh
               echo "[INFO] Done!"
   finally:
     - name: notify-slack

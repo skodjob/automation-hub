@@ -21,8 +21,8 @@ spec:
           - name: tealc-clone
             image: quay.io/wire/alpine-git
             script: |
-              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/tealc
-              git clone https://github.com/skodjob/tealc.git $CURRENT_DIR
+              export CURRENT_DIR=$(workspaces.pipeline-ws.path)/automation-hub
+              git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
           # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
           - name: wait-for-push
             image: quay.io/tealc/apophis:latest
@@ -56,7 +56,7 @@ spec:
                     key: TOKEN
             image: quay.io/tealc/apophis:latest
             script: |
-              $(workspaces.pipeline-ws.path)/tealc/image-update/strimzi-image-update.sh
+              $(workspaces.pipeline-ws.path)/automation-hub/image-update/strimzi-image-update.sh
               echo "[INFO] Done!"
   finally:
     - name: notify-slack

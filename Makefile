@@ -1,7 +1,7 @@
 all: install_infra install_strimzi
 
 install_infra:
-	ansible-playbook install/autmation-hub-play.yaml --tags=infra
+	ansible-playbook install/automation-hub-play.yaml --tags=infra
 
 install_strimzi:
 	ansible-playbook install/automation-hub-play.yaml --tags=strimzi-infra
