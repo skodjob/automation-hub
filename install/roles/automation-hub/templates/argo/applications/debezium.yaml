@@ -7,7 +7,7 @@ spec:
     - matrix:
         generators:
           - git:
-              repoURL: https://github.com/skodjob/sokar
+              repoURL: https://github.com/skodjob/deployment-hub
               revision: HEAD
               files:
                 - path: "debezium/**[^mongo|mongo\\-operator]**/argo-config.yaml"
@@ -24,7 +24,7 @@ spec:
     spec:
       project: debezium
       source:
-        repoURL: https://github.com/skodjob/sokar
+        repoURL: https://github.com/skodjob/deployment-hub
         targetRevision: HEAD
         path: '{{source}}'
         directory:
