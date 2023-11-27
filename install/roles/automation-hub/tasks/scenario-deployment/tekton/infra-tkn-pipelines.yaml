@@ -19,7 +19,7 @@
     apply: true
   loop:
     - secret-copy.yaml.j2
-    - tealc-install.yaml.j2
+    - automation-hub-install.yaml.j2
 
 - name: Sleep for 5 seconds and continue with play (wait tull everything is setup)
   wait_for:
