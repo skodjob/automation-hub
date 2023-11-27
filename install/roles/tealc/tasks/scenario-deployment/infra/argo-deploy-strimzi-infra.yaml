@@ -1,9 +1,0 @@
----
-- name: Create Argo applications for Strimzi infra and clients
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    apply: true
-    src: "templates/argo/applications/strimzi-infra.yaml"
-    verify_ssl: no
