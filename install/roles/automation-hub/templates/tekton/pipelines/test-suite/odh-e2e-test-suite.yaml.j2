@@ -45,19 +45,19 @@ spec:
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
               mvn verify -Pcontinuous  --settings ./settings.xml
   finally:
-    #- name: sent-results
-    #  workspaces:
-    #    - name: pipeline-ws
-    #      workspace: pipeline-ws
-    #  taskSpec:
-    #    workspaces:
-    #      - name: pipeline-ws
-    #    steps:
-    #      - name: sent-results
-    #        image: quay.io/mk-ci-cd/mas-ci-tools:latest
-    #        script: |
-    #          cd $(workspaces.pipeline-ws.path)/odh-e2e/target/surefire-reports
-    #          for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file tealc-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
+    - name: sent-results
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+      taskSpec:
+        workspaces:
+          - name: pipeline-ws
+        steps:
+          - name: sent-results
+            image: quay.io/mk-ci-cd/mas-ci-tools:latest
+            script: |
+              cd $(workspaces.pipeline-ws.path)/odh-e2e/target/failsafe-reports
+              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file odh-e2e-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
     - name: notify-slack
       when:
         - input: $(tasks.status)
