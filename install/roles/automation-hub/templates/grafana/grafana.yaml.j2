@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   labels:
     config.openshift.io/inject-trusted-cabundle: "true"
+    app: grafana
+    project: skodjob
   name: ocp-injected-certs
 ---
 apiVersion: v1
@@ -12,12 +14,18 @@ data:
 kind: Secret
 metadata:
   name: grafana-proxy
+  labels:
+    app: grafana
+    project: skodjob
 type: Opaque
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: grafana-proxy
+  labels:
+    app: grafana
+    project: skodjob
 rules:
   - verbs:
       - create
@@ -36,6 +44,9 @@ apiVersion: authorization.openshift.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: grafana-proxy
+  labels:
+    app: grafana
+    project: skodjob
 roleRef:
   kind: ClusterRole
   name: grafana-proxy
@@ -49,7 +60,9 @@ kind: Grafana
 metadata:
   name: grafana
   labels:
-    dashboards: "tealc"
+    dashboards: "skodjob"
+    app: grafana
+    project: skodjob
 spec:
   serviceAccount:
     metadata:

@@ -5,7 +5,7 @@ metadata:
   name: operator-group
   labels:
     app: grafana
-    project: tealc
+    project: skodjob
 spec:
   targetNamespaces:
     - {{ infra_monitoring_namespace }}
@@ -15,7 +15,8 @@ kind: Subscription
 metadata:
   name: grafana-operator
   labels:
-    project: tealc
+    app: grafana
+    project: skodjob
 spec:
   channel: alpha
   installPlanApproval: Automatic

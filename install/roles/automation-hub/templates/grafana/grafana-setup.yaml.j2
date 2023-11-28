@@ -12,8 +12,8 @@ metadata:
   name: {{ name }}-grafana
   namespace: {{ namespace }}
   labels:
-    app: tealc
-    project: tealc
+    app: grafana
+    project: skodjob
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
 ---
@@ -23,8 +23,8 @@ metadata:
   name: grafana-cluster-monitoring-binding
   namespace: {{ namespace }}
   labels:
-    app: tealc
-    project: tealc
+    app: grafana
+    project: skodjob
 subjects:
   - kind: ServiceAccount
     namespace: {{ namespace }}
@@ -40,7 +40,8 @@ metadata:
   namespace: {{ namespace }}
   name: grafana-proxy
   labels:
-    project: tealc
+    app: grafana
+    project: skodjob
 rules:
   - verbs:
       - create
@@ -61,7 +62,8 @@ metadata:
   namespace: {{ namespace }}
   name: grafana-proxy
   labels:
-    project: tealc
+    app: grafana
+    project: skodjob
 roleRef:
   kind: ClusterRole
   name: grafana-proxy
@@ -75,6 +77,7 @@ kind: ConfigMap
 metadata:
   labels:
     config.openshift.io/inject-trusted-cabundle: "true"
-    project: tealc
+    app: grafana
+    project: skodjob
   name: ocp-injected-certs
   namespace: {{ namespace }}
