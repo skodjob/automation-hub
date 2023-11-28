@@ -7,7 +7,8 @@ kind: GrafanaDatasource
 metadata:
   name: {{ cluster.name }}-source
   labels:
-    project: "tealc"
+    project: "skodjob"
+    app: grafana
     managed: "true"
   annotations:
     # Exclude from ArgoCD sync
@@ -17,8 +18,8 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "tealc"
-  name: middleware.yaml
+      dashboards: "skodjob"
+  name: skodjob.yaml
   datasource:
     name: {{ cluster.name }}
     type: prometheus
