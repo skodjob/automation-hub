@@ -111,3 +111,37 @@
     verify_ssl: no
     apply: true
     src: "{{ quay_io_secret_path }}"
+
+- name: "Create ODH data connection secret"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    namespace: "default"
+    apply: true
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: "odh-s3-data-connection"
+        annotations:
+          kubed.appscode.com/sync: "app=open-data-hub"
+          opendatahub.io/connection-type: s3
+          openshift.io/display-name: "{{ bucketname }}"
+        labels:
+          app: open-data-hub
+          project: skodjob
+          opendatahub.io/dashboard: 'true'
+          opendatahub.io/managed: 'true'
+      data:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id | b64encode }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_access_key_secret | b64encode }}"
+        AWS_S3_ENDPOINT: "{{ aws_endpoint | b64encode }}"
+        AWS_DEFAULT_REGION: "{{ aws_region | b64encode }}"
+        AWS_S3_BUCKET: "{{ bucketname | b64encode }}"
+  vars:
+    bucketname: "tealc-models"
+  loop:
+    - "worker-03"
+  loop_control:
+    loop_var: clusterName
