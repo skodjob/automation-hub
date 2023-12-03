@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insecure-registry-ca
+  namespace: openshift-config
+data:
+  "{{ registry_name }}": "{{ cert_pem_data }}"

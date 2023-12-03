@@ -66,6 +66,26 @@
     clusterName: "{{ worker.name }}"
     clusterId: "{{ get_cluster_id_out.stdout }}"
 
+- name: Get insecure registry CA
+  shell: "wget -qO- {{ insecure_registry_ca_url }}"
+  register: insecure_ca
+
+- name: Create additional insecure registry CA configmap
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    state: present
+    verify_ssl: no
+    apply: yes
+    template: templates/hive/insecure-reg-ca.yaml.j2
+  vars:
+    registry_name: "{{ insecure_registry_name }}"
+    cert_pem_data: "{{ insecure_ca.stdout }}"
+
+- name: Patch registry to allow pulling from insecure registry
+  shell: "oc patch --type=merge --patch='{ \"spec\": { \"additionalTrustedCA\": { \"name\": \"insecure-registry-ca\" } } }' image.config.openshift.io/cluster"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
+
 - name: "Set anonymous pull rights on {{ worker.name }}"
   shell: "oc patch --type=merge --patch='{ \"spec\": { \"registrySources\": { \"insecureRegistries\": [ \"default-route-openshift-image-registry.apps.{{ worker.name }}.{{ cluster_domain }}\" ] } } }' image.config.openshift.io/cluster"
   environment:
