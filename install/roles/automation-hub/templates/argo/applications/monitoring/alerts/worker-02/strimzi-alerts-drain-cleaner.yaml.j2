@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: strimzi-alerts-drain-cleaner-{{ cluster }}
   labels:
-    project: tealc
+    project: skodjob
     app: strimzi
 spec:
   project: monitoring
@@ -21,7 +21,7 @@ spec:
       - CreateNamespace=true
     managedNamespaceMetadata:
       labels:
-        project: tealc
+        project: skodjob
   destination:
     name: {{ cluster }}
     namespace: strimzi-kafka

@@ -19,7 +19,7 @@ spec:
     metadata:
       name: '{{appname}}-{{name}}'
       labels:
-        project: tealc
+        project: skodjob
         app: strimzi
     spec:
       project: strimzi

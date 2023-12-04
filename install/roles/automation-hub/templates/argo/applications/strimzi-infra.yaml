@@ -11,6 +11,11 @@ spec:
               revision: HEAD
               files:
                 - path: "strimzi/**/argo-config.yaml"
+          - git:
+              repoURL: https://github.com/skodjob/deployment-hub
+              revision: HEAD
+              files:
+                - path: "infra/strimzi/argo-config.yaml"
           - clusters:
               selector:
                 matchLabels:
@@ -19,7 +24,7 @@ spec:
     metadata:
       name: '{{appname}}-{{name}}'
       labels:
-        project: tealc
+        project: skodjob
         app: strimzi
     spec:
       project: strimzi
@@ -35,7 +40,7 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
-          - CreateNamespace=true
+          - CreateNamespace=false
         managedNamespaceMetadata:
           labels:
             project: tealc
