@@ -4,12 +4,12 @@ metadata:
   name: cluster
 spec:
   identityProviders:
-    - name: superadmin
+    - name: "Local Users"
       mappingMethod: claim
       type: HTPasswd
       htpasswd:
         fileData:
-          name: superadmin-secret
+          name: htpasswd-secret
 
 {% if sso_ca_name is defined %}
     - mappingMethod: claim

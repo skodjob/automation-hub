@@ -25,10 +25,10 @@
   tags: [infra, kubeconfigs]
 
 - include_tasks:
-    file: infra-setup/install/hive/create-superadmin.yaml
+    file: infra-setup/install/hive/create-htpasswd.yaml
     apply:
-      tags: [superuser, infra, never]
-  tags: [superuser, infra, never]
+      tags: [htpasswd, infra, never]
+  tags: [htpasswd, infra, never]
   loop: "{{ clusters }}"
   loop_control:
     loop_var: cluster_name

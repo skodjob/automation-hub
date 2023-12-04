@@ -17,6 +17,7 @@ dependencies:
   python:
     - python-openstackclient
     - awscli
+    - passlib
   python_interpreter:
     python_path: "/usr/bin/python3.11"
 
