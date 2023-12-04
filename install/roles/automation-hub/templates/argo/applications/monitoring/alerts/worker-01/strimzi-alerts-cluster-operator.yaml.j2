@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: strimzi-alerts-cluster-operator-{{ cluster }}
   labels:
-    project: tealc
+    project: skodjob
     app: strimzi
 spec:
   project: monitoring
@@ -18,10 +18,10 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
     managedNamespaceMetadata:
       labels:
-        project: tealc
+        project: skodjob
   destination:
     name: {{ cluster }}
     namespace: strimzi-operator

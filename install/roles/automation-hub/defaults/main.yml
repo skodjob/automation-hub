@@ -9,3 +9,5 @@ openshift_operators_namespace: openshift-operators
 
 route: empty
 access_token: empty
+
+htpasswd_file: /tmp/htpasswd
