@@ -4,6 +4,7 @@ metadata:
   name: tekton-pipelinerun-cleaner
   labels:
     app: tekton-pipelinerun-cleaner
+    project: skodjob
     app.kubernetes.io/component: pipelinerun-cleaner
     app.kubernetes.io/name: tekton-pipelinerun-cleaner
     app.kubernetes.io/part-of: tekton

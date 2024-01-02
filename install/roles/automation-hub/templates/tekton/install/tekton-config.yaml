@@ -3,7 +3,7 @@ kind: TektonConfig
 metadata:
   name: config
   labels:
-    project: tealc
+    project: skodjob
 spec:
   profile: all
   targetNamespace: openshift-pipelines

@@ -6,7 +6,7 @@ kind: Pipeline
 metadata:
   name: upgrade-{{ name }}-cluster-pipeline
   labels:
-    project: tealc
+    project: skodjob
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -86,7 +86,7 @@ kind: TriggerTemplate
 metadata:
   name: upgrade-{{ name }}-cluster-trigger-template
   labels:
-    project: tealc
+    project: skodjob
 spec:
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
@@ -107,7 +107,7 @@ kind: TriggerBinding
 metadata:
   name: upgrade-{{ name }}-cluster-triggerbinding
   labels:
-    project: tealc
+    project: skodjob
 spec:
   params:
     - name: message
@@ -119,8 +119,8 @@ kind: EventListener
 metadata:
   name: upgrade-{{ name }}-cluster-event-listener
   labels:
-    listener: tealc
-    project: tealc
+    listener: skodjob
+    project: skodjob
 spec:
   triggers:
     - name: upgrade-{{ name }}-cluster-webhook
@@ -146,7 +146,7 @@ kind: CronJob
 metadata:
   name: upgrade-{{ name }}-cluster-cron
   labels:
-    project: tealc
+    project: skodjob
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1

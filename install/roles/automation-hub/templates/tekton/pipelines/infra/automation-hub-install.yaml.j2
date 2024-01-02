@@ -3,7 +3,7 @@ kind: Pipeline
 metadata:
   name: automation-hub-install
   labels:
-    project: tealc
+    project: skodjob
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -61,7 +61,7 @@ kind: Repository
 metadata:
   name: automation-hub-repository
   labels:
-    project: tealc
+    project: skodjob
 spec:
   url: https://github.com/skodjob/automation-hub.git
   ref: main

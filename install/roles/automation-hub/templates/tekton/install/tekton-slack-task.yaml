@@ -4,6 +4,7 @@ metadata:
   name: send-to-webhook-slack
   labels:
     app.kubernetes.io/version: "0.1"
+    project: skodjob
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
     tekton.dev/categories: Messaging
