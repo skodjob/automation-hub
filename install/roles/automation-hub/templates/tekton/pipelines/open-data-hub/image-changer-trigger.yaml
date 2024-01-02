@@ -4,7 +4,7 @@ kind: CronJob
 metadata:
   name: open-data-hub-files-update-trigger
   labels:
-    project: tealc
+    project: skodjob
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -50,7 +50,7 @@ kind: ConfigMap
 metadata:
   name: odh-image-changer
   labels:
-    project: tealc
+    project: skodjob
 data:
   entrypoint.sh: |
     #!/bin/bash

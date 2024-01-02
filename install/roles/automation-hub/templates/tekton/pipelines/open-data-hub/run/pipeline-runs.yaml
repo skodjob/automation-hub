@@ -4,8 +4,8 @@ kind: PipelineRun
 metadata:
   name: open-data-hub-files-update-start
   labels:
-    app: tealc
-    project: tealc
+    app: skodjob
+    project: skodjob
 spec:
   pipelineRef:
     name: open-data-hub-files-update-pipeline

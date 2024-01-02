@@ -3,7 +3,7 @@ kind: Pipeline
 metadata:
   name: open-data-hub-files-update-pipeline
   labels:
-    project: tealc
+    project: skodjob
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -69,7 +69,7 @@ kind: TriggerTemplate
 metadata:
   name: open-data-hub-files-update-trigger-template
   labels:
-    project: tealc
+    project: skodjob
 spec:
   params:
     - name: message
@@ -81,7 +81,7 @@ spec:
       metadata:
         generateName: open-data-hub-files-update-
         labels:
-          app: tealc
+          app: skodjob
       spec:
         pipelineRef:
           name: open-data-hub-files-update-pipeline
@@ -96,7 +96,7 @@ kind: TriggerBinding
 metadata:
   name: open-data-hub-files-update-triggerbinding
   labels:
-    project: tealc
+    project: skodjob
 spec:
   params:
     - name: message
@@ -108,8 +108,8 @@ kind: EventListener
 metadata:
   name: open-data-hub-files-update-event-listener
   labels:
-    listener: tealc
-    project: tealc
+    listener: skodjob
+    project: skodjob
 spec:
   triggers:
     - name: open-data-hub-files-update-webhook
@@ -134,7 +134,7 @@ kind: Route
 metadata:
   name: el-open-data-hub-files-update-event-listener
   labels:
-    project: tealc
+    project: skodjob
 spec:
   to:
     kind: Service

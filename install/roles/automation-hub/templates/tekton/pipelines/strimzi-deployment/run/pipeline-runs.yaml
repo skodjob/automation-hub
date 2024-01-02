@@ -4,8 +4,8 @@ kind: PipelineRun
 metadata:
   name: strimzi-deployment-image-update-start
   labels:
-    app: tealc
-    project: tealc
+    app: skodjob
+    project: skodjob
 spec:
   pipelineRef:
     name: strimzi-deployment-image-update-pipeline
