@@ -54,13 +54,14 @@
         name: "loki-{{ cluster.name }}-{{ loki_tenant_id }}"
         namespace: "{{ infra_monitoring_namespace }}"
         labels:
-          project: "tealc"
+          project: "skodjob"
           managed: "true"
+          app: "grafana"
       spec:
         name: "loki-{{ cluster.name }}-{{ loki_tenant_id }}"
         instanceSelector:
           matchLabels:
-            dashboards: "tealc"
+            dashboards: "skodjob"
         datasource:
           access: proxy
           type: loki

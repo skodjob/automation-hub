@@ -38,7 +38,7 @@ spec:
           - CreateNamespace=true
         managedNamespaceMetadata:
           labels:
-            project: tealc
+            project: skodjob
       destination:
         name: '{{name}}'
         namespace: '{{namespace}}'

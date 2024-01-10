@@ -10,7 +10,7 @@
       metadata:
         name: "{{ item }}"
         labels:
-          project: "tealc"
+          project: "skodjob"
   loop:
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
