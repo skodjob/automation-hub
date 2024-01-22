@@ -1,0 +1,91 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+  name: chaos-smoke-pipeline
+  namespace: tealc-pipelines
+  labels:
+    project: tealc
+spec:
+  finally:
+    - name: notify-slack
+      params:
+        - name: webhook-secret
+          value: webhook-secret
+        - name: message
+          value: >-
+            PipelineRun `$(context.pipelineRun.name)` has status:
+            `$(tasks.status)!`
+        - name: title
+          value: $(context.pipeline.name)
+        - name: status
+          value: $(tasks.status)
+        - name: button_url
+          value: >-
+            https://console-openshift-console.apps.tealc-infra.strimzi.app-services-dev.net/k8s/ns/tealc-pipelines/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)
+        - name: button_text
+          value: 'Pipeline :tekton:'
+      taskRef:
+        kind: Task
+        name: send-to-webhook-slack
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values:
+            - Failed
+  tasks:
+    - name: chaos-smoke
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            env:
+              - name: WORKER_01_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: token
+                    name: worker-01-tekton
+              - name: WORKER_01_URL
+                valueFrom:
+                  secretKeyRef:
+                    key: server
+                    name: worker-01-tekton
+              - name: WORKER_02_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: token
+                    name: worker-02-tekton
+              - name: WORKER_02_URL
+                valueFrom:
+                  secretKeyRef:
+                    key: server
+                    name: worker-02-tekton
+              - name: WORKER_03_OCP_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: token
+                    name: worker-03-tekton
+              - name: WORKER_03_URL
+                valueFrom:
+                  secretKeyRef:
+                    key: server
+                    name: worker-03-tekton
+            image: 'quay.io/mk-ci-cd/mas-ci-tools:latest' # Which IMAGE USE? :)
+            name: execute-tests
+            script: |
+              cd $(workspaces.pipeline-ws.path)
+
+              git clone https://github.com/see-quick/StrimKKhaos.git
+
+              cd StrimKKhaos
+              
+              ./strimkkhaos.sh --pod-chaos anubis-kafka-kill-random-leader
+        workspaces:
+          - name: pipeline-ws
+      workspaces:
+        - name: pipeline-ws
+          workspace: pipeline-ws
+  workspaces:
+    - name: pipeline-ws
