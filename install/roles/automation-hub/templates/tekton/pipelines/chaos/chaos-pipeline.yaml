@@ -72,7 +72,7 @@ spec:
                   secretKeyRef:
                     key: server
                     name: worker-03-tekton
-            image: 'quay.io/mk-ci-cd/mas-ci-tools:latest' # Which IMAGE USE? :)
+            image: 'quay.io/mk-ci-cd/mas-ci-tools:latest'                   # Which IMAGE USE? :)
             name: execute-tests
             script: |
               cd $(workspaces.pipeline-ws.path)
