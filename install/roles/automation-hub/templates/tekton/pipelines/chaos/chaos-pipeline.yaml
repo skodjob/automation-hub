@@ -72,16 +72,25 @@ spec:
                   secretKeyRef:
                     key: server
                     name: worker-03-tekton
-            image: 'quay.io/mk-ci-cd/mas-ci-tools:latest'                   # Which IMAGE USE? :)
+            image: 'quay.io/mk-ci-cd/mas-ci-tools:latest'
             name: execute-tests
             script: |
               cd $(workspaces.pipeline-ws.path)
+      
+              # point to worker-01 cluster        
+              oc login --token $WORKER_01_OCP_TOKEN $WORKER_01_URL --insecure-skip-tls-verify=true
+          
+              # PROMETHEUS URL
+              PROMETHEUS_URL=$(oc get route thanos-querier -n openshift-monitoring | awk '/thanos-querier/ {print $2}')
+              PROMETHEUS_URL=https://$PROMETHEUS_URL:443
+              export PROMETHEUS_URL=$PROMETHEUS_URL
 
               git clone https://github.com/see-quick/StrimKKhaos.git
 
               cd StrimKKhaos
               
-              ./strimkkhaos.sh --pod-chaos anubis-kafka-kill-random-leader
+              # debug output
+              ./strimkkhaos.sh --pod-chaos anubis-kafka-kill-random-leader --debug
         workspaces:
           - name: pipeline-ws
       workspaces:
