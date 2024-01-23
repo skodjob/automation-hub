@@ -87,7 +87,7 @@
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
 
 - name: "Set anonymous pull rights on {{ worker.name }}"
-  shell: "oc patch --type=merge --patch='{ \"spec\": { \"registrySources\": { \"insecureRegistries\": [ \"default-route-openshift-image-registry.apps.{{ worker.name }}.{{ cluster_domain }}\" ] } } }' image.config.openshift.io/cluster"
+  shell: "oc patch --type=merge --patch='{ \"spec\": { \"registrySources\": { \"insecureRegistries\": [ \"default-route-openshift-image-registry.apps.{{ worker.name }}.{{ cluster_domain }}\", \"{{ insecure_registry_name }}\", \"registry.stage.redhat.io\" ] } } }' image.config.openshift.io/cluster"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
 
