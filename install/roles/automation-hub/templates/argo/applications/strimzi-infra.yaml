@@ -7,19 +7,25 @@ spec:
     - matrix:
         generators:
           - git:
-              repoURL: https://github.com/skodjob/deployment-hub
-              revision: HEAD
               files:
-                - path: "strimzi/**/argo-config.yaml"
-          - git:
-              repoURL: https://github.com/skodjob/deployment-hub
+                - path: strimzi/**/argo-config.yaml
+              repoURL: 'https://github.com/skodjob/deployment-hub'
               revision: HEAD
-              files:
-                - path: "infra/strimzi/argo-config.yaml"
           - clusters:
               selector:
                 matchLabels:
-                  environment: 'upstream-latest'
+                  environment: upstream-latest
+    - matrix:
+        generators:
+          - git:
+              files:
+                - path: infra/strimzi/argo-config.yaml
+              repoURL: 'https://github.com/skodjob/deployment-hub'
+              revision: HEAD
+          - clusters:
+              selector:
+                matchLabels:
+                  environment: upstream-latest
   template:
     metadata:
       name: '{{appname}}-{{name}}'
