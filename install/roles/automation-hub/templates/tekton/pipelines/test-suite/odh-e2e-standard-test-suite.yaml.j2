@@ -43,7 +43,8 @@ spec:
 
               cd odh-e2e
               export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-              mvn verify -Pstandard,bundle-upgrade
+              mvn verify -Pstandard
+              mvn verify -Pbundle-upgrade
   finally:
     - name: sent-results
       workspaces:
