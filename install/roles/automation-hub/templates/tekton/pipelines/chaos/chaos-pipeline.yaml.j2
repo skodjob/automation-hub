@@ -18,6 +18,9 @@ spec:
       taskSpec:
         workspaces:
           - name: pipeline-ws
+        params:
+          - name: chaosCommand
+            type: string
         steps:
           - name: execute-tests
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
@@ -68,7 +71,7 @@ spec:
                 cd StrimKKhaos
 
                 # debug output
-                ./strimkkhaos.sh --pod-chaos anubis-kafka-kill-random-leader --debug
+                ./strimkkhaos.sh $(params.chaosCommand)
   finally:
     - name: notify-slack
       when:
