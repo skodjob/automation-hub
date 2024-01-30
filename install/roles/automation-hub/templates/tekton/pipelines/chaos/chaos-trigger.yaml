@@ -32,16 +32,16 @@ spec:
     - name: chaosCommand  # make sure that this matches TriggerBinding parameter!
       description: Command for chaos testing
       resourcetemplates:
-      - apiVersion: tekton.dev/v1beta1
-        kind: PipelineRun
-        metadata:
-          generateName: chaos-smoke-pipeline-run-
-        spec:
-          pipelineRef:
-            name: chaos-smoke-pipeline-worker-01
-        workspaces:
+        - apiVersion: tekton.dev/v1beta1
+          kind: PipelineRun
+          metadata:
+            generateName: chaos-smoke-pipeline-run-
+          spec:
+            pipelineRef:
+              name: chaos-smoke-pipeline-worker-01
+          workspaces:
           - name: pipeline-ws
             emptyDir: {}
-        params:
+          params:
           - name: chaosCommand
             value: "$(tt.params.chaosCommand)"
