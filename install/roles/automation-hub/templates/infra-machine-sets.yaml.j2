@@ -9,7 +9,7 @@ metadata:
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-cluster: {{ clusterId }}
