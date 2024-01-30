@@ -67,6 +67,8 @@
 
 - include_tasks:
     file: infra-setup/install/advanced-cluster-management/install_observability.yaml
+    apply:
+      tags: [acm, logging, infra, monitoring, never]
   tags: [acm, logging, infra, monitoring, never]
 
 - import_tasks: infra-setup/install/install_tekton.yaml
