@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: chaos-smoke-pipeline-cron-worker-01
+  namespace: tealc-pipelines
+spec:
+  schedule: "0 */4 * * *"  # Runs every 4 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: trigger
+              image: appropriate/curl
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  curl -X POST
+                  -H 'Content-Type: application/json'
+                  -d '{"chaosCommand": "--pod-chaos anubis-kafka-kill-random-pod --check-probes"}'  
+                  http://el-chaos-event-listener.tealc-pipelines.svc.cluster.local
+          restartPolicy: OnFailure
