@@ -7,7 +7,7 @@ spec:
   params:
   - name: chaosCommand  # make sure that this matches TriggerBinding parameter!
     description: Command for chaos testing
-  resourcetemplates:
+    resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
