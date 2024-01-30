@@ -56,22 +56,22 @@ spec:
                     key: server
                     name: worker-03-tekton
             script: |
-                cd $(workspaces.pipeline-ws.path)
-
-                # point to worker-01 cluster
-                oc login --token $WORKER_01_OCP_TOKEN $WORKER_01_URL --insecure-skip-tls-verify=true
-
-                # PROMETHEUS URL
-                PROMETHEUS_URL=$(oc get route thanos-querier -n openshift-monitoring | awk '/thanos-querier/ {print $2}')
-                PROMETHEUS_URL=https://$PROMETHEUS_URL:443
-                export PROMETHEUS_URL=$PROMETHEUS_URL
-
-                git clone https://github.com/see-quick/StrimKKhaos.git
-
-                cd StrimKKhaos
-
-                # debug output
-                ./strimkkhaos.sh $(params.chaosCommand)
+              cd $(workspaces.pipeline-ws.path)
+              
+              # point to worker-01 cluster
+              oc login --token $WORKER_01_OCP_TOKEN $WORKER_01_URL --insecure-skip-tls-verify=true
+              
+              # PROMETHEUS URL
+              PROMETHEUS_URL=$(oc get route thanos-querier -n openshift-monitoring | awk '/thanos-querier/ {print $2}')
+              PROMETHEUS_URL=https://$PROMETHEUS_URL:443
+              export PROMETHEUS_URL=$PROMETHEUS_URL
+              
+              git clone https://github.com/see-quick/StrimKKhaos.git
+              
+              cd StrimKKhaos
+              
+              # debug output
+              ./strimkkhaos.sh $(params.chaosCommand)
   finally:
     - name: notify-slack
       when:
@@ -93,3 +93,51 @@ spec:
           value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
         - name: button_text
           value: "Pipeline :tekton:"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: chaos-event-listener
+  namespace: tealc-pipelines
+spec:
+  triggers:
+    - name: chaos-pipeline-trigger
+      bindings:
+        - ref: chaos-command-binding  # Reference of TriggerBinding
+      template:
+        ref: chaos-smoke-pipeline-template-worker-01  # Reference of TriggerTemplate
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: chaos-command-binding
+  namespace: tealc-pipelines
+spec:
+  params:
+    - name: chaosCommand
+      value: $(body.chaosCommand)  # Assuming the payload has a field named 'chaosCommand'
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: chaos-smoke-pipeline-template-worker-01
+  namespace: tealc-pipelines
+spec:
+  params:
+    - name: chaosCommand  # make sure that this matches TriggerBinding parameter!
+      description: Command for chaos testing
+      resourcetemplates:
+        - apiVersion: tekton.dev/v1beta1
+          kind: PipelineRun
+          metadata:
+            generateName: chaos-smoke-pipeline-run-
+          spec:
+            pipelineRef:
+              name: chaos-smoke-pipeline-worker-01
+          workspaces:
+            - name: pipeline-ws
+              emptyDir: {}
+          params:
+            - name: chaosCommand
+              value: "$(tt.params.chaosCommand)"
