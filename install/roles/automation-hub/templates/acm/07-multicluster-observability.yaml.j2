@@ -33,9 +33,11 @@ spec:
         limits:
           cpu: 6
           memory: 26Gi
+        requests:
+          memory: 15Gi
     retentionConfig:
-      blockDuration: 2h
-      deleteDelay: 48h
+      blockDuration: 10m
+      deleteDelay: 12h
       retentionInLocal: 12h
       retentionResolutionRaw: 5d
       retentionResolution5m: 30d
