@@ -40,8 +40,8 @@ spec:
             pipelineRef:
               name: chaos-smoke-pipeline-worker-01
           workspaces:
-          - name: pipeline-ws
-            emptyDir: {}
+            - name: pipeline-ws
+              emptyDir: {}
           params:
-          - name: chaosCommand
-            value: "$(tt.params.chaosCommand)"
+            - name: chaosCommand
+              value: "$(tt.params.chaosCommand)"
