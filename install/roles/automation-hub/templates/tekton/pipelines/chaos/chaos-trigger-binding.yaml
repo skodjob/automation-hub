@@ -1,9 +1,0 @@
-apiVersion: triggers.tekton.dev/v1alpha1
-kind: TriggerBinding
-metadata:
-  name: chaos-command-binding
-  namespace: tealc-pipelines
-spec:
-  params:
-    - name: chaosCommand
-      value: $(body.chaosCommand)  # Assuming the payload has a field named 'chaosCommand'
