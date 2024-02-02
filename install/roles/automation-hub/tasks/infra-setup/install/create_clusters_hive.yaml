@@ -14,3 +14,4 @@
   loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: cluster
+  when: not clusters_dict[cluster.name].provisioned
