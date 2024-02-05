@@ -20,7 +20,7 @@
 
 - name: Generate api token
   shell: |
-    curl -k -X POST -u "admin:`oc get secret central-htpasswd -o yaml -n {{ acs_namespace }} | grep "password" | awk '{print $2}' | base64 -d`" "$ROX_ENDPOINT/v1/apitokens/generate" -d '{"name":"admin-{{ lookup('community.general.random_string', length=4, special=False) }}", "role": "Admin"}' | jq .token > {{ acs_api_token_file }}
+    curl -k -X POST -u "admin:`oc get secret central-htpasswd -o yaml -n {{ acs_namespace }} | grep "password" | awk '{print $2}' | base64 -d`" "{{ acs_central_url }}/v1/apitokens/generate" -d '{"name":"admin-{{ lookup('community.general.random_string', length=4, special=False) }}", "role": "Admin"}' | jq -r .token > {{ acs_api_token_file }}
     oc create secret generic stackrox-api-token --from-file token={{ acs_api_token_file }} -n "{{ acs_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"

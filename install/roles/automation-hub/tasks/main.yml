@@ -80,8 +80,8 @@
 - import_tasks: monitoring/install_monitoring.yaml
   tags: [monitoring, grafana, infra, never]
 
-- import_tasks: infra-setup/install/install_kubed.yaml
-  tags: [kubed, infra, never]
+- import_tasks: infra-setup/install/install_kubernetes-replicator.yaml
+  tags: [kubernetes-replicator, infra, never]
 
 - import_tasks: infra-setup/install/orchestrate_cert_manager.yaml
   tags: [cert-manager, cm, infra, never]
@@ -142,5 +142,5 @@
 - import_tasks: infra-setup/delete/delete_acs.yaml
   tags: [never, teardown-acs, teardown, teardown-security]
 
-- import_tasks: infra-setup/delete/delete_kubed.yaml
-  tags: [never, teardown, teardown-kubed]
+- import_tasks: infra-setup/delete/delete_kubernetes-replicator.yaml
+  tags: [never, teardown, teardown-kubernetes-replicator]

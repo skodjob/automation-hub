@@ -125,7 +125,7 @@
       metadata:
         name: "odh-s3-data-connection"
         annotations:
-          kubed.appscode.com/sync: "app=open-data-hub"
+          replicator.v1.mittwald.de/replicate-to-matching: "app=open-data-hub"
           opendatahub.io/connection-type: s3
           openshift.io/display-name: "{{ bucketname }}"
         labels:

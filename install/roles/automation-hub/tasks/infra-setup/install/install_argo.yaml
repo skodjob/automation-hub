@@ -21,7 +21,7 @@
     verify_ssl: no
     src: "{{ grafana_docker_secret_path }}"
 
-- name: Create argo subscription
+- name: Create Argo subscription
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
@@ -34,14 +34,15 @@
     timeout: 5
   when: argo_sub.changed
 
-- name: Wait for argo operator on Infra cluster
+- name: Wait for Argo operator on Infra cluster
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ openshift_operators_namespace }}"
     kind: Deployment
-    name: gitops-operator-controller-manager
-    wait: true
+    api_version: apps/v1
+    name: openshift-gitops-operator-controller-manager
     verify_ssl: no
+    wait: true
     wait_condition:
       type: Available
       status: True
@@ -57,7 +58,7 @@
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
-- name: Create argo app
+- name: Create Argo app
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
@@ -90,6 +91,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
+    api_version: apps/v1
     name: tealc-gitops-server
     wait: true
     verify_ssl: no
@@ -97,14 +99,13 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
-  retries: 20
-  delay: 5
 
 - name: Wait for argo dex on infra cluster
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
+    api_version: apps/v1
     name: tealc-gitops-dex-server
     wait: true
     verify_ssl: no
@@ -112,8 +113,6 @@
       type: Available
       status: True
       reason: MinimumReplicasAvailable
-  retries: 20
-  delay: 5
 
 - name: Create argo app-projects
   kubernetes.core.k8s:

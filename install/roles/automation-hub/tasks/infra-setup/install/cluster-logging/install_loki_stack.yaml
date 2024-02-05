@@ -38,6 +38,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
     namespace: "openshift-operators-redhat"
     kind: Deployment
+    api_version: apps/v1
     name: loki-operator-controller-manager
     wait: true
     wait_sleep: 10
