@@ -1,19 +1,19 @@
-- name: Deploy KubeD on infra clusters
+- name: Deploy Kubernetes Replicator on infra clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "kube-system"
     state: present
     apply: true
-    template: templates/kubed/kubed.yaml.j2
+    template: templates/kubernetes-replicator/kubernetes-replicator.yaml.j2
     verify_ssl: no
 
-- name: Deploy KubeD on worker clusters
+- name: Deploy Kubernetes Replicator on worker clusters
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster.name }}"
     namespace: "kube-system"
     state: present
     apply: true
-    template: templates/kubed/kubed.yaml.j2
+    template: templates/kubernetes-replicator/kubernetes-replicator.yaml.j2
     verify_ssl: no
   loop: "{{ clusters_dict.values() }}"
   loop_control:

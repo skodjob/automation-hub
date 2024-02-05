@@ -60,6 +60,6 @@
     apply: true
     template: "templates/acm/08-extend-default-metrics-allowlist.yaml.j2"
     verify_ssl: no
-  loop: "{{ clusters_dict }}"
+  loop: "{{ clusters_dict.values() }}"
   loop_control:
     loop_var: worker

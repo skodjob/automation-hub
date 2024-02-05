@@ -2,9 +2,9 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: observability-metrics-custom-allowlist
-  # let kubed sync the config map accross all namespaces
+  # let kubernetes-replicator sync the config map accross all namespaces
   annotations:
-    kubed.appscode.com/sync: ""
+    replicator.v1.mittwald.de/replicate-to: ".*"
 data:
   metrics_list.yaml: |
     names:

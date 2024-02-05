@@ -44,17 +44,17 @@
   when: acs_central.changed
 
 - name: "Wait for Central custom resource on Infra cluster"
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ acs_namespace }}"
-    kind: Central
-    api_version: platform.stackrox.io/v1alpha1
-    name: stackrox-central-services
+    kind: Deployment
+    api_version: apps/v1
+    name: central
     wait: true
     verify_ssl: no
     wait_condition:
-      type: Deployed
+      type: Available
       status: True
-      reason: UpgradeSuccessful
+      reason: MinimumReplicasAvailable
   retries: 60
   delay: 10

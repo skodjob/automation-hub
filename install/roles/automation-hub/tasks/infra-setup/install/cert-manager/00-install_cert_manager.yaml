@@ -1,5 +1,5 @@
 ---
-- name: "Label namespaces for KubeD on {{ cluster_name }}"
+- name: "Label namespaces for Kubernetes Replicator on {{ cluster_name }}"
   kubernetes.core.k8s_json_patch:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
     kind: Namespace
@@ -56,15 +56,29 @@
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
     namespace: "{{ cm_operator_namespace }}"
-    kind: CertManager
-    name: "cluster"
+    kind: Deployment
+    api_version: apps/v1
+    name: cert-manager-operator-controller-manager
     wait: true
     verify_ssl: no
     wait_condition:
-      type: cert-manager-controller-deploymentAvailable
+      type: Available
       status: True
-  retries: 20
-  delay: 5
+      reason: MinimumReplicasAvailable
+
+- name: "Wait for Cert-Manager on {{ cluster_name }}"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "cert-manager"
+    kind: Deployment
+    api_version: apps/v1
+    name: cert-manager
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
 
 - name: "Create Certificate Issuer on {{ cluster_name }}"
   kubernetes.core.k8s:

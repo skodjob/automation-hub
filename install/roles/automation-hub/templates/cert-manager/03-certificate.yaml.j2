@@ -12,6 +12,6 @@ spec:
     name: lets-encrypt
   secretName: {{ cm_certificate_secret }}
   secretTemplate:
-    # let kubed sync the config map accross all namespaces
+    # let kubernetes-replicator sync the config map accross all namespaces
     annotations:
-      kubed.appscode.com/sync: "secret=cert-manager"
+      replicator.v1.mittwald.de/replicate-to-matching: "secret=cert-manager"
