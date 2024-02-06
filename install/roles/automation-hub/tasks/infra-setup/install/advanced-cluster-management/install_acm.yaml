@@ -20,6 +20,12 @@
   loop:
     - templates/acm/00-operator-group.yaml.j2
     - templates/acm/01-acm-subscription.yaml.j2
+  register: acm_sub
+
+- name: Sleep for 30 seconds and continue with play
+  wait_for:
+    timeout: 30
+  when: acm_sub.changed
 
 - name: "Create multi-cluster-hub on Infra cluster"
   kubernetes.core.k8s:
@@ -45,10 +51,10 @@
     kind: MultiClusterHub
     name: multiclusterhub
     wait: true
+    wait_sleep: 10
+    wait_timeout: 600
     verify_ssl: no
     wait_condition:
       type: Complete
       status: True
       reason: ComponentsAvailable
-  retries: 60
-  delay: 10

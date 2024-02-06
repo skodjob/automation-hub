@@ -44,13 +44,13 @@
     kind: MultiClusterObservability
     name: observability
     wait: true
+    wait_sleep: 10
+    wait_timeout: 600
     verify_ssl: no
     wait_condition:
       type: Ready
       status: True
       reason: Ready
-  retries: 60
-  delay: 10
 
 - name: "Create multicluster observability config map for custom metrics on {{ worker.name }} cluster"
   kubernetes.core.k8s:

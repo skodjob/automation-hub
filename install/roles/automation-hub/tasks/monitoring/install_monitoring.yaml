@@ -154,7 +154,7 @@
   loop_control:
     loop_var: cluster
   vars:
-    sa_name: "tealc-sa"
+    sa_name: "skodjob-sa"
 
 - name: Configure Alertmanager to for sending alerts on Infra cluster from all clusters
   kubernetes.core.k8s:

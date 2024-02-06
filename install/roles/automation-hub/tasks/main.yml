@@ -14,6 +14,8 @@
 
 # infra installation
 # Install ACM
+- import_tasks: infra-setup/install/advanced-cluster-management/install_acm.yaml
+  tags: [never, infra, clusters, acm]
 # Create clusters if they don't exist
 - import_tasks: infra-setup/install/create_clusters_hive.yaml
   tags: [never, infra, clusters, hive]
@@ -112,7 +114,7 @@
   tags: [argo-apps, argo-odh, odh, never]
 
 - import_tasks: scenario-deployment/tekton/infra-tkn-pipelines.yaml
-  tags: [tekton-pipelines, infra, never]
+  tags: [d, infra, never]
 
 - import_tasks: scenario-deployment/tekton/strimzi-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra, never]
