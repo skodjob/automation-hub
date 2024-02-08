@@ -65,6 +65,7 @@ done
 
 # Generate install files
 pushd config/manager
+cp -f kustomization.yaml.in kustomization.yaml
 kustomize edit set image controller=${OPERATOR_IMAGE}
 popd
 
