@@ -1,0 +1,12 @@
+---
+- name: Deploy chaos engineering resources for Tekton
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    definition: "{{ lookup('file', item) }}"
+    verify_ssl: no
+    apply: true
+  loop:
+    - chaos/chaos-trigger.yaml.j2
+    - chaos/chaos-cron-job.yaml
