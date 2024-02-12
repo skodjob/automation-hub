@@ -19,5 +19,5 @@ spec:
                   curl -X POST
                   -H 'Content-Type: application/json'
                   -d '{"chaosCommand": "--pod-chaos kafka-3-pods-failure --sut-namespace strimzi-kafka --metrics-selector anubis-pool-.* --strimzi-pod-sets anubis-pool-big,anubis-pool-small,anubis-zookeeper"}'  
-                  http://el-chaos-event-listener.tealc-pipelines.svc.cluster.local
+                  http://el-chaos-event-listener.tealc-pipelines.svc.cluster.local:8080
           restartPolicy: OnFailure
