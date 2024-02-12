@@ -3,23 +3,17 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    definition: "{{ lookup('template', item) }}"
+    template: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob:
-    - "templates/tekton/pipelines/chaos/*.j2"  # Only match Jinja2 template files
-  tags:
-    - chaos
+  with_fileglob: 'templates/tekton/pipelines/chaos/*.j2'
 
 - name: Deploy non-template chaos engineering cron-jobs for Tekton
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    definition: "{{ lookup('file', item) }}"  # No Jinja2 processing needed
+    template: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob:
-    - "templates/tekton/pipelines/chaos/cron-jobs/*.yaml"
-  tags:
-    - chaos
+  with_fileglob: 'templates/tekton/pipelines/chaos/cron-jobs/*.yaml'
