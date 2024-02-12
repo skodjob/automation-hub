@@ -122,6 +122,9 @@
 - import_tasks: scenario-deployment/tekton/odh-tkn-pipelines.yaml
   tags: [tekton-pipelines, odh, never]
 
+- import_tasks: scenario-deployment/tekton/chaos-tkn-pipelines.yaml
+  tags: [tekton-pipelines, chaos, never]
+
 # Teardown
 - import_tasks: infra-setup/delete/delete_argo.yaml
   tags: [never, teardown, teardown-argo]

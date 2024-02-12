@@ -21,6 +21,7 @@ spec:
         params:
           - name: chaosCommand
             type: string
+            default: "--help"  # Default value for the chaosCommand parameter
         steps:
           - name: execute-tests
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
@@ -94,6 +95,7 @@ spec:
         - name: button_text
           value: "Pipeline :tekton:"
 ---
+
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
@@ -106,8 +108,8 @@ spec:
         - ref: chaos-command-binding  # Reference of TriggerBinding
       template:
         ref: chaos-smoke-pipeline-template-worker-01  # Reference of TriggerTemplate
-
 ---
+
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
@@ -118,6 +120,7 @@ spec:
     - name: chaosCommand
       value: $(body.chaosCommand)  # Assuming the payload has a field named 'chaosCommand'
 ---
+
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
@@ -127,17 +130,17 @@ spec:
   params:
     - name: chaosCommand  # make sure that this matches TriggerBinding parameter!
       description: Command for chaos testing
-      resourcetemplates:
-        - apiVersion: tekton.dev/v1beta1
-          kind: PipelineRun
-          metadata:
-            generateName: chaos-smoke-pipeline-run-
-          spec:
-            pipelineRef:
-              name: chaos-smoke-pipeline-worker-01
-          workspaces:
-            - name: pipeline-ws
-              emptyDir: {}
-          params:
-            - name: chaosCommand
-              value: "$(tt.params.chaosCommand)"
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: chaos-smoke-pipeline-run-
+      spec:
+        pipelineRef:
+          name: chaos-smoke-pipeline-worker-01
+        workspaces:
+          - name: pipeline-ws
+            emptyDir: {}
+        params:
+          - name: chaosCommand
+            value: "$(tt.params.chaosCommand)"
