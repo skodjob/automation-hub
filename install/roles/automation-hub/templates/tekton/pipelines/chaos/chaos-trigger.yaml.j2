@@ -93,6 +93,7 @@ spec:
           value: "{{ infra_console_url }}/k8s/ns/{{ infra_ci_namespace }}/tekton.dev~v1~PipelineRun/$(context.pipelineRun.name)"
         - name: button_text
           value: "Pipeline :tekton:"
+
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
@@ -117,6 +118,7 @@ spec:
   params:
     - name: chaosCommand
       value: $(body.chaosCommand)  # Assuming the payload has a field named 'chaosCommand'
+
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate

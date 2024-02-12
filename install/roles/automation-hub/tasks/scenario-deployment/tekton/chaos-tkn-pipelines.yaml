@@ -1,12 +1,25 @@
----
-- name: Deploy chaos engineering resources for Tekton
+- name: Deploy chaos engineering resources for Tekton from Jinja2 templates
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     state: present
-    definition: "{{ lookup('file', item) }}"
+    definition: "{{ lookup('template', item) }}"
     verify_ssl: no
     apply: true
-  loop:
-    - chaos/chaos-trigger.yaml.j2
-    - chaos/chaos-cron-job.yaml
+  with_fileglob:
+    - "templates/tekton/pipelines/chaos/*.j2"  # Only match Jinja2 template files
+  tags:
+    - chaos
+
+- name: Deploy non-template chaos engineering cron-jobs for Tekton
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_ci_namespace }}"
+    state: present
+    definition: "{{ lookup('file', item) }}"  # No Jinja2 processing needed
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/tekton/pipelines/chaos/cron-jobs/*.yaml"
+  tags:
+    - chaos
