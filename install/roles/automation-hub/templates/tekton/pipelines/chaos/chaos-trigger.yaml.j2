@@ -21,6 +21,7 @@ spec:
         params:
           - name: chaosCommand
             type: string
+            default: "--help"  # Default value for the chaosCommand parameter
         steps:
           - name: execute-tests
             image: quay.io/mk-ci-cd/mas-ci-tools:latest
