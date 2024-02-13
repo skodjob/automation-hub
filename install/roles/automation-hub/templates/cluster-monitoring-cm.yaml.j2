@@ -4,7 +4,7 @@ metadata:
   name: cluster-monitoring-config
   namespace: openshift-monitoring
   labels:
-    project: tealc
+    project: skodjob
 data:
   config.yaml: |
     enableUserWorkload: true
@@ -17,4 +17,4 @@ data:
           storageClassName: standard-csi
           resources:
             requests:
-              storage: 100Gi
+              storage: 120Gi

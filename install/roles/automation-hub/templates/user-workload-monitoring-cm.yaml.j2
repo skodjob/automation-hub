@@ -4,7 +4,7 @@ metadata:
   name: user-workload-monitoring-config
   namespace: openshift-user-workload-monitoring
   labels:
-    project: tealc
+    project: skodjob
 data:
   config.yaml: |
     prometheus:
@@ -16,4 +16,4 @@ data:
           storageClassName: standard-csi
           resources:
             requests:
-              storage: 40Gi
+              storage: 100Gi
