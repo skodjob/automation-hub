@@ -14,7 +14,7 @@ spec:
     timeoutSeconds: 20
   auditLogs:
     collection: Auto
-  centralEndpoint: central-tealc-rhacs.apps.tealc-infra.strimzi.app-services-dev.net:443
+  centralEndpoint: central-{{ acs_namespace }}.apps.{{ infra_context_name }}.strimzi.app-services-dev.net:443
   clusterName: {{ clusterName }}
   monitoring:
     openshift:
