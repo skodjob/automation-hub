@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: chaos-worflow-bridge-kafka-worker-01
+  namespace: tealc-pipelines
+spec:
+  schedule: "0 13 * * *"  # Runs every day at 13:00
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: trigger
+              image: appropriate/curl
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  curl -X POST
+                  -H 'Content-Type: application/json'
+                  -d '{"chaosCommand": "--workflow-chaos http-chaos-bridge-and-kafka-stress --sut-namespace strimzi-kafka --metrics-selector anubis-pool-.* --strimzi-bridge-namespace strimzi-bridge --target-kafka-namespace strimzi-kafka-kraft --target-metrics-selector horus-broker-.* --strimzi-pod-sets anubis-pool-big,anubis-pool-small,anubis-zookeeper,horus-broker,horus-broker-big,horus-controller --enable-probes" }'  
+                  http://el-chaos-event-listener.tealc-pipelines.svc.cluster.local:8080
+          restartPolicy: OnFailure
