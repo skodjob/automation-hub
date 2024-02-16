@@ -18,6 +18,6 @@ spec:
                 - >
                   curl -X POST
                   -H 'Content-Type: application/json'
-                  -d '{"chaosCommand": "--network-chaos kafka-producers-fast-internal-network-delay-all --sut-namespace strimzi-kafka --clients-namespace strimzi-clients --metrics-selector "anubis-pool-.*" }'  
+                  -d '{"chaosCommand": "--network-chaos kafka-producers-fast-internal-network-delay-all --sut-namespace strimzi-kafka --clients-namespace strimzi-clients --metrics-selector "anubis-pool-.* --enable-probes" }'  
                   http://el-chaos-event-listener.tealc-pipelines.svc.cluster.local:8080
           restartPolicy: OnFailure
