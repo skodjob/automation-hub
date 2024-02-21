@@ -1,5 +1,5 @@
 ---
-- name: Create skodjob-ci namespace on Infra cluster
+- name: Create {{ infra_workflow_namespace }} namespace on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     verify_ssl: no
@@ -15,6 +15,11 @@
 
 - name: Clean helm releases for workflows
   shell: "oc delete secret -l owner=helm -n {{ infra_workflow_namespace }} || true"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Make default SA admin in {{ infra_workflow_namespace }} namespace
+  shell: "oc adm policy add-role-to-user admin system:serviceaccount:{{ infra_workflow_namespace }}:default -n {{ infra_workflow_namespace }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
@@ -49,6 +54,21 @@
           hosts:
             - "workflows.apps.{{ infra_root_domain }}"
           tls:
-            - secretName: tealc-signed-certificate
+            - secretName: "{{ cm_certificate_secret }}"
               hosts:
                 - "workflows.apps.{{ infra_root_domain }}"
+
+- name: Install Argo Events
+  kubernetes.core.helm:
+    name: "{{ infra_workflow_namespace }}-events"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    chart_ref: argo/argo-events
+    release_namespace: "{{ infra_workflow_namespace }}"
+    create_namespace: True
+    purge: True
+    force: True
+    wait: True
+    replace: True
+    update_repo_cache: True
+    values:
+      openshift: true

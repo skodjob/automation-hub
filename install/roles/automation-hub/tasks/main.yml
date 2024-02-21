@@ -95,7 +95,7 @@
   tags: [acs, infra, security, never]
 
 - import_tasks: infra-setup/install/install_argo_workflow.yaml
-  tags: [infra, ci, workflow]
+  tags: [infra, ci, workflow, never]
 
 - import_tasks: infra-setup/install/install_links.yaml
   tags: [infra, console-link, links, never]
