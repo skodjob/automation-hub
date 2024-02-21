@@ -52,11 +52,11 @@
         ingress:
           enabled: true
           hosts:
-            - "workflows.apps.{{ infra_root_domain }}"
+            - "{{ argo_workflow_url }}"
           tls:
             - secretName: "{{ cm_certificate_secret }}"
               hosts:
-                - "workflows.apps.{{ infra_root_domain }}"
+                - "{{ argo_workflow_url }}"
 
 - name: Install Argo Events
   kubernetes.core.helm:
