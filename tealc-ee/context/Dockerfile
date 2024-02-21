@@ -87,6 +87,7 @@ RUN curl https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.14.1
 RUN /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.6.0/7.el8/x86_64/git-crypt-0.6.0-7.el8.x86_64.rpm
 RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.2.0/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash && mv kustomize /usr/bin/
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
 USER root
