@@ -2,6 +2,7 @@
 # defaults file for tealc
 infra_monitoring_namespace: tealc-monitoring
 infra_ci_namespace: tealc-pipelines
+infra_workflow_namespace: skodjob-ci
 infra_argo_namespace: tealc-gitops
 
 openshift_pipelines_namespace: openshift-pipelines
