@@ -1,4 +1,4 @@
-name: Tealc bot
+name: Skodjob bot
 
 on:
   pull_request:
@@ -10,4 +10,4 @@ jobs:
   assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.0
+      - uses: kentaro-m/auto-assign-action@v2.0.0
