@@ -33,6 +33,8 @@ spec:
         source: |
           #!/usr/bin/env bash
           
+          cd /workdir
+          export HOME=/workdir
           export CURRENT_DIR=$(pwd)/automation-hub
           git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
           echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
@@ -44,8 +46,6 @@ spec:
               secretKeyRef:
                 name: git-crypt-key
                 key: key
-          - name: HOME
-            value: "/workdir"
     - name: exit-handler
       ttlStrategy:
         secondsAfterCompletion: 300
