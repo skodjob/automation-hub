@@ -1,4 +1,4 @@
-name: Close inactive issues
+name: Skodjob bot
 on:
   schedule:
     - cron: "30 1 * * *"
