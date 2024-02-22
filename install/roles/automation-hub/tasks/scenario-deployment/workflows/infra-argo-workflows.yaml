@@ -1,0 +1,22 @@
+---
+- name: Create Infra Argo Workflows
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob: 'templates/argo-workflows/workflows/infra/*.j2'
+  vars:
+    slackUrl: "{{ slack_api_pipelines_url }}"
+
+- name: Create EventSources and Sensors
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    state: present
+    src: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob: 'templates/argo-workflows/eventsource/*.yaml'

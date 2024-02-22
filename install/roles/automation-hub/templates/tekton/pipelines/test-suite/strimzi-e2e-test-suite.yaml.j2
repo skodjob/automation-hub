@@ -24,32 +24,32 @@ spec:
               - name: WORKER_01_OCP_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: worker-01-tekton
+                    name: worker-01-access
                     key: token
               - name: WORKER_01_URL
                 valueFrom:
                   secretKeyRef:
-                    name: worker-01-tekton
+                    name: worker-01-access
                     key: server
               - name: WORKER_02_OCP_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: worker-02-tekton
+                    name: worker-02-access
                     key: token
               - name: WORKER_02_URL
                 valueFrom:
                   secretKeyRef:
-                    name: worker-02-tekton
+                    name: worker-02-access
                     key: server
               - name: WORKER_03_OCP_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: worker-03-tekton
+                    name: worker-03-access
                     key: token
               - name: WORKER_03_URL
                 valueFrom:
                   secretKeyRef:
-                    name: worker-03-tekton
+                    name: worker-03-access
                     key: server
             script: |
               cd $(workspaces.pipeline-ws.path)

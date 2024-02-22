@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: skodjob
+spec:
+  # For more info see https://argoproj.github.io/argo-events/eventbus/stan/
+  nats:
+    native:
+      # Optional, defaults to 3. If it is < 3, set it to 3, that is the minimal requirement.
+      replicas: 3
+      # Optional, authen strategy, "none" or "token", defaults to "none"
+      auth: token
+      containerTemplate:
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "250Mi"
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+      metricsContainerTemplate:
+        resources:
+          requests:
+            cpu: "10m"
+      persistence:
+        storageClassName: standard-csi
+        accessMode: ReadWriteOnce
+        volumeSize: 10Gi

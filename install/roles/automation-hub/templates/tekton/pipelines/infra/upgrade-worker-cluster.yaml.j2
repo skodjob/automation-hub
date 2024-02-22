@@ -27,12 +27,12 @@ spec:
               - name: OC_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: {{ name }}-tekton
+                    name: {{ name }}-access
                     key: token
               - name: OC_API_URL
                 valueFrom:
                   secretKeyRef:
-                    name: {{ name }}-tekton
+                    name: {{ name }}-access
                     key: server
             script: |
               set +x

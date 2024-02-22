@@ -24,12 +24,12 @@ spec:
               - name: KUBE_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    name: worker-03-tekton
+                    name: worker-03-access
                     key: token
               - name: KUBE_URL
                 valueFrom:
                   secretKeyRef:
-                    name: worker-03-tekton
+                    name: worker-03-access
                     key: server
               - name: GITHUB_TOKEN
                 valueFrom:

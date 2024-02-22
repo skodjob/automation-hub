@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: automation-hub
+spec:
+  eventBusName: skodjob
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: automation-hub-dep
+      eventSourceName: automation-hub
+      eventName: automation-hub
+      filters:
+        # If event payload passes ALL following expr filters, the event is considered a valid event.
+        exprs:
+          # Check that event is against main branch
+          - expr: ref == "refs/heads/main"
+            fields:
+              - name: ref
+                # Path in GH even message
+                path: body.ref
+  triggers:
+    - template:
+        name: argo-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: automation-hub-install
+              spec:
+                serviceAccountName: operate-workflow-sa
+                workflowTemplateRef:
+                  name: automation-hub-install

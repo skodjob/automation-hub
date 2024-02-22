@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: slack-notify
+spec:
+  templates:
+    - name: slack-notify
+      inputs:
+        parameters:
+          - name: message
+            description: "String message that will be send to Slack channel with all needed formatting"
+          - name: title
+            description: "Title of the message"
+          - name: status
+            description: "Status of Workflow that calls the reporting"
+          - name: button_url
+            description: "Button URL that will be added to the message"
+          - name: button_text
+            description: "Button text that will be added to the message"
+          - name: url
+            description: "Slack webhook URL"
+      script:
+        image: quay.io/tealc/tealc-ee:latest
+        command: [bash]
+        source: |
+          #!/usr/bin/env bash
+          
+          set -x
+  
+          # Default color is blue
+          COLOR="#439FE0"
+          if [ "{{ inputs.parameters.status }}" = "Failed" ]; then
+            # Set red color
+            COLOR="#FF0000"
+          elif [ "{{ inputs.parameters.status }}" = "Succeeded" ]; then 
+            # Green
+            COLOR="#008000"
+          fi
+          echo "Status: {{ inputs.parameters.status }}"
+          echo "Used color: $COLOR"
+          
+          JSON="{\"attachments\":[{\"color\":\"${COLOR}\",\"blocks\":[{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":\"{{inputs.parameters.title}}\",\"emoji\":true}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"{{inputs.parameters.message}}\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"{{inputs.parameters.button_text}}\",\"emoji\":true},\"url\":\"{{inputs.parameters.button_url}}\"}]}]}]}"  
+          curl -v -X POST -H 'Content-Type: application/json' --data "${JSON}" "{{inputs.parameters.url}}"
