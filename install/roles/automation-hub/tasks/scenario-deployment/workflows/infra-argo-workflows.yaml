@@ -16,7 +16,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_workflow_namespace }}"
     state: present
-    src: "{{ item }}"
+    template: "{{ item }}"
     verify_ssl: no
     apply: true
-  with_fileglob: 'templates/argo-workflows/eventsource/*.yaml'
+  with_fileglob: 'templates/argo-workflows/eventsource/*.j2'

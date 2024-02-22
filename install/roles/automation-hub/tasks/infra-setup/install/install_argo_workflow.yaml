@@ -82,16 +82,17 @@
     src: "{{ item }}"
     apply: true
   with_fileglob: 'templates/argo-workflows/install/*'
+  register: eventBus
 
 - name: Sleep for 5 seconds and continue with play
   wait_for:
     timeout: 5
-  when: argo_app.changed
+  when: eventBus.changed
 
 - name: Wait for EventBus creation
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
+    namespace: "{{ infra_workflow_namespace }}"
     kind: EventBus
     api_version: argoproj.io/v1alpha1
     name: skodjob

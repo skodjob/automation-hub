@@ -85,7 +85,7 @@
 - name: Create cluster access secret for ArgoCD, Argo Workflows and Tekton
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
+    namespace: "{{ namespaceName }}"
     state: present
     template: templates/cluster-secret.yaml.j2
     verify_ssl: no

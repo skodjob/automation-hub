@@ -23,6 +23,7 @@ spec:
         image: quay.io/tealc/tealc-ee:latest
         command: [bash]
         source: |
+          {% raw %}
           #!/usr/bin/env bash
           
           set -x
@@ -41,3 +42,4 @@ spec:
           
           JSON="{\"attachments\":[{\"color\":\"${COLOR}\",\"blocks\":[{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":\"{{inputs.parameters.title}}\",\"emoji\":true}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"{{inputs.parameters.message}}\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"{{inputs.parameters.button_text}}\",\"emoji\":true},\"url\":\"{{inputs.parameters.button_url}}\"}]}]}]}"  
           curl -v -X POST -H 'Content-Type: application/json' --data "${JSON}" "{{inputs.parameters.url}}"
+          {% endraw %}
