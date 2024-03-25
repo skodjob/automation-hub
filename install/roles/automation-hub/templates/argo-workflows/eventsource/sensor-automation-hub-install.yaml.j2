@@ -14,11 +14,11 @@ spec:
         # If event payload passes ALL following expr filters, the event is considered a valid event.
         exprs:
           # Check that event is against main branch
-          - expr: ref == "refs/heads/main"
+          - expr: ref == "main"
             fields:
               - name: ref
                 # Path in GH even message
-                path: body.ref
+                path: body.pull_request.base.ref
   triggers:
     - template:
         name: argo-workflow-trigger
