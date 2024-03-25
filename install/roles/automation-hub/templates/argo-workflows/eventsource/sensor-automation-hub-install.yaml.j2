@@ -12,13 +12,14 @@ spec:
       eventName: automation-hub
       filters:
         # If event payload passes ALL following expr filters, the event is considered a valid event.
+        # In this workflow we would like to react only in push events
         exprs:
           # Check that event is against main branch
-          - expr: ref == "main"
+          - expr: ref == "refs/heads/main"
             fields:
               - name: ref
                 # Path in GH even message
-                path: body.pull_request.base.ref
+                path: body.ref
   triggers:
     - template:
         name: argo-workflow-trigger
