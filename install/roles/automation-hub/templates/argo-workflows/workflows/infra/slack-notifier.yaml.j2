@@ -30,7 +30,7 @@ spec:
   
           # Default color is blue
           COLOR="#439FE0"
-          if [ "{{ inputs.parameters.status }}" = "Failed" ]; then
+          if [ "{{ inputs.parameters.status }}" = "Failed" ] || [ "{{ inputs.parameters.status }}" = "Error" ]; then
             # Set red color
             COLOR="#FF0000"
           elif [ "{{ inputs.parameters.status }}" = "Succeeded" ]; then 

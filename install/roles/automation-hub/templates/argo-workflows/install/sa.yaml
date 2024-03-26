@@ -19,6 +19,10 @@ rules:
       - workflowtemplates
       - cronworkflows
       - clusterworkflowtemplates
+      - workflowtaskresults
+      - workflowartifactgctasks
+      - workfloweventbindings
+      - workflowtasksets
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

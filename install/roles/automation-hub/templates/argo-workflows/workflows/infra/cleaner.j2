@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: workflows-cleaner
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: "Replace"
+  startingDeadlineSeconds: 0
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  workflowSpec:
+    entrypoint: workflows-cleaner
+    serviceAccountName: pipeline
+    onExit: exit-handler
+    templates:
+      - name: workflows-cleaner
+        ttlStrategy:
+          secondsAfterCompletion: 300
+        script:
+          image: 'quay.io/tealc/k8s:latest'
+          command: [bash]
+          env:
+            - name: NUM_TO_KEEP
+              value: "2"
+          source: |
+            #!/usr/bin/env bash
+            
+            set -x
+          
+            while read -r WORKFLOW; do
+              while read -r WORKFLOW_TO_REMOVE; do
+                test -n "${WORKFLOW_TO_REMOVE}" || continue;
+                kubectl delete ${WORKFLOW_TO_REMOVE} \
+                    && echo "$(date -Is) Workflow ${WORKFLOW_TO_REMOVE} deleted." \
+                    || echo "$(date -Is) Unable to delete Workflow ${WORKFLOW_TO_REMOVE}.";
+              done < <(kubectl get workflow -l events.argoproj.io/sensor=${WORKFLOW} --sort-by=.metadata.creationTimestamp -o name | head -n -${NUM_TO_KEEP});
+            {% raw %}done < <(kubectl get workflow -o go-template='{{range .items}}{{index .metadata.labels "events.argoproj.io/sensor"}}{{"\n"}}{{end}}' | uniq);{% endraw %}
+
+      - name: exit-handler
+        ttlStrategy:
+          secondsAfterCompletion: 300
+        steps:
+          - - name: notify
+              when: "{% raw %}{{workflow.status}} != Succeeded{% endraw %}"
+              templateRef:
+                name: slack-notify
+                template: slack-notify
+              arguments:
+                parameters:
+                  - name: message
+                    value: "{% raw %}Workflow \\`{{ workflow.name }}\\` has status: \\`{{ workflow.status }}\\`!{% endraw %}"
+                  - name: title
+                    value: "{% raw %}{{ workflow.name }}{% endraw %}"
+                  - name: status
+                    value: "{% raw %}{{ workflow.status }}{% endraw %}"
+                  - name: button_url
+                    value: "https://{{ argo_workflow_url }}/workflows/argo/{% raw %}{{ workflow.name }}{% endraw %}"
+                  - name: button_text
+                    value: "Workflow link :argocd:"
+                  - name: url
+                    value: "{{ slackUrl }}"
