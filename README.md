@@ -1,5 +1,5 @@
 # Automation Hub
-Collection of deployments and tools for continuous testing of applications
+Collection of deployments and tools for continuous testing of applications within Kubernetes
 
 ## Requirements
 ```
