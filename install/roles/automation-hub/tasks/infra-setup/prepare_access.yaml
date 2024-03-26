@@ -58,15 +58,21 @@
     verify_ssl: no
     apply: true
 
-- name: Create tealc-install access secret in infra namespace
+- name: Create tealc-install access secret in CI namespaces
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_ci_namespace }}"
+    namespace: "{{ namespaceName }}"
     state: present
     src: "{{ tealc_git_crypt_key }}"
     verify_ssl: no
     apply: true
+  loop_control:
+    loop_var: namespaceName
+  loop:
+    - "{{ infra_workflow_namespace }}"
+    - "{{ infra_ci_namespace }}"
 
+# TODO - investigate deletion of this
 - name: Create Github access secret in openshift-pipelines namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -76,32 +82,21 @@
     verify_ssl: no
     apply: true
 
-- name: Create Tekton secret in tekton namespace
+- name: Create cluster access secret for ArgoCD, Argo Workflows and Tekton
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_ci_namespace }}"
-    state: present
-    template: templates/tekton/install/tekton-secret.yaml.j2
-    verify_ssl: no
-    apply: true
-
-- name: Create Tekton secret in openshift-pipelines namespace
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ openshift_pipelines_namespace }}"
-    state: present
-    template: templates/tekton/install/tekton-secret.yaml.j2
-    verify_ssl: no
-    apply: true
-
-- name: Create cluster Argo access secret
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
+    namespace: "{{ namespaceName }}"
     state: present
     template: templates/cluster-secret.yaml.j2
     verify_ssl: no
     apply: true
+  loop_control:
+    loop_var: namespaceName
+  loop:
+    - "{{ infra_argo_namespace }}"
+    - "{{ infra_workflow_namespace }}"
+    - "{{ openshift_pipelines_namespace }}"
+    - "{{ infra_ci_namespace }}"
 
 - name: Create Quay access secret
   kubernetes.core.k8s:

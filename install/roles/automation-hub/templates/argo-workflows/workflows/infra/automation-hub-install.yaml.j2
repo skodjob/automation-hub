@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: automation-hub-install
+spec:
+  serviceAccountName: operate-workflow-sa
+  entrypoint: automation-hub-install
+  onExit: exit-handler
+  volumeClaimTemplates:
+    - metadata:
+        name: workdir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+  templates:
+    - name: automation-hub-install
+      ttlStrategy:
+        secondsAfterCompletion: 300
+      volumes:
+        - name: workspace
+          emptyDir: { }
+      volumeMounts:
+        - mountPath: /workspace
+          name: workspace
+      script:
+        image: quay.io/tealc/tealc-ee:latest
+        volumeMounts:
+          - mountPath: /workdir
+            name: workdir
+        command: [bash]
+        source: |
+          #!/usr/bin/env bash
+          
+          cd /workdir
+          export HOME=/workdir
+          export CURRENT_DIR=$(pwd)/automation-hub
+          git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
+          echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
+          cd $CURRENT_DIR && git crypt unlock crypt-key
+          cd $CURRENT_DIR && ansible-playbook install/automation-hub-play.yaml --tags="infra,strimzi-infra,odh,chaos" -v
+        env:
+          - name: GIT_CRYPT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: git-crypt-key
+                key: key
+    - name: exit-handler
+      ttlStrategy:
+        secondsAfterCompletion: 300
+      steps:
+        - - name: notify
+            when: "{% raw %}{{workflow.status}} != Succeeded{% endraw %}"
+            templateRef:
+              name: slack-notify
+              template: slack-notify
+              clusterScope: false
+            arguments:
+              parameters:
+                - name: message
+                  value: "{% raw %}Workflow \\`{{ workflow.name }}\\` has status: \\`{{ workflow.status }}\\`!{% endraw %}"
+                - name: title
+                  value: "{% raw %}{{ workflow.name }}{% endraw %}"
+                - name: status
+                  value: "{% raw %}{{ workflow.status }}{% endraw %}"
+                - name: button_url
+                  value: "https://{{ argo_workflow_url }}/workflows/argo/{% raw %}{{ workflow.name }}{% endraw %}"
+                - name: button_text
+                  value: "Workflow link :argocd:"
+                - name: url
+                  value: "{{ slackUrl }}"

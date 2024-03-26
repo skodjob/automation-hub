@@ -117,7 +117,7 @@
   tags: [argo-apps, argo-odh, odh, never]
 
 - import_tasks: scenario-deployment/tekton/infra-tkn-pipelines.yaml
-  tags: [d, infra, never]
+  tags: [tekton-pipelines, infra, never]
 
 - import_tasks: scenario-deployment/tekton/strimzi-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra, never]
@@ -127,6 +127,9 @@
 
 - import_tasks: scenario-deployment/tekton/chaos-tkn-pipelines.yaml
   tags: [tekton-pipelines, chaos, never]
+
+- import_tasks: scenario-deployment/workflows/infra-argo-workflows.yaml
+  tags: [workflow, infra, never]
 
 # Teardown
 - import_tasks: infra-setup/delete/delete_argo.yaml
