@@ -95,11 +95,11 @@ spec:
                 name: ocp-injected-certs
           containers:
             - name: grafana
-              image: docker.io/grafana/grafana:9.4.7
+              image: docker.io/grafana/grafana:10.4.1
               resources:
                 limits:
                   cpu: 1000m
-                  memory: 800Mi
+                  memory: 4000Mi
                 requests:
                   cpu: 100m
                   memory: 200Mi
