@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: strimzi-alerts-canary-{{ cluster }}
+  name: strimzi-alerts-kafka-mm2-{{ cluster }}
   labels:
     project: skodjob
     app: strimzi
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/skodjob/deployment-hub
     targetRevision: HEAD
-    path: metrics/alerts/canary
+    path: metrics/alerts/kafka-mirror-maker
     directory:
       recurse: true
   syncPolicy:
@@ -24,4 +24,4 @@ spec:
         project: skodjob
   destination:
     name: {{ cluster }}
-    namespace: strimzi-kafka
+    namespace: strimzi-mirror

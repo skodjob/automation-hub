@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-alerts-kafka-mm2-kraft-{{ cluster }}
+  labels:
+    project: skodjob
+    app: strimzi
+spec:
+  project: monitoring
+  source:
+    repoURL: https://github.com/skodjob/deployment-hub
+    targetRevision: HEAD
+    path: metrics/alerts/kafka-mirror-maker
+    directory:
+      recurse: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+    managedNamespaceMetadata:
+      labels:
+        project: skodjob
+  destination:
+    name: {{ cluster }}
+    namespace: strimzi-mirror-kraft
