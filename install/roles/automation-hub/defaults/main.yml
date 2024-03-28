@@ -1,5 +1,5 @@
 ---
-# defaults file for tealc
+# defaults file
 infra_monitoring_namespace: tealc-monitoring
 infra_ci_namespace: tealc-pipelines
 infra_workflow_namespace: skodjob-ci
@@ -12,3 +12,7 @@ route: empty
 access_token: empty
 
 htpasswd_file: /tmp/htpasswd
+
+# GitOps
+gitops_channel_version: 1.11
+gitops_version: 1.11.2
