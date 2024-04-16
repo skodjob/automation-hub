@@ -16,3 +16,26 @@ htpasswd_file: /tmp/htpasswd
 # GitOps
 gitops_channel_version: 1.11
 gitops_version: 1.11.2
+
+# ACM
+acm_version: 2.9
+loki_version: 5.8
+openshift_logging_version: 5.8
+acm_namespace: tealc-rhacm
+acm_observability_namespace: open-cluster-management-observability
+
+# ACS
+acs_version: 4.3
+acs_namespace: tealc-rhacs
+acs_stackrox_namespace: stackrox
+acs_api_token_file: "{{ playbook_dir }}/acs_api_token"
+acs_init_secrets: "{{ playbook_dir }}/init-bundle.yaml"
+
+# Cert Manager configs
+cm_namespace: cert-manager
+cm_operator_namespace: cert-manager-operator
+cm_route53_credentials: route53-le-credentials
+cm_route53_secret_key_ref: secret-key
+cm_route53_access_key_ref: access-key
+cm_certificate_secret: tealc-signed-certificate
+cm_version: 1.12.0
