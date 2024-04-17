@@ -50,13 +50,22 @@ spec:
               sleep 120
 
               IS_UPGRADING="true"
-              while [[ $IS_UPGRADING == "true" ]]; do
+              LOOP_COUNTER=0
+              COUNTER=180
+              while [[ $IS_UPGRADING == "true" ]] && [[ $LOOP_COUNTER -gt $COUNTER ]]; do
+                LOOP_COUNTER=$((LOOP_COUNTER + 1))
+
+                if [[ $COUNTER -gt $COUNTER ]]; then
+                  echo "Maximum loop count of $COUNTER reached. Exiting."
+                  exit 1
+                fi
+
                 if [[ "$(oc get clusterversion -o=jsonpath='{.items[0].status.history[0].completionTime}')" == "null" ]]; then
                   echo "Cluster is in upgrade state"
                 else
                   IS_UPGRADING="false"
                 fi
-                sleep 10
+                sleep 60
               done
   finally:
     - name: notify-slack
@@ -150,7 +159,7 @@ metadata:
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  schedule: "0 */12 * * *"
+  schedule: "0 0 * * 2" # every Tuesday
   jobTemplate:
     spec:
       template:
