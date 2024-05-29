@@ -1,0 +1,411 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: controller
+  labels:
+    strimzi.io/cluster: event-bus
+spec:
+  replicas: 3
+  roles:
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 20Gi
+        deleteClaim: false
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: "1"
+    limits:
+      memory: 1Gi
+      cpu: "1"
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: broker
+  labels:
+    strimzi.io/cluster: event-bus
+    mode: kraft
+spec:
+  replicas: 5
+  roles:
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: "1"
+    limits:
+      memory: 2Gi
+      cpu: "1"
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: event-bus
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+spec:
+  kafka:
+    version: 3.7.0
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: tls
+      - name: route
+        port: 9666
+        type: route
+        tls: true
+        authentication:
+          type: tls
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      default.replication.factor: 3
+      # 2 weeks
+      log.retention.hours: 336
+      min.insync.replicas: 3
+    authorization:
+      type: simple
+      superUsers:
+        - CN=superuser-event-bus
+        - superuser-event-bus
+    logging:
+      type: inline
+      loggers:
+        kafka.root.logger.level: "INFO"
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          key: event-bus-kafka-jmx-exporter-configuration.yaml
+          name: event-bus-kafka-jmx-exporter-configuration
+    template:
+      clusterCaCert:
+        metadata:
+          annotations:
+            replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
+      podDisruptionBudget:
+        maxUnavailable: 0
+      pod:
+        tolerations:
+          - key: "nodetype"
+            operator: "Equal"
+            value: "worker"
+            effect: "NoSchedule"
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: nodetype
+                      operator: In
+                      values:
+                        - worker
+        topologySpreadConstraints:
+          # Deploy Kafka pods with spread with difference max 1 pod
+          - maxSkew: 4
+            # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                # label on Kafka pods
+                strimzi.io/name: event-bus-kafka
+  entityOperator:
+    template:
+      pod:
+        tolerations:
+          - key: "nodetype"
+            operator: "Equal"
+            value: "worker"
+            effect: "NoSchedule"
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: nodetype
+                      operator: In
+                      values:
+                        - worker
+        topologySpreadConstraints:
+          # Deploy EO pods with spread with difference max 2 pod
+          - maxSkew: 4
+            # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                # label on EO pods
+                strimzi.io/kind: Kafka
+    userOperator:
+      logging:
+        type: inline
+        loggers:
+          rootLogger.level: INFO
+          logger.uop.name: io.strimzi.operator.user
+          logger.uop.level: DEBUG
+      resources:
+        limits:
+          cpu: '1'
+          memory: 512Mi
+        requests:
+          cpu: '0.2'
+          memory: 512Mi
+    topicOperator:
+      logging:
+        type: inline
+        loggers:
+          rootLogger.level: INFO
+          logger.top.name: io.strimzi.operator.topic
+          logger.top.level: DEBUG
+      resources:
+        limits:
+          cpu: '1'
+          memory: 512Mi
+        requests:
+          cpu: '0.2'
+          memory: 512Mi
+  kafkaExporter:
+    template:
+      pod:
+        tolerations:
+          - key: "nodetype"
+            operator: "Equal"
+            value: "worker"
+            effect: "NoSchedule"
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: nodetype
+                      operator: In
+                      values:
+                        - worker
+        topologySpreadConstraints:
+          # Deploy KE pods with spread with difference max 2 pod
+          - maxSkew: 4
+            # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                # label on KE pods
+                strimzi.io/kind: Kafka
+  cruiseControl:
+    brokerCapacity:
+      cpu: "26"
+    config:
+      cruise.control.metrics.topic.num.partitions: 1
+      cruise.control.metrics.topic.replication.factor: 3
+      cruise.control.metrics.topic.min.insync.replicas: 2
+      sample.store.topic.replication.factor: 3
+      partition.metric.sample.store.on.execution.topic.replication.factor: 3
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          key: event-bus-cruise-control-jmx-exporter-configuration.yaml
+          name: event-bus-cruise-control-jmx-exporter-configuration
+    template:
+      pod:
+        tolerations:
+          - key: "nodetype"
+            operator: "Equal"
+            value: "worker"
+            effect: "NoSchedule"
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: nodetype
+                      operator: In
+                      values:
+                        - worker
+        topologySpreadConstraints:
+          # Deploy CC pods with spread with difference max 2 pod
+          - maxSkew: 4
+            # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                # label on CC pods
+                strimzi.io/kind: Kafka
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-bus-kafka-jmx-exporter-configuration
+data:
+  event-bus-kafka-jmx-exporter-configuration.yaml: |
+    lowercaseOutputName: true
+    rules:
+    - pattern: "kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value"
+      name: "kafka_server_$1_$2"
+      type: "GAUGE"
+      labels:
+        clientId: "$3"
+        topic: "$4"
+        partition: "$5"
+    - pattern: "kafka.server<type=(.+), name=(.+), clientId=(.+), brokerHost=(.+), brokerPort=(.+)><>Value"
+      name: "kafka_server_$1_$2"
+      type: "GAUGE"
+      labels:
+        clientId: "$3"
+        broker: "$4:$5"
+    - pattern: "kafka.server<type=(.+), cipher=(.+), protocol=(.+), listener=(.+), networkProcessor=(.+)><>connections"
+      name: "kafka_server_$1_connections_tls_info"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+        protocol: "$4"
+        cipher: "$5"
+    - pattern: "kafka.server<type=(.+), clientSoftwareName=(.+), clientSoftwareVersion=(.+),\
+        \ listener=(.+), networkProcessor=(.+)><>connections"
+      name: "kafka_server_$1_connections_software"
+      type: "GAUGE"
+      labels:
+        clientSoftwareName: "$2"
+        clientSoftwareVersion: "$3"
+        listener: "$4"
+        networkProcessor: "$5"
+    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
+      name: "kafka_server_$1_$4"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+    - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+)"
+      name: "kafka_server_$1_$4"
+      type: "GAUGE"
+      labels:
+        listener: "$2"
+        networkProcessor: "$3"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*><>MeanRate"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*><>Value"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)Percent\\w*, (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3_percent"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*, (.+)=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*, (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)PerSec\\w*><>Count"
+      name: "kafka_$1_$2_$3_total"
+      type: "COUNTER"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>Value"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+        $6: "$7"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.*), (.+)=(.+)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        $6: "$7"
+        quantile: "0.$8"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+      labels:
+        $4: "$5"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+), (.+)=(.*)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        $4: "$5"
+        quantile: "0.$6"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>Count"
+      name: "kafka_$1_$2_$3_count"
+      type: "COUNTER"
+    - pattern: "kafka.(\\w+)<type=(.+), name=(.+)><>(\\d+)thPercentile"
+      name: "kafka_$1_$2_$3"
+      type: "GAUGE"
+      labels:
+        quantile: "0.$4"
+    # KRaft mode: uncomment the following lines to export KRaft related metrics
+    # KRaft overall related metrics
+    # distinguish between always increasing COUNTER (total and max) and variable GAUGE (all others) metrics
+    - pattern: "kafka.server<type=raft-metrics><>(.+-total|.+-max):"
+      name: kafka_server_raftmetrics_$1
+      type: COUNTER
+    - pattern: "kafka.server<type=raft-metrics><>(.+):"
+      name: kafka_server_raftmetrics_$1
+      type: GAUGE
+    # KRaft "low level" channels related metrics
+    # distinguish between always increasing COUNTER (total and max) and variable GAUGE (all others) metrics
+    - pattern: "kafka.server<type=raft-channel-metrics><>(.+-total|.+-max):"
+      name: kafka_server_raftchannelmetrics_$1
+      type: COUNTER
+    - pattern: "kafka.server<type=raft-channel-metrics><>(.+):"
+      name: kafka_server_raftchannelmetrics_$1
+      type: GAUGE
+    # Broker metrics related to fetching metadata topic records in KRaft mode
+    - pattern: "kafka.server<type=broker-metadata-metrics><>(.+):"
+      name: kafka_server_brokermetadatametrics_$1
+      type: GAUGE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-bus-cruise-control-jmx-exporter-configuration
+data:
+  event-bus-cruise-control-jmx-exporter-configuration.yaml: |
+    lowercaseOutputName: true
+    rules:
+    - pattern: "kafka.cruisecontrol<name=(.+)><>(\\w+)"
+      name: "kafka_cruisecontrol_$1_$2"
+      type: "GAUGE"

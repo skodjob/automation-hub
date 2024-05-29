@@ -3,26 +3,16 @@ kind: EventBus
 metadata:
   name: skodjob
 spec:
-  # For more info see https://argoproj.github.io/argo-events/eventbus/stan/
-  nats:
-    native:
-      # Optional, defaults to 3. If it is < 3, set it to 3, that is the minimal requirement.
-      replicas: 3
-      # Optional, authen strategy, "none" or "token", defaults to "none"
-      auth: token
-      containerTemplate:
-        resources:
-          requests:
-            cpu: "10m"
-            memory: "250Mi"
-          limits:
-            cpu: "1"
-            memory: "2Gi"
-      metricsContainerTemplate:
-        resources:
-          requests:
-            cpu: "10m"
-      persistence:
-        storageClassName: standard-csi
-        accessMode: ReadWriteOnce
-        volumeSize: 10Gi
+  # For more info see https://argoproj.github.io/argo-events/eventbus/kafka/
+  kafka:
+    url: event-bus-kafka-bootstrap.strimzi-event-bus.svc.cluster.local:9093
+    tls:
+      caCertSecret:
+        name: event-bus-cluster-ca-cert
+        key: ca.crt
+      clientCertSecret:
+        name: superuser-event-bus
+        key: user.crt
+      clientKeySecret:
+        name: superuser-event-bus
+        key: user.key

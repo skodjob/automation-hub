@@ -1,0 +1,143 @@
+---
+- name: Create Strimzi namespaces on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          project: "skodjob"
+          strimzi.io/sync-secrets: "true"
+  loop:
+    - "{{ strimzi_operator_namespace }}"
+    - "{{ strimzi_kafka_namespace }}"
+    - "{{ strimzi_drain_cleaner_namespace }}"
+
+- name: Clean helm releases for workflows
+  shell: "oc delete secret -l owner=helm -n {{ strimzi_operator_namespace }} || true"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Add Argo Helm Repo
+  kubernetes.core.helm_repository:
+    name: strimzi
+    url: https://strimzi.io/charts
+
+- name: Install Strimzi operator
+  kubernetes.core.helm:
+    name: "{{ strimzi_operator_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    chart_ref: strimzi/strimzi-kafka-operator
+    release_namespace: "{{ strimzi_operator_namespace }}"
+    create_namespace: True
+    force: True
+    wait: True
+    replace: True
+    update_repo_cache: True
+    values:
+      watchAnyNamespace: true
+      replicas: 2
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 512Mi
+        requests:
+          cpu: 200m
+          memory: 384Mi
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nodetype
+                    operator: In
+                    values:
+                      - worker
+      tolerations:
+        - key: "nodetype"
+          operator: "Equal"
+          value: "worker"
+          effect: "NoSchedule"
+      logLevelOverride: "DEBUG"
+
+- name: Apply metrics related config for Strimzi operator
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_operator_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/cluster-operator/*.yaml"
+
+- name: Wait for Strimzi operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_operator_namespace }}"
+    kind: Deployment
+    api_version: apps/v1
+    name: strimzi-cluster-operator
+    verify_ssl: no
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Install Drain Cleaner
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_drain_cleaner_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/drain-cleaner/*.yaml"
+    - "templates/strimzi/drain-cleaner/*.j2"
+
+- name: Wait for Strimzi operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_drain_cleaner_namespace }}"
+    kind: Deployment
+    api_version: apps/v1
+    name: strimzi-drain-cleaner
+    verify_ssl: no
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Install Kafka
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_kafka_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/kafka/*.yaml"
+    - "templates/strimzi/kafka/*.j2"
+
+- name: Wait for Kafka readiness
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_kafka_namespace }}"
+    kind: Kafka
+    api_version: kafka.strimzi.io/v1beta2
+    name: event-bus
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 1200
+    verify_ssl: no
+    wait_condition:
+      type: Ready
+      status: True

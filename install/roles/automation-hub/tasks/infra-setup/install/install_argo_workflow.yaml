@@ -35,7 +35,6 @@
     chart_ref: argo/argo-workflows
     release_namespace: "{{ infra_workflow_namespace }}"
     create_namespace: True
-    purge: True
     force: True
     wait: True
     replace: True
