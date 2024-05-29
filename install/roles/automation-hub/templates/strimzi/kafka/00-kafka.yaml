@@ -81,7 +81,8 @@ spec:
       transaction.state.log.replication.factor: 3
       transaction.state.log.min.isr: 2
       default.replication.factor: 3
-      log.retention.hours: 336 # 2 weeks
+      # 2 weeks
+      log.retention.hours: 336
       min.insync.replicas: 3
     authorization:
       type: simple
