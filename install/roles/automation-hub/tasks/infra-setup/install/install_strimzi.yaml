@@ -1,0 +1,97 @@
+---
+- name: Create Strimzi namespaces on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          project: "skodjob"
+          strimzi.io/sync-secrets: "true"
+  loop:
+    - "{{ strimzi_operator_namespace }}"
+    - "{{ strimzi_kafka_namespace }}"
+    - "{{ strimzi_drain_cleaner_namespace }}"
+
+- name: Install Strimzi operator
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_operator_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/cluster-operator/*.yaml"
+    - "templates/strimzi/cluster-operator/*.j2"
+
+- name: Wait for Strimzi operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_operator_namespace }}"
+    kind: Deployment
+    api_version: apps/v1
+    name: strimzi-cluster-operator
+    verify_ssl: no
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Install Drain Cleaner
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_drain_cleaner_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/drain-cleaner/*.yaml"
+    - "templates/strimzi/drain-cleaner/*.j2"
+
+- name: Wait for Strimzi operator on Infra cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_drain_cleaner_namespace }}"
+    kind: Deployment
+    api_version: apps/v1
+    name: strimzi-drain-cleaner
+    verify_ssl: no
+    wait: true
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable
+
+- name: Install Kafka
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_kafka_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/kafka/*.yaml"
+    - "templates/strimzi/kafka/*.j2"
+
+- name: Wait for Kafka readiness
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_kafka_namespace }}"
+    kind: Kafka
+    api_version: kafka.strimzi.io/v1beta2
+    name: event-bus
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 1200
+    verify_ssl: no
+    wait_condition:
+      type: Ready
+      status: True

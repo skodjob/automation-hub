@@ -1,0 +1,30 @@
+---
+- name: Delete Strimzi operator
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ strimzi_operator_namespace }}"
+    state: absent
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob:
+    - "templates/strimzi/cluster-operator/*.yaml"
+    - "templates/strimzi/cluster-operator/*.j2"
+
+- name: Delete Strimzi namespaces on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          project: "skodjob"
+          strimzi.io/sync-secrets: "true"
+  loop:
+    - "{{ strimzi_operator_namespace }}"
+    - "{{ strimzi_kafka_namespace }}"
+    - "{{ strimzi_drain_cleaner_namespace }}"

@@ -94,6 +94,9 @@
 - import_tasks: infra-setup/install/orchestrate_acs.yaml
   tags: [acs, infra, security, never]
 
+- import_tasks: infra-setup/install/install_strimzi.yaml
+  tags: [infra, ci, workflow, strimzi, never]
+
 - import_tasks: infra-setup/install/install_argo_workflow.yaml
   tags: [infra, ci, workflow, never]
 
@@ -155,3 +158,6 @@
 
 - import_tasks: infra-setup/delete/delete_kubernetes-replicator.yaml
   tags: [never, teardown, teardown-kubernetes-replicator]
+
+- import_tasks: infra-setup/delete/delete_strimzi.yaml
+  tags: [never, teardown, teardown-strimzi]

@@ -39,3 +39,8 @@ cm_route53_secret_key_ref: secret-key
 cm_route53_access_key_ref: access-key
 cm_certificate_secret: tealc-signed-certificate
 cm_version: 1.12.0
+
+# Strimzi
+strimzi_operator_namespace: strimzi-operator
+strimzi_kafka_namespace: strimzi-event-bus
+strimzi_drain_cleaner_namespace: strimzi-operator
