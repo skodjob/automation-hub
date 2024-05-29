@@ -100,4 +100,3 @@
     wait_condition:
       type: Deployed
       status: True
-      reason: Succeeded
