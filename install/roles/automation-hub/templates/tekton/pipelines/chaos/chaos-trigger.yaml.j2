@@ -64,7 +64,7 @@ spec:
               
               # PROMETHEUS URL
               PROMETHEUS_URL=$(oc get route thanos-querier -n openshift-monitoring | awk '/thanos-querier/ {print $2}')
-              PROMETHEUS_URL=https://$PROMETHEUS_URL:443/api
+              PROMETHEUS_URL=https://$PROMETHEUS_URL/api
               export PROMETHEUS_URL=$PROMETHEUS_URL
               
               git clone https://github.com/see-quick/StrimKKhaos.git
