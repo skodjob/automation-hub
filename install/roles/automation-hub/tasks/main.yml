@@ -128,9 +128,6 @@
 - import_tasks: scenario-deployment/tekton/odh-tkn-pipelines.yaml
   tags: [tekton-pipelines, odh, never]
 
-- import_tasks: scenario-deployment/tekton/chaos-tkn-pipelines.yaml
-  tags: [tekton-pipelines, chaos, never]
-
 - import_tasks: scenario-deployment/workflows/infra-argo-workflows.yaml
   tags: [workflow, infra, never]
 
