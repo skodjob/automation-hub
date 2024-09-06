@@ -6,9 +6,9 @@ metadata:
   labels:
     project: tealc
 spec:
-  channel: gitops-{{ gitops_channel_version }}
+  channel: gitops-{{ gitops_channel_version | string }}
   installPlanApproval: Manual
   name: openshift-gitops-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: openshift-gitops-operator.v{{ gitops_version }}
+  startingCSV: openshift-gitops-operator.v{{ gitops_version | string }}

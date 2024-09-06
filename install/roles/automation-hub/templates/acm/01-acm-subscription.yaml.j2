@@ -5,7 +5,7 @@ metadata:
   name: advanced-cluster-management
   namespace: {{ acm_namespace }}
 spec:
-  channel: release-{{ acm_version }}
+  channel: release-{{ acm_version | string }}
   installPlanApproval: Automatic
   name: advanced-cluster-management
   source: redhat-operators

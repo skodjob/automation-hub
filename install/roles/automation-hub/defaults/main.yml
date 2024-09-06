@@ -15,17 +15,17 @@ htpasswd_file: /tmp/htpasswd
 
 # GitOps
 gitops_channel_version: 1.13
-gitops_version: 1.13.0
+gitops_version: 1.13.1
 
 # ACM
-acm_version: 2.10
+acm_version: 2.11
 loki_version: 5.9
 openshift_logging_version: 5.9
 acm_namespace: tealc-rhacm
 acm_observability_namespace: open-cluster-management-observability
 
 # ACS
-acs_version: 4.4
+acs_version: 4.5
 acs_namespace: tealc-rhacs
 acs_stackrox_namespace: stackrox
 acs_api_token_file: "{{ playbook_dir }}/acs_api_token"
