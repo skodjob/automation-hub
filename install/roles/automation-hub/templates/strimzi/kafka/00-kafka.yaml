@@ -107,11 +107,6 @@ spec:
       podDisruptionBudget:
         maxUnavailable: 0
       pod:
-        tolerations:
-          - key: "nodetype"
-            operator: "Equal"
-            value: "worker"
-            effect: "NoSchedule"
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -134,11 +129,6 @@ spec:
   entityOperator:
     template:
       pod:
-        tolerations:
-          - key: "nodetype"
-            operator: "Equal"
-            value: "worker"
-            effect: "NoSchedule"
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -189,11 +179,6 @@ spec:
   kafkaExporter:
     template:
       pod:
-        tolerations:
-          - key: "nodetype"
-            operator: "Equal"
-            value: "worker"
-            effect: "NoSchedule"
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -230,11 +215,6 @@ spec:
           name: event-bus-cruise-control-jmx-exporter-configuration
     template:
       pod:
-        tolerations:
-          - key: "nodetype"
-            operator: "Equal"
-            value: "worker"
-            effect: "NoSchedule"
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:

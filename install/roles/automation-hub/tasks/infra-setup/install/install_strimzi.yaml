@@ -57,11 +57,6 @@
                     operator: In
                     values:
                       - worker
-      tolerations:
-        - key: "nodetype"
-          operator: "Equal"
-          value: "worker"
-          effect: "NoSchedule"
       logLevelOverride: "DEBUG"
 
 - name: Apply metrics related config for Strimzi operator
