@@ -23,10 +23,6 @@ spec:
       memory: 1Gi
       cpu: "1"
   template:
-    clusterCaCert:
-      metadata:
-        annotations:
-          replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
     pod:
       affinity:
         nodeAffinity:
@@ -73,10 +69,6 @@ spec:
       memory: 2Gi
       cpu: "1"
   template:
-    clusterCaCert:
-      metadata:
-        annotations:
-          replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
     pod:
       affinity:
         nodeAffinity:
@@ -148,6 +140,11 @@ spec:
         configMapKeyRef:
           key: event-bus-kafka-jmx-exporter-configuration.yaml
           name: event-bus-kafka-jmx-exporter-configuration
+    template:
+      clusterCaCert:
+        metadata:
+          annotations:
+            replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
   entityOperator:
     template:
       pod:
