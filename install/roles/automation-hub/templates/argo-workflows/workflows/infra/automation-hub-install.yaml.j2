@@ -39,7 +39,7 @@ spec:
           git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
           echo $GIT_CRYPT_SECRET | base64 -d > "$CURRENT_DIR/crypt-key"
           cd $CURRENT_DIR && git crypt unlock crypt-key
-          cd $CURRENT_DIR && ansible-playbook install/automation-hub-play.yaml --tags="infra,strimzi-infra,odh,chaos" -v
+          cd $CURRENT_DIR && ansible-playbook install/automation-hub-play.yaml --tags="infra,strimzi-infra,odh" -v
         env:
           - name: GIT_CRYPT_SECRET
             valueFrom:
