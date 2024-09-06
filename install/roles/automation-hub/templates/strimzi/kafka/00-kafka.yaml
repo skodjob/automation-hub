@@ -22,6 +22,31 @@ spec:
     limits:
       memory: 1Gi
       cpu: "1"
+  template:
+    clusterCaCert:
+      metadata:
+        annotations:
+          replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
+    pod:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nodetype
+                    operator: In
+                    values:
+                      - worker
+      topologySpreadConstraints:
+        # Deploy Kafka pods with spread with difference max 1 pod
+        - maxSkew: 4
+          # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              # label on Kafka pods
+              strimzi.io/name: event-bus-kafka
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
@@ -29,7 +54,6 @@ metadata:
   name: broker
   labels:
     strimzi.io/cluster: event-bus
-    mode: kraft
 spec:
   replicas: 5
   roles:
@@ -48,6 +72,31 @@ spec:
     limits:
       memory: 2Gi
       cpu: "1"
+  template:
+    clusterCaCert:
+      metadata:
+        annotations:
+          replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
+    pod:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nodetype
+                    operator: In
+                    values:
+                      - worker
+      topologySpreadConstraints:
+        # Deploy Kafka pods with spread with difference max 1 pod
+        - maxSkew: 4
+          # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              # label on Kafka pods
+              strimzi.io/name: event-bus-kafka
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
@@ -99,33 +148,6 @@ spec:
         configMapKeyRef:
           key: event-bus-kafka-jmx-exporter-configuration.yaml
           name: event-bus-kafka-jmx-exporter-configuration
-    template:
-      clusterCaCert:
-        metadata:
-          annotations:
-            replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
-      podDisruptionBudget:
-        maxUnavailable: 0
-      pod:
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: nodetype
-                      operator: In
-                      values:
-                        - worker
-        topologySpreadConstraints:
-          # Deploy Kafka pods with spread with difference max 1 pod
-          - maxSkew: 4
-            # All nodes with same key are considered as one group, so we should pick a key, which has different values on the nodes
-            topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: DoNotSchedule
-            labelSelector:
-              matchLabels:
-                # label on Kafka pods
-                strimzi.io/name: event-bus-kafka
   entityOperator:
     template:
       pod:
