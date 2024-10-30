@@ -19,8 +19,8 @@ gitops_version: 1.13.1
 
 # ACM
 acm_version: 2.11
-loki_version: 5.9
-openshift_logging_version: 5.9
+loki_version: 6.0
+openshift_logging_version: 6.0
 acm_namespace: tealc-rhacm
 acm_observability_namespace: open-cluster-management-observability
 
