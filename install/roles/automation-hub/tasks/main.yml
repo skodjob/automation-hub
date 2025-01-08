@@ -122,9 +122,6 @@
 - import_tasks: scenario-deployment/tekton/strimzi-tkn-pipelines.yaml
   tags: [tekton-pipelines, strimzi-infra, never]
 
-- import_tasks: scenario-deployment/tekton/odh-tkn-pipelines.yaml
-  tags: [tekton-pipelines, odh, never]
-
 - import_tasks: scenario-deployment/workflows/infra-argo-workflows.yaml
   tags: [workflow, infra, never]
 
