@@ -2,14 +2,14 @@
 # Create FIPs #
 ###############
 - name: "Create FIP API"
-  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} API' -f value -c floating_ip_address {{ cluster.openstack_network }}"
+  shell: "openstack floating ip create --description 'Skodjob - {{ cluster.name }} API' -f value -c floating_ip_address {{ cluster.openstack_network }}"
   environment:
     OS_CLOUD: "{{ cluster.cloud }}"
   register: "fip_api_output"
   when: cluster.fip_api is undefined
 
 - name: "Create FIP apps"
-  shell: "openstack floating ip create --description 'Tealc - {{ cluster.name }} APPS' -f value -c floating_ip_address {{ cluster.openstack_network }}"
+  shell: "openstack floating ip create --description 'Skodjob - {{ cluster.name }} APPS' -f value -c floating_ip_address {{ cluster.openstack_network }}"
   environment:
     OS_CLOUD: "{{ cluster.cloud }}"
   register: "fip_apps_output"

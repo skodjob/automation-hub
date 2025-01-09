@@ -7,5 +7,5 @@ metadata:
 spec:
   containers:
     - name: myapp-container
-      image: docker.io/fedora
+      image: quay.io/fedora
       command: ['sh', '-c', 'sleep 1d']

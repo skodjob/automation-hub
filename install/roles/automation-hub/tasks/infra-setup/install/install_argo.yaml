@@ -13,14 +13,6 @@
           project: "skodjob"
           secret: "cert-manager"
 
-- name: Create image pull secret on infra cluster
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_argo_namespace }}"
-    state: present
-    verify_ssl: no
-    src: "{{ grafana_docker_secret_path }}"
-
 - name: Create Argo subscription
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
@@ -92,7 +84,7 @@
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
     api_version: apps/v1
-    name: tealc-gitops-server
+    name: skodjob-gitops-server
     wait: true
     verify_ssl: no
     wait_condition:
@@ -106,7 +98,7 @@
     namespace: "{{ infra_argo_namespace }}"
     kind: Deployment
     api_version: apps/v1
-    name: tealc-gitops-dex-server
+    name: skodjob-gitops-dex-server
     wait: true
     verify_ssl: no
     wait_condition:

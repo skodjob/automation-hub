@@ -1,6 +1,6 @@
 .idea
 .vscode
-tealc-ci-test.yaml
+skodjob-ci-test.yaml
 **/kubeconfig
 install/kubeconfig
 **/.ssh/

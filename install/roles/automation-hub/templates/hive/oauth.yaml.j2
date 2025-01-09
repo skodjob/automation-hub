@@ -28,6 +28,6 @@ spec:
         clientSecret:
           name: {{ sso_ocp_client_secret }}
         extraScopes: []
-        issuer: https://keycloak-tealc-sso.apps.{{ infra_context_name }}.{{ cluster_domain }}/auth/realms/tealc-realm
+        issuer: https://keycloak-skodjob-sso.apps.{{ infra_context_name }}.{{ cluster_domain }}/auth/realms/skodjob-realm
       type: OpenID
 {% endif %}

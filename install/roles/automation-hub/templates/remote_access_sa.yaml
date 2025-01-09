@@ -7,7 +7,7 @@ metadata:
   labels:
     app: strimzi
     namespace: default
-    project: tealc
+    project: skodjob
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -15,7 +15,7 @@ metadata:
   name: access-binding
   labels:
     app: strimzi
-    project: tealc
+    project: skodjob
 subjects:
   - kind: ServiceAccount
     name: access-serviceaccount
@@ -24,3 +24,15 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: access-serviceaccount
+  namespace: default
+  labels:
+    app: strimzi
+    project: skodjob
+  annotations:
+    kubernetes.io/service-account.name: access-serviceaccount

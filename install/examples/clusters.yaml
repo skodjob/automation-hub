@@ -1,15 +1,15 @@
 ---
+# TODO - this is no longer valid, update it accordingly!
 #  Infra cluster configuration
 infra_access_token: placeholder
 infra_api_url: server_api_url
-infra_context_name: tealc-infra
+infra_context_name: skodjob-infra
 infra_username: pepa
 infra_token: zdepa
 
 # Paths info
 kubeconfig_path: configpath
 github_secret_path: configpath/install/examples/github-secret.yaml
-grafana_docker_secret_path: configpath/install/examples/docker-secret.yaml
 
 # Workers
 workers:
@@ -19,7 +19,7 @@ workers:
     access_token: placeholder
     username: pepa
     password: zdepa
-    monitoring_namespace: tealc
+    monitoring_namespace: skodjob
     environment: upstream
     workload: true
   release_cluster:
@@ -28,6 +28,6 @@ workers:
     access_token: placeholder
     username: pepa
     password: zdepa
-    monitoring_namespace: tealc
+    monitoring_namespace: skodjob
     environment: upstream
     workload: true

@@ -22,7 +22,8 @@ spec:
                 name: strimzi-image-changer
           containers:
             - name: trigger
-              image: quay.io/tealc/apophis:latest
+              # TODO Use skodjob-ee from different org
+              image: quay.io/tealc/skodjob-ee:latest
               command:
                 - /workspace/entrypoint.sh
               volumeMounts:
@@ -64,5 +65,5 @@ data:
     
     if ! grep "${DIGEST_OPERATOR}" "${WORKSPACE}"/deployment-operator.yaml; then
       echo "[INFO] Going to trigger Operator images update"
-      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.tealc-pipelines.svc.cluster.local:8080  
+      curl -d '{"trigger-template": "image-update","params": {"image": "operator"}}' el-strimzi-image-update-event-listener.skodjob-pipelines.svc.cluster.local:8080  
     fi

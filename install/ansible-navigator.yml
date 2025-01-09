@@ -5,10 +5,7 @@ ansible-navigator:
 
   execution-environment:
     enabled: true
-    image: quay.io/tealc/tealc-ee:latest
-    pull:
-      arguments:
-        - "--platform linux/amd64"
+    image: quay.io/tealc/skodjob-ee:latest
     environment-variables:
       set:
         ANSIBLE_RUN_TAGS: 'infra,strimzi-infra'

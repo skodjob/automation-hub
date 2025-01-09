@@ -1,9 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ArgoCD
 metadata:
-  name: tealc-gitops
+  name: skodjob-gitops
   labels:
-    project: tealc
+    project: skodjob
 spec:
   server:
     autoscale:
@@ -116,4 +116,4 @@ spec:
     sharding: {}
     tls:
       ca:
-        secretName: tealc-signed-certificate
+        secretName: skodjob-signed-certificate

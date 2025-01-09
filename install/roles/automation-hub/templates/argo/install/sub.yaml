@@ -4,7 +4,7 @@ metadata:
   name: openshift-gitops-operator
   namespace: openshift-operators
   labels:
-    project: tealc
+    project: skodjob
 spec:
   channel: gitops-{{ gitops_channel_version | string }}
   installPlanApproval: Manual

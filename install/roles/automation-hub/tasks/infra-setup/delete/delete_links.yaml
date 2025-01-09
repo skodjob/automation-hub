@@ -1,5 +1,5 @@
 ---
-- name: Delete console link for tealc applications
+- name: Delete console link for skodjob applications
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: absent
