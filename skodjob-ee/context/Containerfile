@@ -87,7 +87,7 @@ RUN mkdir -p /build && chgrp 0 /build && chmod -R ug+rwx /build
 WORKDIR /build
 RUN $PYCMD -m pip install --no-cache-dir 'dumb-init==1.2.5'
 RUN echo This is a post-install command!
-RUN export ARCH=$(uname -m)
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
 RUN export ARCH=$(uname -m) && curl https://mirror.openshift.com/pub/openshift-v4/$ARCH/clients/ocp/latest-4.17/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
 RUN export ARCH=$(uname -m) && /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.7.0/1.el9/$ARCH/git-crypt-0.7.0-1.el9.$ARCH.rpm
 RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.6.1/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
