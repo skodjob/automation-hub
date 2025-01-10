@@ -4,7 +4,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_ci_namespace }}"
     api_version: "triggers.tekton.dev/v1alpha1"
-    label_selectors: listener=tealc
+    label_selectors: listener=skodjob
     verify_ssl: no
     state: absent
     kind: EventListener

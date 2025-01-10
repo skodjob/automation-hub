@@ -30,7 +30,7 @@
         region: "{{ aws_region | b64encode }}"
         bucketnames: "{{ bucketname | b64encode }}"
   vars:
-    bucketname: "tealc-{{ clusterName }}-loki"
+    bucketname: "skodjob-{{ clusterName }}-loki"
 
 - name: "Delete Loki subscription on {{ clusterName }}"
   kubernetes.core.k8s:

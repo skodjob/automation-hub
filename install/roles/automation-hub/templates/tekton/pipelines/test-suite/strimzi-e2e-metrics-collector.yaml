@@ -35,11 +35,12 @@ spec:
     metadata:
       labels:
         app: strimzi-e2e-metrics-collector
-        tealc/kind: strimzi-e2e-exporter
+        skodjob/kind: strimzi-e2e-exporter
     spec:
       serviceAccountName: strimzi-e2e-metrics-collector
       containers:
         - name: strimzi-e2e-metrics-collector
+          # TODO - move to different org and use skodjob-ee
           image: quay.io/tealc/metrics-collector@sha256:f7adc0b119f1e4fb7df05575e504fd977e57d7fd79e21a1fa135ade15b27bb85
           resources:
             limits:
@@ -57,7 +58,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
   labels:
-    app: tealc
+    app: skodjob
   name: strimzi-e2e-metrics
 spec:
   podMetricsEndpoints:
@@ -65,4 +66,4 @@ spec:
       port: metrics
   selector:
     matchLabels:
-      tealc/kind: strimzi-e2e-exporter
+      skodjob/kind: strimzi-e2e-exporter

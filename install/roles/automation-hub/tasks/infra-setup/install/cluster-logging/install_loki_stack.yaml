@@ -68,7 +68,7 @@
         region: "{{ aws_region | b64encode }}"
         bucketnames: "{{ bucketname | b64encode }}"
   vars:
-    bucketname: "tealc-{{ clusterName }}-loki"
+    bucketname: "skodjob-{{ clusterName }}-loki"
 
 - name: "Remove Grafana access on {{ clusterName }} to avoid conflicts"
   kubernetes.core.k8s:

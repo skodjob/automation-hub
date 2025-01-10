@@ -3,7 +3,7 @@ kind: Pipeline
 metadata:
   name: strimzi-e2e-test-suite-pipeline
   labels:
-    project: tealc
+    project: skodjob
   annotations:
     argocd.argoproj.io/hook: PreSync
 spec:
@@ -72,7 +72,7 @@ spec:
             image: quay.io/rh_integration/strimzi-tools:latest
             script: |
               cd $(workspaces.pipeline-ws.path)/strimzi-e2e/target/surefire-reports
-              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file strimzi-e2e-metrics-collector.tealc-pipelines.svc.cluster.local:8080/data; done
+              for file in *.xml; do curl -X POST -H "X-Run-ID: $(context.pipelineRun.name)" -d @$file strimzi-e2e-metrics-collector.skodjob-pipelines.svc.cluster.local:8080/data; done
     - name: notify-slack
       when:
         - input: $(tasks.status)
@@ -100,7 +100,7 @@ kind: TriggerTemplate
 metadata:
   name: strimzi-e2e-test-suite-trigger-template
   labels:
-    project: tealc
+    project: skodjob
 spec:
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
@@ -108,7 +108,7 @@ spec:
       metadata:
         generateName: strimzi-e2e-test-suite-
         labels:
-          app: tealc
+          app: skodjob
       spec:
         pipelineRef:
           name: strimzi-e2e-test-suite-pipeline
@@ -130,7 +130,7 @@ kind: TriggerBinding
 metadata:
   name: strimzi-e2e-test-suite-triggerbinding
   labels:
-    project: tealc
+    project: skodjob
 spec:
   params:
     - name: message
@@ -142,8 +142,8 @@ kind: EventListener
 metadata:
   name: strimzi-e2e-test-suite-event-listener
   labels:
-    listener: tealc
-    project: tealc
+    listener: skodjob
+    project: skodjob
 spec:
   triggers:
     - name: strimzi-e2e-test-suite-webhook
@@ -169,7 +169,7 @@ kind: CronJob
 metadata:
   name: strimzi-e2e-test-suite-cron
   labels:
-    project: tealc
+    project: skodjob
 spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -180,12 +180,13 @@ spec:
         spec:
           containers:
             - name: notify
-              image: quay.io/tealc/apophis:latest
+              # TODO Change org when we will create a new one
+              image: quay.io/tealc/skodjob-ee:latest
               args:
                 - curl
                 - -d
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-strimzi-e2e-test-suite-event-listener.tealc-pipelines.svc.cluster.local:8080
+                - el-strimzi-e2e-test-suite-event-listener.skodjob-pipelines.svc.cluster.local:8080
           restartPolicy: Never

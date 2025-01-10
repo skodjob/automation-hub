@@ -22,7 +22,7 @@ spec:
     mode: openshift-logging
   template:
     ingester:
-      replicas: 3
+      replicas: 1
       nodeSelector:
         nodetype: logging
       tolerations:
@@ -31,7 +31,7 @@ spec:
           operator: Equal
           value: logging
     compactor:
-      replicas: 3
+      replicas: 1
       nodeSelector:
         nodetype: logging
       tolerations:
@@ -40,7 +40,7 @@ spec:
           operator: Equal
           value: logging
     distributor:
-      replicas: 3
+      replicas: 1
       nodeSelector:
         nodetype: logging
       tolerations:

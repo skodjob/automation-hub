@@ -3,4 +3,4 @@ wget
 tar
 skopeo
 maven
-java-17-openjdk-devel
+java-21-openjdk-devel

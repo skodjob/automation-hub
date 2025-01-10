@@ -1,30 +1,102 @@
 ---
-apiVersion: logging.openshift.io/v1
-kind: ClusterLogging
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: instance
+  name: cluster-logging-sa
+  namespace: openshift-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: logging-apps-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-logging-write-application-logs
+subjects:
+  - kind: ServiceAccount
+    name: cluster-logging-sa
+    namespace: openshift-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: logging-infra-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-logging-write-infrastructure-logs
+subjects:
+  - kind: ServiceAccount
+    name: cluster-logging-sa
+    namespace: openshift-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: logging-audit-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-logging-write-audit-logs
+subjects:
+  - kind: ServiceAccount
+    name: cluster-logging-sa
+    namespace: openshift-logging
+---
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: logging
   namespace: openshift-logging
 spec:
-  collection:
-    type: vector
+  managementState: Managed
+  serviceAccount:
+    name: cluster-logging-sa
+  collector:
+    resources:
+      limits: {}
+      requests: {}
+    nodeSelector: {}
     tolerations:
       - effect: NoSchedule
         key: nodetype
         value: kafka
       - effect: NoSchedule
         key: nodetype
-        value: connect
+        value: services
       - effect: NoSchedule
         key: nodetype
         value: logging
       - effect: NoSchedule
         key: nodetype
         value: monitoring
-  logStore:
-    lokistack:
-      name: logging-loki
-    type: lokistack
-  managementState: Managed
-
-
-
+  inputs:
+    - name: application-logs
+      type: application
+      application:
+        excludes:
+          - namespace: strimzi-clients
+          - namespace: strimzi-clients-kraft
+          - namespace: strimzi-clients-mirror
+  outputs:
+    - name: default-lokistack
+      type: lokiStack
+      lokiStack:
+        target:
+          name: logging-loki
+          namespace: openshift-logging
+        authentication:
+          token:
+            from: serviceAccount
+      tls:
+        ca:
+          key: service-ca.crt
+          configMapName: openshift-service-ca.crt
+  pipelines:
+    - name: application-and-infra-logs
+      outputRefs:
+        - default-lokistack
+      inputRefs:
+        - application
+        - infrastructure

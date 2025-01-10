@@ -35,7 +35,6 @@ spec:
           networks:
             - subnets:
                 - filter:
-                    name: {{ clusterId }}-nodes
                     tags: openshiftClusterID={{ clusterId }}
           userDataSecret:
             name: worker-user-data
@@ -93,7 +92,6 @@ spec:
           networks:
             - subnets:
                 - filter:
-                    name: {{ clusterId }}-nodes
                     tags: openshiftClusterID={{ clusterId }}
           userDataSecret:
             name: worker-user-data
@@ -147,7 +145,6 @@ spec:
           networks:
             - subnets:
                 - filter:
-                    name: {{ clusterId }}-nodes
                     tags: openshiftClusterID={{ clusterId }}
           userDataSecret:
             name: worker-user-data

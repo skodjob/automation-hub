@@ -25,8 +25,6 @@ PYCMD="${PYCMD:=/usr/bin/python3}"
 PIPCMD="${PIPCMD:=$PYCMD -m pip}"
 PIP_OPTS="${PIP_OPTS-}"
 
-$PYCMD -m ensurepip
-
 if [ -z $PKGMGR ]; then
     # Expect dnf to be installed, however if we find microdnf default to it.
     PKGMGR=/usr/bin/dnf
@@ -37,7 +35,7 @@ fi
 
 if [ "$PKGMGR" = "/usr/bin/microdnf" ]
 then
-    if [ -z $PKGMGR_OPTS ]; then
+    if [ -z "${PKGMGR_OPTS}" ]; then
         # NOTE(pabelanger): skip install docs and weak dependencies to
         # make smaller images. Sadly, setting these in dnf.conf don't
         # appear to work.

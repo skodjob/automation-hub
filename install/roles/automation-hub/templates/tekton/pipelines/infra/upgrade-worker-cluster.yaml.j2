@@ -22,7 +22,8 @@ spec:
           - name: pipeline-ws
         steps:
           - name: execute-tests
-            image: quay.io/tealc/apophis:latest
+            # TODO Use skodjob-ee from different org
+            image: quay.io/tealc/skodjob-ee:latest
             env:
               - name: OC_TOKEN
                 valueFrom:
@@ -103,7 +104,7 @@ spec:
       metadata:
         generateName: upgrade-{{ name }}-cluster-
         labels:
-          app: tealc
+          app: skodjob
       spec:
         pipelineRef:
           name: upgrade-{{ name }}-cluster-pipeline
@@ -166,12 +167,13 @@ spec:
         spec:
           containers:
             - name: notify
-              image: quay.io/tealc/apophis:latest
+              # TODO Use skodjob-ee from different org
+              image: quay.io/tealc/skodjob-ee:latest
               args:
                 - curl
                 - -d
                 - "{}"
                 - -H
                 - 'Content-Type: application/json'
-                - el-upgrade-{{ name }}-cluster-event-listener.tealc-pipelines.svc.cluster.local:8080
+                - el-upgrade-{{ name }}-cluster-event-listener.skodjob-pipelines.svc.cluster.local:8080
           restartPolicy: Never

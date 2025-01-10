@@ -18,8 +18,3 @@
   fail:
     msg: "Variable 'infra_api_url' is not defined"
   when: infra_api_url is not defined
-
-- name: Check that 'grafana_docker_secret_path' is not defined
-  fail:
-    msg: "Variable 'grafana_docker_secret_path' is not defined"
-  when: grafana_docker_secret_path is not defined

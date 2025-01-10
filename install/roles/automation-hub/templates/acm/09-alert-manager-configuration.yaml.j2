@@ -111,9 +111,9 @@ stringData:
             - purpose = infra
     receivers:
       - name: 'default_blackhole'
-      - name: 'tealc-infra'
+      - name: 'skodjob-infra'
         slack_configs:
-        - channel: '#tealc-alerts-infra'
+        - channel: '#skodjob-alerts-infra'
           api_url: {{ slack_api_alerts_infra_url }}
           color: '{% raw %}{{ template "slack.color" . }}{% endraw %}'
           title: '{% raw %}{{ template "slack.title" . }}{% endraw %}'
@@ -124,8 +124,8 @@ stringData:
               text: 'ACM Grafana :grafana:'
               url: '{{ grafana_acm_url }}'
             - type: button
-              text: 'Tealc Grafana :grafana:'
-              url: '{{ grafana_tealc_url }}'
+              text: 'Skodjob Grafana :grafana:'
+              url: '{{ skodjob_grafana_url }}'
             - type: button
               text: 'ArgoCD :argocd:'
               url: '{{ argo_url }}'
@@ -134,7 +134,7 @@ stringData:
               url: '{% raw %}{{ template "__alert_silence_link" . }}{% endraw %}'
       - name: 'strimzi'
         slack_configs:
-        - channel: '#tealc-alerts-strimzi'
+        - channel: '#skodjob-alerts-strimzi'
           api_url: {{ slack_api_alerts_strimzi_url }}
           color: '{% raw %}{{ template "slack.color" . }}{% endraw %}'
           title: '{% raw %}{{ template "slack.title" . }}{% endraw %}'
@@ -143,7 +143,7 @@ stringData:
           actions:
             - type: button
               text: 'Grafana :grafana:'
-              url: '{{ grafana_tealc_url }}'
+              url: '{{ skodjob_grafana_url }}'
             - type: button
               text: 'ArgoCD :argocd:'
               url: '{{ argo_url }}'

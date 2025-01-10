@@ -15,6 +15,7 @@
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
     - "{{ infra_argo_namespace }}"
+    - "{{ infra_workflow_namespace }}"
 
 - name: "Create ServiceAccount for remote access on {{ worker.name }}"
   kubernetes.core.k8s:
@@ -26,7 +27,7 @@
 
 - name: "Export access token on {{ worker.name }}"
 #  shell: "oc serviceaccounts get-token access-serviceaccount -n default"
-  shell: "oc get  $(oc get secret -o name -n default | grep access-serviceaccount-token) -n default -o=jsonpath='{.data.token}' | base64 -d"
+  shell: "oc get secret access-serviceaccount -n default -o=jsonpath='{.data.token}' | base64 -d"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ worker.name }}"
   register: "access_token_out"
@@ -58,12 +59,12 @@
     verify_ssl: no
     apply: true
 
-- name: Create tealc-install access secret in CI namespaces
+- name: Create skodjob-install access secret in CI namespaces
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ namespaceName }}"
     state: present
-    src: "{{ tealc_git_crypt_key }}"
+    src: "{{ skodjob_git_crypt_key }}"
     verify_ssl: no
     apply: true
   loop_control:

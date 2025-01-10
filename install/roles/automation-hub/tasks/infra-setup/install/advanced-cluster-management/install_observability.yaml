@@ -49,7 +49,7 @@
     verify_ssl: no
     wait_condition:
       type: Ready
-      status: True
+      status: 'True'
       reason: Ready
 
 - name: "Create multicluster observability config map for custom metrics on {{ worker.name }} cluster"

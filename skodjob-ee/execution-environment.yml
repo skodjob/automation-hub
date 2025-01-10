@@ -1,0 +1,47 @@
+---
+version: 3
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.18.1
+  ansible_runner:
+    package_pip: ansible-runner==2.4.0
+  galaxy: ../install/collections/requirements.yml
+  system:
+    - jq
+    - wget
+    - tar
+    - skopeo
+    - maven
+    - java-21-openjdk-devel
+  python:
+    - python-openstackclient
+    - awscli
+    - passlib
+  python_interpreter:
+    python_path: "/usr/bin/python3.11"
+  exclude:
+    system:
+      # https://github.com/ansible-collections/kubernetes.core/issues/537#issuecomment-2422804990
+      - openshift-clients
+
+images:
+  base_image:
+    name: registry.access.redhat.com/ubi9/ubi:latest
+
+additional_build_steps:
+  prepend_base:
+    - RUN $PKGMGR install -y  yum-utils make gcc libcurl-devel glibc libxslt-devel libxml2-devel openssl-devel bzip2-devel libffi-devel zlib-devel python3.11 python3.11-devel httpd-tools
+    - RUN $PYCMD --version
+  append_final:
+    - RUN echo This is a post-install command!
+    - RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
+    - RUN export ARCH=$(uname -m) && curl https://mirror.openshift.com/pub/openshift-v4/$ARCH/clients/ocp/latest-4.17/openshift-client-linux.tar.gz -o openshift-client-linux.tar.gz && tar xzf openshift-client-linux.tar.gz && rm -f openshift-client-linux.tar.gz && mv oc /usr/bin/oc && mv kubectl /usr/bin/kubectl
+    - RUN export ARCH=$(uname -m) && /usr/bin/dnf install -y https://kojipkgs.fedoraproject.org//packages/git-crypt/0.7.0/1.el9/$ARCH/git-crypt-0.7.0-1.el9.$ARCH.rpm
+    - RUN curl -O https://mirror.openshift.com/pub/rhacs/assets/4.6.1/bin/Linux/roxctl && chmod +x roxctl && mv roxctl /usr/bin/roxctl
+    - RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash && mv kustomize /usr/bin/
+    - RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+options:
+  workdir: /build
+  user: root

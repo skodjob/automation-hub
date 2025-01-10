@@ -145,7 +145,7 @@
        target_cluster_name: "{{ infra_context_name }}",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
-    - {name: "tealc-thanos",
+    - {name: "skodjob-thanos",
        sa_namespace: "{{ infra_user_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        target_cluster_name: "{{ infra_context_name }}",
@@ -172,7 +172,7 @@
   loop:
     # Turn off notifications from Thanos alert manager because the one from original monitoring stack is better configured now for user alerts
     - {namespace: "open-cluster-management-observability", suffix: "config", receiver_infra: "default_blackhole", receiver_strimzi: "default_blackhole"}
-    - {namespace: "openshift-monitoring", suffix: "main", receiver_infra: "tealc-infra", receiver_strimzi: "strimzi"}
+    - {namespace: "openshift-monitoring", suffix: "main", receiver_infra: "skodjob-infra", receiver_strimzi: "strimzi"}
 
 - name: "Configure default Alertmanager to surpass warnings - {{ clusterName }}"
   kubernetes.core.k8s:
@@ -185,7 +185,7 @@
     clusterName: "{{ clusterName }}"
     namespace: "openshift-monitoring"
     suffix: "main"
-    receiver_infra: "tealc-infra"
+    receiver_infra: "skodjob-infra"
     receiver_strimzi: "strimzi"
   loop: "{{ worker_clusters }}"
   loop_control:

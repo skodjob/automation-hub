@@ -37,7 +37,7 @@ spec:
       description: Title of the button
   steps:
     - name: post
-      image: quay.io/tealc/tealc-ee:latest
+      image: quay.io/tealc/skodjob-ee:latest
       script: |
         #!/usr/bin/env sh
 
