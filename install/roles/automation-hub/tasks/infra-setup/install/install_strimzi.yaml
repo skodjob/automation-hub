@@ -22,7 +22,7 @@
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
-- name: Add Argo Helm Repo
+- name: Add Strimzi Helm Repo
   kubernetes.core.helm_repository:
     name: strimzi
     url: https://strimzi.io/charts

@@ -14,7 +14,7 @@ spec:
           - clusters:
               selector:
                 matchLabels:
-                  environment: upstream-latest
+                  environment: upstream
     - matrix:
         generators:
           - git:
@@ -25,7 +25,7 @@ spec:
           - clusters:
               selector:
                 matchLabels:
-                  environment: upstream-latest
+                  environment: upstream
   template:
     metadata:
       name: '{{appname}}-{{name}}'

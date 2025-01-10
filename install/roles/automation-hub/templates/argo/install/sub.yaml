@@ -7,7 +7,7 @@ metadata:
     project: skodjob
 spec:
   channel: gitops-{{ gitops_channel_version | string }}
-  installPlanApproval: Manual
+  installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace

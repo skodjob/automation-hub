@@ -18,7 +18,7 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     state: present
     verify_ssl: no
-    src: templates/argo/install/sub.yaml
+    template: templates/argo/install/sub.yaml
   register: argo_sub
 
 - name: Sleep for 5 seconds and continue with play
@@ -50,7 +50,7 @@
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
 
-- name: Create Argo app
+- name: Install Argo
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ infra_argo_namespace }}"
