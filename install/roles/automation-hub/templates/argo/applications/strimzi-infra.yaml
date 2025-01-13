@@ -12,7 +12,7 @@ spec:
               files:
                 - path: strimzi/**/argo-config.yaml
               repoURL: 'https://github.com/skodjob/deployment-hub'
-              revision: clients-fixes
+              revision: HEAD
           - clusters:
               selector:
                 matchLabels:
@@ -23,7 +23,7 @@ spec:
               files:
                 - path: infra/strimzi/argo-config.yaml
               repoURL: 'https://github.com/skodjob/deployment-hub'
-              revision: clients-fixes
+              revision: HEAD
           - clusters:
               selector:
                 matchLabels:
@@ -38,7 +38,7 @@ spec:
       project: strimzi
       source:
         repoURL: https://github.com/skodjob/deployment-hub
-        targetRevision: clients-fixes
+        targetRevision: HEAD
         path: '{{source}}'
         directory:
           recurse: true

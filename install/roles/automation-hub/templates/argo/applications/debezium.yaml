@@ -10,7 +10,7 @@ spec:
         generators:
           - git:
               repoURL: https://github.com/skodjob/deployment-hub
-              revision: clients-fixes
+              revision: HEAD
               files:
                 - path: "debezium/**[^mongo|mongo\\-operator]**/argo-config.yaml"
           - clusters:
@@ -27,7 +27,7 @@ spec:
       project: debezium
       source:
         repoURL: https://github.com/skodjob/deployment-hub
-        targetRevision: clients-fixes
+        targetRevision: HEAD
         path: '{{source}}'
         directory:
           recurse: true
