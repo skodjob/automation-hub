@@ -1,5 +1,22 @@
 ---
-- name: Create Strimzi namespaces on Infra cluster
+- name: Create Strimzi Operator namespaces on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          project: "skodjob"
+          strimzi.io/type: operators
+  loop:
+    - "{{ strimzi_operator_namespace }}"
+    - "{{ strimzi_drain_cleaner_namespace }}"
+
+- name: Create Strimzi Event Bus namespaces on Infra cluster
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     verify_ssl: no
@@ -12,10 +29,9 @@
         labels:
           project: "skodjob"
           strimzi.io/sync-secrets: "true"
+          strimzi.io/type: operands
   loop:
-    - "{{ strimzi_operator_namespace }}"
     - "{{ strimzi_kafka_namespace }}"
-    - "{{ strimzi_drain_cleaner_namespace }}"
 
 - name: Clean helm releases for workflows
   shell: "oc delete secret -l owner=helm -n {{ strimzi_operator_namespace }} || true"

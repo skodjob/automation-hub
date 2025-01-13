@@ -29,7 +29,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./skodjob-ee/context
-          file: ./skodjob-ee/context/Dockerfile
+          file: ./skodjob-ee/context/Containerfile
           push: true
           # TODO - Change org when we will create a new one
           tags: quay.io/tealc/skodjob-ee:latest

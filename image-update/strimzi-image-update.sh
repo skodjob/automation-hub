@@ -212,6 +212,9 @@ do
         LATEST_DIGEST=$(skopeo inspect --override-arch amd64 --override-os linux docker://"$TARGET_ORG_REPO"/"$IMAGE":latest-kafka-"$PREFIX"  --format "{{ .Digest }}")
     elif [[ $ELEMENT == *"kafka@"* ]]; then
         continue
+    # Do not care about bridge version
+    elif [[ $ELEMENT == *"bridge@"* ]]; then
+        continue
     else
         LATEST_DIGEST=$(skopeo inspect  --override-arch amd64 --override-os linux docker://"$TARGET_ORG_REPO"/"$IMAGE" --format "{{ .Digest }}")
     fi

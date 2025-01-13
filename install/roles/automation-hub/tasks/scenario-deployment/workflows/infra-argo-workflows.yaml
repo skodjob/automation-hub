@@ -20,3 +20,79 @@
     verify_ssl: no
     apply: true
   with_fileglob: 'templates/argo-workflows/eventsource/*.j2'
+
+- name: Wait for EventSources - Deployed
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    kind: EventSource
+    api_version: argoproj.io/v1alpha1
+    name: "{{ item }}"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Deployed
+      status: True
+  loop:
+    - automation-hub
+  register: eventsource_info
+
+# TODO - Fail if single sensor is not found, this could be improved to properly check the status
+- name: Fail if EventSource is not found
+  fail:
+    msg: "EventSource automation-hub not found."
+  loop: "{{ eventsource_info.results }}"
+  when: item.resources | length == 0
+
+- name: Wait for EventSources - SourcesProvided
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    kind: EventSource
+    api_version: argoproj.io/v1alpha1
+    name: "{{ item }}"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: SourcesProvided
+      status: True
+  loop:
+    - automation-hub
+
+- name: Wait for Sensors - Deployed
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    kind: Sensor
+    api_version: argoproj.io/v1alpha1
+    name: "{{ item }}"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Deployed
+      status: True
+  loop:
+    - automation-hub
+  register: sensor_info
+
+# TODO - Fail if single sensor is not found, this could be improved to properly check the status
+- name: Fail if Sensor is not found
+  fail:
+    msg: "Sensor automation-hub not found."
+  loop: "{{ sensor_info.results }}"
+  when: item.resources | length == 0
+
+- name: Wait for Sensors - TriggersProvided
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_workflow_namespace }}"
+    kind: Sensor
+    api_version: argoproj.io/v1alpha1
+    name: "{{ item }}"
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: TriggersProvided
+      status: True
+  loop:
+    - automation-hub

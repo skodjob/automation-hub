@@ -1,4 +1,4 @@
-{% if cluster is defined %}
+{% if is_worker is defined %}
 {% set namespace = cluster.monitoring_namespace %}
 {% set name = cluster.name %}
 {% else %} 
@@ -16,6 +16,18 @@ metadata:
     project: skodjob
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: {{ name }}-grafana
+  namespace: {{ namespace }}
+  labels:
+    app: grafana
+    project: skodjob
+  annotations:
+    kubernetes.io/service-account.name: {{ name }}-grafana
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

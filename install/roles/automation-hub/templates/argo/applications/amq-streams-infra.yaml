@@ -3,12 +3,14 @@ kind: ApplicationSet
 metadata:
   name: amq-streams-infra
 spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   generators:
     - matrix:
         generators:
           - git:
               repoURL: https://github.com/skodjob/deployment-hub
-              revision: HEAD
+              revision: clients-fixes
               files:
                 - path: "amq-streams/**/argo-config.yaml"
           - clusters:
@@ -25,7 +27,7 @@ spec:
       project: strimzi
       source:
         repoURL: https://github.com/skodjob/deployment-hub
-        targetRevision: HEAD
+        targetRevision: clients-fixes
         path: '{{source}}'
         directory:
           recurse: true
@@ -36,7 +38,6 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-        preserveResourcesOnDeletion: true
         managedNamespaceMetadata:
           labels:
             project: skodjob
