@@ -134,18 +134,21 @@
   vars:
     is_worker: True
     sa_name: "{{ cluster.name }}-grafana"
+    datasource_name: "{{ cluster.name }}"
     url: "https://thanos-querier-openshift-monitoring.apps.{{ cluster.name }}.{{ cluster_domain }}:443"
 
 - name: Create data-sources on Infra cluster for Infra data
   include_tasks: deploy-data-source.yaml
   loop:
     - {name: "{{ infra_context_name }}",
+       datasource_name: "{{ infra_context_name }}",
        sa_namespace: "{{ infra_user_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        target_cluster_name: "{{ infra_context_name }}",
        context: "{{ infra_context_name }}",
        url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"}
-    - {name: "skodjob-thanos",
+    - {name: "{{ infra_context_name }}",
+       datasource_name: "skodjob-thanos",
        sa_namespace: "{{ infra_user_namespace }}",
        monitoring_namespace: "{{ infra_monitoring_namespace }}",
        target_cluster_name: "{{ infra_context_name }}",
@@ -154,7 +157,8 @@
   loop_control:
     loop_var: cluster
   vars:
-    sa_name: "skodjob-sa"
+    sa_name: "{{ infra_context_name }}-grafana"
+    datasource_name: "{{ cluster.datasource_name }}"
 
 - name: Configure Alertmanager to for sending alerts on Infra cluster from all clusters
   kubernetes.core.k8s:

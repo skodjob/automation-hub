@@ -3,6 +3,8 @@ kind: ApplicationSet
 metadata:
   name: strimzi-infra
 spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   generators:
     - matrix:
         generators:
@@ -47,7 +49,6 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-        preserveResourcesOnDeletion: true
         managedNamespaceMetadata:
           labels:
             project: skodjob

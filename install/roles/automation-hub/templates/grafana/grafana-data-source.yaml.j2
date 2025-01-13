@@ -5,7 +5,7 @@
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
-  name: {{ cluster.name }}-source
+  name: {{ datasource_name }}-source
   labels:
     project: "skodjob"
     app: grafana
@@ -19,9 +19,8 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "skodjob"
-  name: skodjob.yaml
   datasource:
-    name: {{ cluster.name }}
+    name: {{ datasource_name }}
     type: prometheus
     access: proxy
     # url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
@@ -29,9 +28,8 @@ spec:
     basicAuth: false
     basicAuthUser: internal
     isDefault: false
-    version: 1
     editable: true
-{% if cluster.name != 'skodjob-thanos' %}
+{% if datasource_name != 'skodjob-thanos' %}
     jsonData:
       tlsSkipVerify: true
       timeInterval: "5s"

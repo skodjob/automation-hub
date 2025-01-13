@@ -18,6 +18,16 @@
     template: templates/acm/06-thanos-storage-secret.yaml.j2
     verify_ssl: no
 
+# This is needed if the clusters are created via our ACM.
+# MultiClusterObservability is installed only on managed clusters with this label
+- name: Label each cluster with vendor=OpenShift
+  ansible.builtin.shell: "oc label managedcluster {{ cluster.name }} vendor=OpenShift --overwrite"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: cluster
+
 - name: "Create multicluster observability on Infra cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"

@@ -9,7 +9,7 @@ spec:
   project: monitoring
   source:
     repoURL: https://github.com/skodjob/deployment-hub
-    targetRevision: HEAD
+    targetRevision: {{ deployment_hub_branch }}
     path: metrics/alerts/kafka-mirror-maker
     directory:
       recurse: true

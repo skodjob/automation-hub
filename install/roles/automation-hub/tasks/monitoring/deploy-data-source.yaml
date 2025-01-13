@@ -1,11 +1,21 @@
 ---
 # Get Grafana access token and update clusters data
-- name: "Export access token {{ cluster.name }}"
-  #  shell: "oc serviceaccounts get-token grafana-serviceaccount -n {{ target.sa_namespace }}"
-  shell: "oc get  $(oc get secret -o name -n {{ cluster.monitoring_namespace }} | grep {{ sa_name }}-token) -n {{ cluster.monitoring_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
+- name: "Export access token for {{ cluster.name }}"
+  shell: "oc get secret {{ sa_name }} -n {{ cluster.monitoring_namespace }} -o=jsonpath='{.data.token}' | base64 -d"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}/{{ cluster.name }}"
   register: "access_token_out"
+
+- debug:
+    msg: "{{ access_token_out }}"
+
+- name: "Set facts grafana access token - {{ cluster.name }}"
+  set_fact: access_token="{{ access_token_out.stdout }}"
+
+- name: Check that token exists
+  fail:
+    msg: "Token is not properly stored!\n{{ access_token }}"
+  when: access_token | length == 0
 
 - name: "Update facts for {{ cluster.name }}"
   ansible.utils.update_fact:
@@ -23,7 +33,7 @@
     clusters_dict: "{{ updated_data.clusters_dict }}"
   when: is_worker is defined
 
-- name: "Create Grafana data-source {{ cluster.name }}"
+- name: "Create Grafana data-source {{ datasource_name }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ cluster.monitoring_namespace }}"
