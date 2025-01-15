@@ -2,7 +2,7 @@
 # defaults file
 infra_monitoring_namespace: skodjob-monitoring
 infra_ci_namespace: skodjob-pipelines
-infra_workflow_namespace: skodjob-ci
+infra_workflows_namespace: skodjob-ci
 infra_argo_namespace: skodjob-gitops
 
 openshift_pipelines_namespace: openshift-pipelines

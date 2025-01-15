@@ -27,7 +27,7 @@ metadata:
     owner-name: automation-hub
   name: automation-hub-eventsource-svc
 spec:
-  host: "automation-hub-eventsource-svc-{{ infra_workflow_namespace }}.apps.{{ infra_root_domain }}"
+  host: "automation-hub-eventsource-svc-{{ infra_workflows_namespace }}.apps.{{ infra_root_domain }}"
   port:
     targetPort: 12000
   to:
