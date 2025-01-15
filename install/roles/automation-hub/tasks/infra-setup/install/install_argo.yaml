@@ -56,7 +56,7 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     verify_ssl: no
-    src: templates/argo/install/argocd.yaml
+    template: templates/argo/install/argocd.yaml
     apply: true
   retries: 20
   delay: 5

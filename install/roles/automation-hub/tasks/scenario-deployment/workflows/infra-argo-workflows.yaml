@@ -2,7 +2,7 @@
 - name: Create Infra Argo Workflows
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     state: present
     template: "{{ item }}"
     verify_ssl: no
@@ -14,7 +14,7 @@
 - name: Create EventSources and Sensors
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     state: present
     template: "{{ item }}"
     verify_ssl: no
@@ -24,7 +24,7 @@
 - name: Wait for EventSources - Deployed
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     kind: EventSource
     api_version: argoproj.io/v1alpha1
     name: "{{ item }}"
@@ -47,7 +47,7 @@
 - name: Wait for EventSources - SourcesProvided
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     kind: EventSource
     api_version: argoproj.io/v1alpha1
     name: "{{ item }}"
@@ -62,7 +62,7 @@
 - name: Wait for Sensors - Deployed
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     kind: Sensor
     api_version: argoproj.io/v1alpha1
     name: "{{ item }}"
@@ -85,7 +85,7 @@
 - name: Wait for Sensors - TriggersProvided
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
-    namespace: "{{ infra_workflow_namespace }}"
+    namespace: "{{ infra_workflows_namespace }}"
     kind: Sensor
     api_version: argoproj.io/v1alpha1
     name: "{{ item }}"

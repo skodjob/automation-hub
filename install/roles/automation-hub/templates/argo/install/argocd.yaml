@@ -1,3 +1,18 @@
+---
+# This is a secret used for Dex server to be usable by Argo Workflows
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-workflows-sso
+  labels:
+    project: skodjob
+    app: argo
+  annotations:
+    replicator.v1.mittwald.de/replicate-to: "{{ infra_workflows_namespace }}"
+data:
+  client-id: {{ argo_workflows_client_id }}
+  client-secret: {{ argo_workflows_client_secret }}
+---
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
@@ -6,6 +21,7 @@ metadata:
     project: skodjob
 spec:
   server:
+    replicas: 3
     autoscale:
       enabled: true
     grpc:
@@ -90,6 +106,21 @@ spec:
         requests:
           cpu: 250m
           memory: 128Mi
+      env:
+        - name: ARGO_WORKFLOWS_SSO_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ argo_workflows_sso_secret_name }}
+              key: client-secret
+      config: |
+        # Setting staticClients allows Argo Workflows to use Argo CD's Dex installation for authentication
+        staticClients:
+          # This is the OIDC client ID in plaintext
+          - id: {{ argo_workflows_client_id }}
+            name: Argo Workflows
+            redirectURIs:
+              - https://{{ argo_workflows_url }}/oauth2/callback
+            secretEnv: ARGO_WORKFLOWS_SSO_CLIENT_SECRET
   ha:
     enabled: false
     resources:

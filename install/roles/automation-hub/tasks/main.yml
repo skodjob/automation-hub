@@ -95,10 +95,10 @@
   tags: [acs, infra, security, never]
 
 - import_tasks: infra-setup/install/install_strimzi.yaml
-  tags: [infra, ci, workflow, strimzi, never]
+  tags: [infra, ci, workflows, strimzi, never]
 
-- import_tasks: infra-setup/install/install_argo_workflow.yaml
-  tags: [infra, ci, workflow, never]
+- import_tasks: infra-setup/install/install_argo_workflows.yaml
+  tags: [infra, ci, workflows, never]
 
 - import_tasks: infra-setup/install/install_links.yaml
   tags: [infra, console-link, links, never]
@@ -123,7 +123,7 @@
   tags: [tekton-pipelines, strimzi-infra, never]
 
 - import_tasks: scenario-deployment/workflows/infra-argo-workflows.yaml
-  tags: [workflow, infra, never]
+  tags: [workflows, infra, never]
 
 # Teardown
 - import_tasks: infra-setup/delete/delete_argo.yaml

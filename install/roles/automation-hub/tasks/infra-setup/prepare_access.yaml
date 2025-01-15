@@ -15,7 +15,7 @@
     - "{{ infra_ci_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
     - "{{ infra_argo_namespace }}"
-    - "{{ infra_workflow_namespace }}"
+    - "{{ infra_workflows_namespace }}"
 
 - name: "Create ServiceAccount for remote access on {{ worker.name }}"
   kubernetes.core.k8s:
@@ -70,7 +70,7 @@
   loop_control:
     loop_var: namespaceName
   loop:
-    - "{{ infra_workflow_namespace }}"
+    - "{{ infra_workflows_namespace }}"
     - "{{ infra_ci_namespace }}"
 
 # TODO - investigate deletion of this
@@ -95,7 +95,7 @@
     loop_var: namespaceName
   loop:
     - "{{ infra_argo_namespace }}"
-    - "{{ infra_workflow_namespace }}"
+    - "{{ infra_workflows_namespace }}"
     - "{{ openshift_pipelines_namespace }}"
     - "{{ infra_ci_namespace }}"
 
