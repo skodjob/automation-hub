@@ -52,6 +52,7 @@ spec:
         managedNamespaceMetadata:
           labels:
             project: skodjob
+            app: strimzi
             strimzi.io/sync-secrets: "true"
       destination:
         name: '{{name}}'
