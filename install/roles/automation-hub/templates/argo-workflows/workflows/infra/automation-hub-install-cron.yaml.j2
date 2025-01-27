@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: automation-hub-install-cron
+spec:
+  schedule: "0 7 * * 1"
+  concurrencyPolicy: "Replace"
+  startingDeadlineSeconds: 0
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  workflowSpec:
+    entrypoint: automation-hub-install
+    serviceAccountName: operate-workflow-sa
+    onExit: exit-handler
+    templates:
+      - name: automation-hub-install
+        steps:
+          - - name: automation-hub-install
+              templateRef:
+                name: automation-hub-install
+                template: automation-hub-install
+                clusterScope: false
+      - name: exit-handler
+        ttlStrategy:
+          secondsAfterCompletion: 300
+        steps:
+          - - name: notify
+              when: "{% raw %}{{workflow.status}} != Succeeded{% endraw %}"
+              templateRef:
+                name: slack-notify
+                template: slack-notify
+                clusterScope: false
+              arguments:
+                parameters:
+                  - name: message
+                    value: "{% raw %}Workflow \\`{{ workflow.name }}\\` has status: \\`{{ workflow.status }}\\`!{% endraw %}"
+                  - name: title
+                    value: "{% raw %}{{ workflow.name }}{% endraw %}"
+                  - name: status
+                    value: "{% raw %}{{ workflow.status }}{% endraw %}"
+                  - name: button_url
+                    value: "https://{{ argo_workflows_url }}/workflows/argo/{% raw %}{{ workflow.name }}{% endraw %}"
+                  - name: button_text
+                    value: "Workflow link :argocd:"
+                  - name: url
+                    value: "{{ slackUrl }}"
