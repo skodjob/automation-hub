@@ -12,7 +12,7 @@
         labels:
           project: "skodjob"
           secret: "cert-manager"
-          strimzi.io/sync-secrets: "true"
+          strimzi.io/sync-secrets: "{{ infra_workflows_namespace }}"
 
 - name: Clean helm releases for workflows
   shell: "oc delete secret -l owner=helm -n {{ infra_workflows_namespace }} || true"

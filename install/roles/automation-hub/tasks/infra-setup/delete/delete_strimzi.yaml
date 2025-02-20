@@ -23,7 +23,7 @@
         name: "{{ item }}"
         labels:
           project: "skodjob"
-          strimzi.io/sync-secrets: "true"
+          strimzi.io/sync-secrets: "{{ item }}"
   loop:
     - "{{ strimzi_operator_namespace }}"
     - "{{ strimzi_kafka_namespace }}"

@@ -144,7 +144,7 @@ spec:
       clusterCaCert:
         metadata:
           annotations:
-            replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets=true"
+            replicator.v1.mittwald.de/replicate-to-matching: "strimzi.io/sync-secrets notin (strimzi-event-bus)"
   entityOperator:
     template:
       pod:
