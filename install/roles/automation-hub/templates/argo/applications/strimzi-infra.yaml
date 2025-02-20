@@ -53,7 +53,7 @@ spec:
           labels:
             project: skodjob
             app: strimzi
-            strimzi.io/sync-secrets: "true"
+            strimzi.io/sync-secrets: "{{namespace}}"
       destination:
         name: '{{name}}'
         namespace: '{{namespace}}'
