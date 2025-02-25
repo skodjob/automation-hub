@@ -1,0 +1,10 @@
+kind: OAuthClient
+apiVersion: oauth.openshift.io/v1
+metadata:
+  name: streams-console
+# The value that should be utilized as the `client_secret`
+secret: "{{ streams_console_secret }}"
+# List of valid addresses for the callback. Ensure one of the values that are provided is `(dex issuer)/callback`
+redirectURIs:
+  - "https://{{ streams_dex_namespace }}-{{ streams_dex_namespace }}.apps.{{ cluster_name }}.{{ cluster_domain }}/callback"
+grantMethod: prompt
