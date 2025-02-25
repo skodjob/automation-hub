@@ -24,7 +24,7 @@ spec:
         project: skodjob
         app: streams
     spec:
-      project: skodjob
+      project: streams
       source:
         repoURL: https://github.com/skodjob/deployment-hub
         targetRevision: HEAD
