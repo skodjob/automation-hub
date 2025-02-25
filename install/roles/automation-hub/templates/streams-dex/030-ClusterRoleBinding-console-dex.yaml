@@ -8,6 +8,6 @@ roleRef:
   kind: ClusterRole
   name: streams-dex
 subjects:
-- kind: ServiceAccount
-  name: streams-dex        # Service account assigned to the dex pod
-  namespace: streams-dex   # The namespace dex is running in
+  - kind: ServiceAccount
+    name: streams-dex        # Service account assigned to the dex pod
+    namespace: streams-dex   # The namespace dex is running in
