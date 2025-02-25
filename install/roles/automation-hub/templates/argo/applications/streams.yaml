@@ -12,7 +12,7 @@ spec:
               files:
                 - path: streams/**/argo-config.yaml
               repoURL: 'https://github.com/skodjob/deployment-hub'
-              revision: streams-console # revert to HEAD
+              revision: HEAD
           - clusters:
               selector:
                 matchLabels:
@@ -27,7 +27,7 @@ spec:
       project: skodjob
       source:
         repoURL: https://github.com/skodjob/deployment-hub
-        targetRevision: streams-console # revert to HEAD
+        targetRevision: HEAD
         path: '{{source}}'
         kustomize:
           patches:
