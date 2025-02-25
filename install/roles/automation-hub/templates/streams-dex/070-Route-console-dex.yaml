@@ -1,0 +1,17 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: streams-dex
+  labels:
+    app: streams-dex
+spec:
+  to:
+    kind: Service
+    name: streams-dex
+  port:
+    targetPort: 5556
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+  wildcardPolicy: None

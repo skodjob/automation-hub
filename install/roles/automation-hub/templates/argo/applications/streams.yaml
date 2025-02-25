@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: streams
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  generators:
+    - matrix:
+        generators:
+          - git:
+              files:
+                - path: streams/**/argo-config.yaml
+              repoURL: 'https://github.com/skodjob/deployment-hub'
+              revision: HEAD
+          - clusters:
+              selector:
+                matchLabels:
+                  environment: upstream
+  template:
+    metadata:
+      name: '{{appname}}-{{name}}'
+      labels:
+        project: skodjob
+        app: streams
+    spec:
+      project: skodjob
+      source:
+        repoURL: https://github.com/skodjob/deployment-hub
+        targetRevision: HEAD
+        path: '{{source}}'
+        kustomize:
+          patches:
+            - target:
+                kind: Console
+                name: streams-console
+              patch: |-
+                - op: replace
+                  path: "/spec/hostname"
+                  value: "{{namespace}}-{{namespace}}.apps.{{name}}.strimzi.app-services-dev.net"
+                - op: replace
+                  path: "/spec/security/oidc/authServerUrl"
+                  value: "https://streams-dex-streams-dex.apps.{{name}}.strimzi.app-services-dev.net"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        managedNamespaceMetadata:
+          labels:
+            project: skodjob
+            app: streams
+            strimzi.io/sync-secrets: "{{namespace}}"
+      destination:
+        name: '{{name}}'
+        namespace: '{{namespace}}'

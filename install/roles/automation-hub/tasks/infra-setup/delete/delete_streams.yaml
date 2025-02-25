@@ -1,0 +1,30 @@
+---
+- name: Delete Streams dex namespace on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ }}"
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ streams_dex_namespace }}"
+    verify_ssl: no
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: worker
+
+- name: Delete Streams console namespace on worker cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
+    namespace: "{{ }}"
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ streams_console_namespace }}"
+    verify_ssl: no
+  loop: "{{ clusters_dict.values() }}"
+  loop_control:
+    loop_var: worker

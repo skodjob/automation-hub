@@ -1,0 +1,38 @@
+---
+- name: Create Streams-dex namespace on worker clusters
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ streams_dex_namespace }}"
+        labels:
+          project: "skodjob"
+          secret: "streams-dex"
+
+- name: Create Dex resources
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ streams_dex_namespace }}"
+    state: present
+    template: "{{ item }}"
+    verify_ssl: no
+    apply: true
+  with_fileglob: 'templates/streams-dex/*.yaml*'
+
+- name: "Wait for Dex instance {{ cluster_name }}"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "{{ streams_dex_namespace }}"
+    kind: Deployment
+    api_version: apps/v1
+    name: streams-dex
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable

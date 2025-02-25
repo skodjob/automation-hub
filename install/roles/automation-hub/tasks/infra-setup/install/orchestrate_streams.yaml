@@ -1,0 +1,15 @@
+---
+- include_tasks:
+    file: streams-console/install_streams_dex.yaml
+  loop: "{{ worker_clusters }}"
+  loop_control:
+    loop_var: cluster_name
+
+- name: Create Argo applications for Streams apps
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ infra_argo_namespace }}"
+    state: present
+    apply: true
+    src: "templates/argo/applications/streams.yaml"
+    verify_ssl: no
