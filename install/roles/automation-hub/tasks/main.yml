@@ -117,7 +117,7 @@
   tags: [argo-apps, argo-strimzi-monitoring, strimzi-infra, never]
 
 - import_tasks: infra-setup/install/orchestrate_streams.yaml
-  tags: [argo-apps, streams, streams-console, never]
+  tags: [argo-apps, streams, streams-infra, streams-console, never]
 
 - import_tasks: scenario-deployment/tekton/infra-tkn-pipelines.yaml
   tags: [tekton-pipelines, infra, never]
