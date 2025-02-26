@@ -9,8 +9,8 @@
 - import_tasks: common/set_facts.yaml
   tags: [always]
 
-- import_tasks: common/prepare_kubeconfigs.yaml
-  tags: [always, kubeconfigs]
+#- import_tasks: common/prepare_kubeconfigs.yaml
+#  tags: [always, kubeconfigs]
 
 # infra installation
 # Install ACM
@@ -87,6 +87,9 @@
 
 - import_tasks: infra-setup/install/orchestrate_cert_manager.yaml
   tags: [cert-manager, cm, infra, never]
+
+- import_tasks: infra-setup/install/vault/install_vault.yaml
+  tags: [vault, infra, never ]
 
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
