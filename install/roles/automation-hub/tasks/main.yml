@@ -89,7 +89,7 @@
   tags: [cert-manager, cm, infra, never]
 
 - import_tasks: infra-setup/install/vault/install_vault.yaml
-  tags: [vault, infra, never ]
+  tags: [vault, infra, never]
 
 - import_tasks: infra-setup/install/orchestrate_logging.yaml
   tags: [logging, infra, monitoring, never]
