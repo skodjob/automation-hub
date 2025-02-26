@@ -1,8 +1,5 @@
 ---
 - include_tasks:
-    file: hive/00-prepare_secrets.yaml
-
-- include_tasks:
     file: hive/02-deploy_cluster.yaml
   loop: "{{ clusters_dict.values() }}"
   loop_control:

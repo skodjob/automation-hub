@@ -1,0 +1,67 @@
+---
+- name: Create {{ vault_namespace }} namespace on Infra cluster
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    verify_ssl: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ vault_namespace }}"
+        labels:
+          project: "skodjob"
+          secret: "vault"
+
+- name: Clean helm releases for Vault
+  shell: "oc delete secret -l owner=helm -n {{ vault_namespace }} || true"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Make default SA admin in {{ vault_namespace }} namespace
+  shell: "oc adm policy add-role-to-user admin system:serviceaccount:{{ vault_namespace }}:default -n {{ vault_namespace }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+
+- name: Add Vault Helm Repo
+  kubernetes.core.helm_repository:
+    name: hashicorp
+    url: https://helm.releases.hashicorp.com
+
+- name: Install Vault
+  kubernetes.core.helm:
+    name: "{{ vault_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    chart_ref: hashicorp/vault
+    release_namespace: "{{ vault_namespace }}"
+    create_namespace: True
+    force: True
+    wait: True
+    replace: True
+    update_repo_cache: True
+    values:
+      commonLabels:
+        app: vault
+        project: skodjob
+      global:
+        openshift: true
+      server:
+        ha:
+          enabled: true
+          replicas: 3
+          raft:
+            enabled: true
+        # Configure AWS KMS for unsealing
+        extraEnvironmentVars:
+          AWS_ACCESS_KEY_ID: "{{ aws_secret['aws_access_key_id'] }}"
+          AWS_SECRET_ACCESS_KEY: "{{ aws_secret['aws_secret_access_key'] }}"
+          AWS_REGION: "us-east-2"
+          VAULT_SEAL_TYPE: "awskms"
+          VAULT_AWSKMS_SEAL_KEY_ID: "{{ vault_auto_unseal_key_id }}"
+        route:
+          enabled: true
+          host: "{{ vault_namespace }}-{{ vault_namespace }}.apps.{{ infra_context_name }}.{{ cluster_domain }}"
+          tls:
+            termination: edge
+        ui:
+          enabled: true
