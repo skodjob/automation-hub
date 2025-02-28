@@ -32,4 +32,4 @@
     msg: "{{ clusters_dict }}"
 
 - include_tasks:
-    file: prepare_secrets.yaml
+    file: collect_secrets.yaml

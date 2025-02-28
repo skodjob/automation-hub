@@ -12,6 +12,9 @@
 - import_tasks: common/prepare_kubeconfigs.yaml
   tags: [always, kubeconfigs]
 
+- import_tasks: common/create_k8s_secrets.yaml
+  tags: [always]
+
 # infra installation
 # Install ACM
 - import_tasks: infra-setup/install/advanced-cluster-management/install_acm.yaml
