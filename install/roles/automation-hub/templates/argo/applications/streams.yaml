@@ -41,6 +41,13 @@ spec:
                 - op: replace
                   path: "/spec/security/oidc/authServerUrl"
                   value: "https://streams-dex-streams-dex.apps.{{name}}.strimzi.app-services-dev.net"
+            - target:
+                kind: Secret
+                name: keystore-password
+              patch: |-
+                - op: replace
+                  path: "/stringData/keystore.password"
+                  value: "password"
       syncPolicy:
         automated:
           prune: true

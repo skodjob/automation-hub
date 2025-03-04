@@ -1,3 +1,4 @@
+---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -20,3 +21,10 @@ spec:
             secretAccessKeySecretRef:
               name: {{ cm_route53_credentials }}
               key: {{ cm_route53_secret_key_ref }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
