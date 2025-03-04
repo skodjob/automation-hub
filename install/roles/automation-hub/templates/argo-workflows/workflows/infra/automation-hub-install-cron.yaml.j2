@@ -8,18 +8,18 @@ spec:
   startingDeadlineSeconds: 0
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  volumeClaimTemplates:
-    - metadata:
-        name: workdir
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: 1Gi
   workflowSpec:
     entrypoint: automation-hub-install
     serviceAccountName: operate-workflow-sa
     onExit: exit-handler
+    volumeClaimTemplates:
+      - metadata:
+          name: workdir
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 1Gi
     templates:
       - name: automation-hub-install
         steps:
