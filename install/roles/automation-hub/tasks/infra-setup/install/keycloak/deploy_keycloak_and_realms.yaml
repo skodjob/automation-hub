@@ -1,0 +1,116 @@
+---
+- name: "Get signed certificate"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.crt"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: fullchain_certificate_out
+
+- name: "Get signed certificate key"
+  shell: "oc extract secret/{{ cm_certificate_secret }} -n openshift-config --to=- --keys=tls.key"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+  register: key_certificate_out
+
+- name: "Create secret with CRT"
+  kubernetes.core.k8s:
+    namespace: "{{ rhbk_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: default-tls-secret
+      data:
+        tls.crt: "{{ fullchain_certificate_out.stdout | b64encode }}"
+        tls.key: "{{ key_certificate_out.stdout | b64encode }}"
+      type: "kubernetes.io/tls"
+    apply: yes
+
+- name: "Create database access secret"
+  kubernetes.core.k8s:
+    namespace: "{{ rhbk_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: keycloak-db-secret
+      data:
+        username: "{{ rhbk_db_username | b64encode }}"
+        password: "{{ rhbk_db_password | b64encode }}"
+      type: "Opaque"
+    apply: yes
+
+- name: "Create keycloak admin access secret"
+  kubernetes.core.k8s:
+    namespace: "{{ rhbk_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: skodjob-keycloak-admin
+      data:
+        username: "{{ rhbk_admin_username | b64encode }}"
+        password: "{{ rhbk_admin_password | b64encode }}"
+      type: "Opaque"
+    apply: yes
+
+- name: "Create keycloak database on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/keycloak/02-database.yaml.j2
+
+- name: "Wait for database up on Infra cluster"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    kind: Pod
+    wait: true
+    wait_sleep: 5
+    wait_timeout: 150
+    label_selectors:
+      - app=postgresql-db
+  retries: 60
+  delay: 10
+
+- name: "Create keycloak instance on Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/keycloak/03-keycloak.yaml.j2
+
+- name: "Wait for keycloak up on Infra cluster"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    kind: Pod
+    wait: true
+    wait_sleep: 5
+    wait_timeout: 150
+    label_selectors:
+      - app.kubernetes.io/instance=skodjob-keycloak
+  retries: 60
+  delay: 10
+
+- name: "Deploy authz realm Infra cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/keycloak/04-keycloakrealmimport-authz.yaml.j2
