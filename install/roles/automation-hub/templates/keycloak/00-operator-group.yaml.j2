@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: skodjob-keycloak
+  namespace: {{ rhbk_namespace }}
+  labels:
+    ap: sso
+spec:
+  targetNamespaces:
+    - {{ rhbk_namespace }}
+  upgradeStrategy: Default

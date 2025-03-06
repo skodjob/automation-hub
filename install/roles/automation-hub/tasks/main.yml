@@ -106,6 +106,12 @@
 - import_tasks: infra-setup/install/install_argo_workflows.yaml
   tags: [infra, ci, workflows, never]
 
+- import_tasks: infra-setup/install/install_rhbk_operator.yaml
+  tags: [infra, ci, keycloak, rhbk, never]
+
+- import_tasks: infra-setup/install/deploy_keycloak_and_realms.yaml
+  tags: [infra, ci, keycloak, rhbk, never]
+
 - import_tasks: infra-setup/install/install_links.yaml
   tags: [infra, console-link, links, never]
 
@@ -164,3 +170,6 @@
 
 - import_tasks: infra-setup/delete/delete_streams.yaml
   tags: [never, teardown, teardown-streams]
+
+- import_tasks: infra-setup/delete/keycloak/delete_rhbk.yaml
+  tags: [never, teardown, teardown-keycloak]

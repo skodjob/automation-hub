@@ -1,0 +1,33 @@
+- name: "Create {{ rhbk_namespace }} namespace on infra-cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    api_version: v1
+    kind: Namespace
+    name: "{{ rhbk_namespace }}"
+    verify_ssl: no
+    state: present
+
+- name: "Create rhbk operator group and subscription on infra-cluster"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    state: present
+    apply: true
+    verify_ssl: no
+    template: "{{ item }}"
+  loop:
+    - templates/keycloak/00-operator-group.yaml.j2
+    - templates/keycloak/01-subscription.yaml.j2
+
+- name: "Wait for rhbk operator on infra-cluster"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
+    namespace: "{{ rhbk_namespace }}"
+    kind: Deployment
+    name: rhbk-operator
+    wait: true
+    verify_ssl: no
+    wait_condition:
+      type: Available
+      status: True
+      reason: MinimumReplicasAvailable

@@ -40,6 +40,10 @@ cm_route53_access_key_ref: access-key
 cm_certificate_secret: skodjob-signed-certificate
 cm_version: 1.14.1
 
+# Keycloak
+rhbk_namespace: skodjob-keycloak
+rhbk_version: v26.0.9-opr.1
+
 # Strimzi
 strimzi_operator_namespace: strimzi-operator
 strimzi_kafka_namespace: strimzi-event-bus
