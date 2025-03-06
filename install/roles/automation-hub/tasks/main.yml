@@ -170,3 +170,6 @@
 
 - import_tasks: infra-setup/delete/delete_streams.yaml
   tags: [never, teardown, teardown-streams]
+
+- import_tasks: infra-setup/delete/keycloak/delete_rhbk.yaml
+  tags: [never, teardown, teardown-keycloak]
