@@ -19,7 +19,7 @@ spec:
                   environment: upstream
   template:
     metadata:
-      name: '{{appname}}-{{name}}'
+      name: '{% raw %}{{appname}}-{{name}}{% endraw %}'
       labels:
         project: skodjob
         app: streams
@@ -28,7 +28,7 @@ spec:
       source:
         repoURL: https://github.com/skodjob/deployment-hub
         targetRevision: HEAD
-        path: '{{source}}'
+        path: '{% raw %}{{source}}{% endraw %}'
         kustomize:
           patches:
             - target:
@@ -37,17 +37,24 @@ spec:
               patch: |-
                 - op: replace
                   path: "/spec/hostname"
-                  value: "{{namespace}}-{{namespace}}.apps.{{name}}.strimzi.app-services-dev.net"
+                  value: "{% raw %}{{namespace}}-{{namespace}}.apps.{{name}}{% endraw %}.{{ cluster_domain }}"
                 - op: replace
                   path: "/spec/security/oidc/authServerUrl"
-                  value: "https://streams-dex-streams-dex.apps.{{name}}.strimzi.app-services-dev.net"
+                  value: "{% raw %}https://streams-dex-streams-dex.apps.{{name}}{% endraw %}.{{ cluster_domain }}"
             - target:
                 kind: Secret
                 name: keystore-password
               patch: |-
                 - op: replace
                   path: "/stringData/keystore.password"
-                  value: "password"
+                  value: "{{ kroxy_keystore_password }}"
+            - target:
+                kind: Secret
+                name: vault-token
+              patch: |-
+                - op: replace
+                  path: "/stringData/token"
+                  value: "{{ vault_kroxy_token }}"
       syncPolicy:
         automated:
           prune: true
@@ -58,7 +65,7 @@ spec:
           labels:
             project: skodjob
             app: streams
-            strimzi.io/sync-secrets: "{{namespace}}"
+            strimzi.io/sync-secrets: "{% raw %}{{namespace}}{% endraw %}"
       destination:
-        name: '{{name}}'
-        namespace: '{{namespace}}'
+        name: '{% raw %}{{name}}{% endraw %}'
+        namespace: '{% raw %}{{namespace}}{% endraw %}'

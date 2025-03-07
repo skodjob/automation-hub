@@ -11,5 +11,5 @@
     namespace: "{{ infra_argo_namespace }}"
     state: present
     apply: true
-    src: "templates/argo/applications/streams.yaml"
+    template: "templates/argo/applications/streams.yaml"
     verify_ssl: no
