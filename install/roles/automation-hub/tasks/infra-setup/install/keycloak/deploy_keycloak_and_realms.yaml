@@ -96,11 +96,17 @@
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ rhbk_namespace }}"
     kind: Pod
-    wait: true
-    wait_sleep: 5
-    wait_timeout: 150
     label_selectors:
       - app.kubernetes.io/instance=skodjob-keycloak
+  register: keycloak_pods
+  until: >
+    keycloak_pods.resources | length > 0 and
+    (
+      keycloak_pods.resources
+      | selectattr('status.phase','!=','Running')
+      | list
+      | length == 0
+    )
   retries: 60
   delay: 10
 
