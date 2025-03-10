@@ -98,6 +98,7 @@
     kind: Pod
     label_selectors:
       - app.kubernetes.io/instance=skodjob-keycloak
+      - app=keycloak
   register: keycloak_pods
   until: >
     keycloak_pods.resources | length > 0 and
