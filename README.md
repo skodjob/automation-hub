@@ -18,18 +18,15 @@ ansible-galaxy collection install -r collections/requirements.yml
 ansible-playbook automation-hub-play.yaml --tags=infra,strimzi-infra
 ```
 
-makefile
-```
-ansible-galaxy collection install -r install/collections/requirements.yml
-make install_infra install_strimzi 
-```
-
 ansible-navigator
 ```
 cd install
 ansible-navigator #default all tags
 ansible-navigator run automation-hub-play.yaml --senv ANSIBLE_RUN_TAGS=infra
 ```
+
+### Kubernetes days Prague 2024
+[![GITOPS_KUBECONF](https://img.youtube.com/vi/GUXq418JeBo/0.jpg)](https://youtu.be/GUXq418JeBo?si=l1ma0AQ5tbmYMKnP)
 
 ### Testing United 2023 slides
 [Testing United 2023](https://docs.google.com/presentation/d/1E2mBTQfsJybLtWnGRRpw-Xw5dohwRjXtsXgPq0_wpwk/edit?usp=sharing)
