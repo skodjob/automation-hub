@@ -23,7 +23,7 @@ spec:
         steps:
           - name: execute-tests
             # TODO Use skodjob-ee from different org
-            image: quay.io/tealc/skodjob-ee:latest
+            image: quay.io/skodjob/skodjob-ee:latest
             env:
               - name: OC_TOKEN
                 valueFrom:
@@ -168,7 +168,7 @@ spec:
           containers:
             - name: notify
               # TODO Use skodjob-ee from different org
-              image: quay.io/tealc/skodjob-ee:latest
+              image: quay.io/skodjob/skodjob-ee:latest
               args:
                 - curl
                 - -d

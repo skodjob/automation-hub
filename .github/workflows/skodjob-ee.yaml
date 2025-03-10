@@ -32,4 +32,4 @@ jobs:
           file: ./skodjob-ee/context/Containerfile
           push: true
           # TODO - Change org when we will create a new one
-          tags: quay.io/tealc/skodjob-ee:latest
+          tags: quay.io/skodjob/skodjob-ee:latest

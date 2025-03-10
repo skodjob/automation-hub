@@ -5,7 +5,7 @@ ansible-navigator:
 
   execution-environment:
     enabled: true
-    image: quay.io/tealc/skodjob-ee:latest
+    image: quay.io/skodjob/skodjob-ee:latest
     environment-variables:
       set:
         ANSIBLE_RUN_TAGS: 'infra,strimzi-infra'
