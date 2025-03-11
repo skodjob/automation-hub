@@ -30,7 +30,7 @@ spec:
                   environment: upstream
   template:
     metadata:
-      name: '{{appname}}-{{name}}'
+      name: '{% raw %}{{appname}}-{{name}}{% endraw %}'
       labels:
         project: skodjob
         app: strimzi
@@ -39,10 +39,128 @@ spec:
       source:
         repoURL: https://github.com/skodjob/deployment-hub
         targetRevision: HEAD
-        path: '{{source}}'
-        directory:
-          recurse: true
-          exclude: '{argo-config.yaml}'
+        path: '{% raw %}{{source}}{% endraw %}'
+        kustomize:
+          patches:
+            # Replace secrets values
+            - target:
+                kind: Secret
+                name: team-flights-client-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.team_flights_client_oauth }}"
+            - target:
+                kind: Secret
+                name: team-payments-client-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.team_payments_client_oauth }}"
+            - target:
+                kind: Secret
+                name: team-marketing-client-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.team_marketing_client_oauth }}"
+            - target:
+                kind: Secret
+                name: team-ops-client-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.team_ops_client_oauth }}"
+            - target:
+                kind: Secret
+                name: ra-kafka-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.ra_kafka_oauth }}"
+            - target:
+                kind: Secret
+                name: ra-mirror-maker-2-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.ra_mirror_maker_2_oauth }}"
+            - target:
+                kind: Secret
+                name: superuser-ra-oauth
+              patch: |-
+                - op: replace
+                  path: "/stringData/clientSecret"
+                  value: "{{ rhbk_clients.secrets.superuser_ra_oauth }}"
+            # Replace Keycloak URLs
+            - target:
+                kind: KafkaMirrorMaker2
+                name: replicator-ra
+              patch: |-
+                - op: replace
+                  path: "/spec/clusters/2/authentication/tokenEndpointUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Kafka
+                name: ra
+              patch: |-
+                - op: replace
+                  path: "/spec/kafka/listeners/1/authentication/jwksEndpointUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/certs"
+                - op: replace
+                  path: "/spec/kafka/listeners/1/authentication/validIssuerUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}"
+                - op: replace
+                  path: "/spec/kafka/listeners/2/authentication/jwksEndpointUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/certs"
+                - op: replace
+                  path: "/spec/kafka/listeners/2/authentication/validIssuerUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}"
+                - op: replace
+                  path: "/spec/kafka/authorization/tokenEndpointUri"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-flights-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-payments-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-marketing-flights-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-marketing-payments-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-ops-flights-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: team-ops-payments-client-valid-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
       syncPolicy:
         automated:
           prune: true
@@ -53,7 +171,7 @@ spec:
           labels:
             project: skodjob
             app: strimzi
-            strimzi.io/sync-secrets: "{{namespace}}"
+            strimzi.io/sync-secrets: "{% raw %}{{namespace}}{% endraw %}"
       destination:
-        name: '{{name}}'
-        namespace: '{{namespace}}'
+        name: '{% raw %}{{name}}{% endraw %}'
+        namespace: '{% raw %}{{namespace}}{% endraw %}'
