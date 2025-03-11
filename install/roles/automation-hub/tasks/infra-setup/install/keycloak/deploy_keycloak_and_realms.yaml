@@ -120,4 +120,4 @@
     verify_ssl: no
     template: "{{ item }}"
   loop:
-    - templates/keycloak/04-keycloakrealmimport-authz.yaml.j2
+    - templates/keycloak/04-keycloakrealmimport.yaml.j2
