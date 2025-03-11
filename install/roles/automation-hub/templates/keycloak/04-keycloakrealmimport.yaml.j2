@@ -42,7 +42,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: ArnostPass
+            value: "{{ rhbk_clients.passwords.arnost }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -57,7 +57,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: NancyPass
+            value: "{{ rhbk_clients.passwords.nancy }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -72,7 +72,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: KarelPass
+            value: "{{ rhbk_clients.passwords.karel }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -87,7 +87,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: TracyPass
+            value: "{{ rhbk_clients.passwords.tracy }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -102,7 +102,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: JosefPass
+            value: "{{ rhbk_clients.passwords.josef }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -117,7 +117,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: JarmilaPass
+            value: "{{ rhbk_clients.passwords.jarmila }}"
         realmRoles:
           - "offline_access"
           - "uma_authorization"
@@ -132,7 +132,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: civrilPassword
+            value: "{{ rhbk_clients.passwords.civril }}"
         realmRoles:
           - "offline_access"
         clientRoles:
@@ -146,7 +146,7 @@ spec:
         enabled: true
         credentials:
           - type: password
-            value: OpsPass
+            value: "{{ rhbk_clients.passwords.opsuser }}"
         realmRoles:
           - "offline_access"
         clientRoles:

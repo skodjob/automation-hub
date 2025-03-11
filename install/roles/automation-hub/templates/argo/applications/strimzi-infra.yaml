@@ -40,9 +40,6 @@ spec:
         repoURL: https://github.com/skodjob/deployment-hub
         targetRevision: add-kafka-oauth
         path: '{% raw %}{{source}}{% endraw %}'
-#        directory:
-#          recurse: true
-#          exclude: '{% raw %}{argo-config.yaml}{% endraw %}'
         kustomize:
           patches:
             # Replace secrets values
