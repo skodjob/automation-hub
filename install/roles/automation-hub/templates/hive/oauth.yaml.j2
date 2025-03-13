@@ -28,6 +28,6 @@ spec:
         clientID: openshift
         clientSecret:
           name: keycloak-client-secret
-        issuer: https://skodjob-keycloak-ingress-skodjob-keycloak.{{ infra_context_name }}.{{ cluster_domain }}/realms/openshift
+        issuer: https://skodjob-keycloak-ingress-skodjob-keycloak.apps.{{ infra_context_name }}.{{ cluster_domain }}/realms/openshift
       type: OpenID
 {% endif %}
