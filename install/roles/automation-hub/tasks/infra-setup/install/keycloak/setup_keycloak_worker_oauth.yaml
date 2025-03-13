@@ -1,5 +1,5 @@
 ---
-- name: "Create keycloak cli access secret"
+- name: "Create keycloak cli access secret on {{ worker.name }}"
   kubernetes.core.k8s:
     namespace: "openshift-config"
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
@@ -17,7 +17,7 @@
   ansible.builtin.set_fact:
     keycloak_openshift: "True"
 
-- name: "Setup oauth on {{ cluster_name }}"
+- name: "Setup oauth on {{ worker.name }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "openshift-config"
