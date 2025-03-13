@@ -1,0 +1,15 @@
+---
+# Install operator on infra cluster
+- include_tasks:
+    file: keycloak/install_rhbk_operator.yaml
+
+# Install keycloak on infra cluster with realmz
+- include_tasks:
+    file: keycloak/deploy_keycloak_and_realms.yaml
+
+# Setup worker nodes to use keycloak as oauth
+- include_tasks:
+    file: keycloak/setup_keycloak_worker_oauth.yaml
+  loop: "{{ workers }}"
+  loop_control:
+    loop_var: worker
