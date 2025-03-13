@@ -12,4 +12,4 @@
     file: keycloak/setup_keycloak_worker_oauth.yaml
   loop: "{{ workers }}"
   loop_control:
-    loop_var: clusterName
+    loop_var: worker

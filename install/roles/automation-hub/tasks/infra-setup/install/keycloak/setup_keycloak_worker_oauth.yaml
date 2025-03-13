@@ -2,7 +2,7 @@
 - name: "Create keycloak cli access secret"
   kubernetes.core.k8s:
     namespace: "openshift-config"
-    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     definition:
       apiVersion: v1
       kind: Secret
@@ -19,7 +19,7 @@
 
 - name: "Setup oauth on {{ cluster_name }}"
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    kubeconfig: "{{ kubeconfig_path }}/{{ worker.name }}"
     namespace: "openshift-config"
     state: present
     merge_type:
