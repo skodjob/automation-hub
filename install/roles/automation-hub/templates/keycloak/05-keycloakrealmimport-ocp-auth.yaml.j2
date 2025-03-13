@@ -1,0 +1,231 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: openshift-realm-import
+  namespace: skodjob-keycloak
+  labels:
+    app: sso
+spec:
+  keycloakCRName: skodjob-keycloak
+  realm:
+    realm: openshift
+    displayName: "openshift"
+    roles:
+      realm:
+        - name: streams-administrators
+          description: ""
+        - name: administrators
+          description: ""
+        - name: streams-viewers
+          description: ""
+        - name: streams-developers
+          description: ""
+      client:
+        openshift:
+          - name: uma_protection
+            clientRole: true
+    groups:
+      - name: administrators
+        path: "/administrators"
+        realmRoles:
+          - administrators
+      - name: streams-administrators
+        path: "/streams-administrators"
+        realmRoles:
+          - streams-administrators
+      - name: streams-developers
+        path: "/streams-developers"
+        realmRoles:
+          - streams-developers
+      - name: streams-viewers
+        path: "/streams-viewers"
+        realmRoles:
+          - streams-viewers
+
+    users:
+      - username: admin
+        firstName: "Super"
+        lastName: "Admin"
+        email: "admin@email.com"
+        emailVerified: true
+        enabled: true
+        totp: false
+        credentials:
+          - type: password
+            value: "{{ rhbk_default_user_password }}"
+        realmRoles:
+          - default-roles-openshift
+        groups:
+          - "/administrators"
+
+      - username: service-account-openshift
+        emailVerified: false
+        enabled: true
+        totp: false
+        serviceAccountClientId: openshift
+        realmRoles:
+          - default-roles-openshift
+        clientRoles:
+          openshift:
+            - uma_protection
+        notBefore: 0
+        groups: []
+
+      - id: 95e4ff01-318d-4bd2-9647-13e77af4359a
+        username: streams-admin
+        firstName: "Josef"
+        lastName: "Lubos"
+        email: "streams-admin@email.com"
+        emailVerified: true
+        createdTimestamp: 1741789104064
+        enabled: true
+        totp: false
+        credentials:
+          - type: password
+            value: "{{ rhbk_default_user_password }}"
+        realmRoles:
+          - default-roles-openshift
+        notBefore: 0
+        groups:
+          - "/streams-administrators"
+
+      - id: a79569ac-f07f-48a4-b235-00541d1cd379
+        username: streams-developer
+        firstName: "Jenda"
+        lastName: "Penda"
+        email: "streams-developer@email.com"
+        emailVerified: true
+        createdTimestamp: 1741789043551
+        enabled: true
+        totp: false
+        credentials:
+          - type: password
+            value: "{{ rhbk_default_user_password }}"
+        realmRoles:
+          - default-roles-openshift
+        notBefore: 0
+        groups:
+          - "/streams-developers"
+
+      - id: f6291be2-9bed-476b-9428-d3c09a3d0cfd
+        username: streams-viewer
+        firstName: "Sarka"
+        lastName: "Farka"
+        email: "streams-viewer@email.com"
+        emailVerified: true
+        createdTimestamp: 1741788524329
+        enabled: true
+        totp: false
+        credentials:
+          - type: password
+            value: "{{ rhbk_default_user_password }}"
+        realmRoles:
+          - default-roles-openshift
+        notBefore: 0
+        groups:
+          - "/streams-viewers"
+
+    scopeMappings:
+      - clientScope: offline_access
+        roles:
+          - offline_access
+
+    clientScopeMappings:
+      account:
+        - client: account-console
+          roles:
+            - manage-account
+            - view-groups
+
+    clients:
+      - clientId: openshift
+        name: "openshift"
+        description: ""
+        rootUrl: ""
+        adminUrl: ""
+        baseUrl: ""
+        surrogateAuthRequired: false
+        enabled: true
+        alwaysDisplayInConsole: false
+        clientAuthenticatorType: client-secret
+        secret: "{{ rhbk_openshift_cli_secret }}"
+        redirectUris:
+          - "https://oauth-openshift.apps.worker-01.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-01.{{ infra_root_domain }}/*"
+          - "https://oauth-openshift.apps.worker-02.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-02.{{ infra_root_domain }}/*"
+          - "https://oauth-openshift.apps.worker-03.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-03.{{ infra_root_domain }}/*"
+        webOrigins:
+          - "https://oauth-openshift.apps.worker-01.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-01.{{ infra_root_domain }}/*"
+          - "https://oauth-openshift.apps.worker-02.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-02.{{ infra_root_domain }}/*"
+          - "https://oauth-openshift.apps.worker-03.{{ infra_root_domain }}/oauth2callback/keycloak/*"
+          - "https://console-openshift-console.apps.worker-03.{{ infra_root_domain }}/*"
+        notBefore: 0
+        bearerOnly: false
+        consentRequired: false
+        standardFlowEnabled: true
+        implicitFlowEnabled: false
+        directAccessGrantsEnabled: true
+        serviceAccountsEnabled: true
+        publicClient: false
+        frontchannelLogout: true
+        protocol: "openid-connect"
+        attributes:
+          realm_client: "false"
+          oidc.ciba.grant.enabled: "false"
+          client.secret.creation.time: "1741769445"
+          backchannel.logout.session.required: "true"
+          oauth2.device.authorization.grant.enabled: "false"
+          display.on.consent.screen: "false"
+          use.jwks.url: "false"
+          backchannel.logout.revoke.offline.tokens: "false"
+        authenticationFlowBindingOverrides: {}
+        fullScopeAllowed: true
+        nodeReRegistrationTimeout: -1
+        protocolMappers:
+          - name: "users-groups"
+            protocol: "openid-connect"
+            protocolMapper: "oidc-group-membership-mapper"
+            consentRequired: false
+            config:
+              full.path: "false"
+              introspection.token.claim: "true"
+              userinfo.token.claim: "true"
+              multivalued: "true"
+              lightweight.claim: "false"
+              id.token.claim: "true"
+              access.token.claim: "true"
+              claim.name: "groups"
+
+    browserFlow: browser
+    registrationFlow: registration
+    directGrantFlow: "direct grant"
+    resetCredentialsFlow: "reset credentials"
+    clientAuthenticationFlow: clients
+    dockerAuthenticationFlow: "docker auth"
+    firstBrokerLoginFlow: "first broker login"
+    attributes:
+      cibaBackchannelTokenDeliveryMode: poll
+      cibaAuthRequestedUserHint: login_hint
+      oauth2DevicePollingInterval: "5"
+      clientOfflineSessionMaxLifespan: "0"
+      clientSessionIdleTimeout: "0"
+      clientOfflineSessionIdleTimeout: "0"
+      cibaInterval: "5"
+      realmReusableOtpCode: "false"
+      cibaExpiresIn: "120"
+      oauth2DeviceCodeLifespan: "600"
+      parRequestUriLifespan: "60"
+      clientSessionMaxLifespan: "0"
+      frontendUrl: ""
+      "acr.loa.map": "{}"
+    keycloakVersion: "26.0.10.redhat-00002"
+    userManagedAccessAllowed: false
+    organizationsEnabled: false
+    clientProfiles:
+      profiles: []
+    clientPolicies:
+      policies: []

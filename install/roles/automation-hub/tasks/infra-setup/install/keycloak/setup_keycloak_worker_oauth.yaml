@@ -1,0 +1,28 @@
+---
+- name: "Create keycloak cli access secret"
+  kubernetes.core.k8s:
+    namespace: "openshift-config"
+    kubeconfig: "{{ kubeconfig_path }}/{{ clusterName }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: keycloak-client-secret
+      data:
+        clientSecret: "{{ rhbk_openshift_cli_secret | b64encode }}"
+      type: "Opaque"
+    apply: yes
+
+- name: "Enable keycloak var"
+  ansible.builtin.set_fact:
+    keycloak_openshift: "True"
+
+- name: "Setup oauth on {{ cluster_name }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}/{{ cluster_name }}"
+    namespace: "openshift-config"
+    state: present
+    merge_type:
+      - merge
+    verify_ssl: no
+    template: templates/hive/oauth.yaml.j2

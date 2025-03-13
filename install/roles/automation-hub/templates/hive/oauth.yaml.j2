@@ -11,12 +11,10 @@ spec:
         fileData:
           name: htpasswd-secret
 
-{% if sso_ca_name is defined %}
+{% if keycloak_openshift is defined %}
     - mappingMethod: claim
-      name: openid
+      name: keycloak
       openID:
-        ca:
-          name: {{ sso_ca_name }}
         claims:
           email:
             - email
@@ -24,10 +22,12 @@ spec:
             - name
           preferredUsername:
             - preferred_username
-        clientID: ocp
+          groups:
+            - groups
+            - realm_access.roles
+        clientID: openshift
         clientSecret:
-          name: {{ sso_ocp_client_secret }}
-        extraScopes: []
-        issuer: https://keycloak-skodjob-sso.apps.{{ infra_context_name }}.{{ cluster_domain }}/auth/realms/skodjob-realm
+          name: keycloak-client-secret
+        issuer: https://skodjob-keycloak-ingress-skodjob-keycloak.{{ infra_context_name }}.{{ cluster_domain }}/realms/openshift
       type: OpenID
 {% endif %}

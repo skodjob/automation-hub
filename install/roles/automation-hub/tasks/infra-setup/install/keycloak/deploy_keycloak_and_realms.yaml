@@ -111,7 +111,7 @@
   retries: 60
   delay: 10
 
-- name: "Deploy authz realm Infra cluster"
+- name: "Deploy realms on Infra cluster"
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}/{{ infra_context_name }}"
     namespace: "{{ rhbk_namespace }}"
@@ -120,4 +120,5 @@
     verify_ssl: no
     template: "{{ item }}"
   loop:
-    - templates/keycloak/04-keycloakrealmimport.yaml.j2
+    - templates/keycloak/04-keycloakrealmimport-skodjob-auth.yaml.j2
+    - templates/keycloak/05-keycloakrealmimport-ocp-auth.yaml.j2

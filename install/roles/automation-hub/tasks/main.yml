@@ -106,10 +106,7 @@
 - import_tasks: infra-setup/install/install_argo_workflows.yaml
   tags: [infra, ci, workflows, never]
 
-- import_tasks: infra-setup/install/keycloak/install_rhbk_operator.yaml
-  tags: [infra, ci, keycloak, rhbk, never]
-
-- import_tasks: infra-setup/install/keycloak/deploy_keycloak_and_realms.yaml
+- import_tasks: infra-setup/install/orchestrate_keycloak.yaml
   tags: [infra, ci, keycloak, rhbk, never]
 
 - import_tasks: infra-setup/install/install_links.yaml
