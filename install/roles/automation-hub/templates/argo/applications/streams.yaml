@@ -58,28 +58,28 @@ spec:
             # Clients
             - target:
                 kind: Deployment
-                name: kroxy-oauth-consumer
+                name: consumer
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"
                   value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
             - target:
                 kind: Deployment
-                name: kroxy-oauth-consumer-direct
+                name: consumer-direct
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"
                   value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
             - target:
                 kind: Deployment
-                name: kroxy-oauth-producer
+                name: producer
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"
                   value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
             - target:
                 kind: Deployment
-                name: kroxy-oauth-producer-invalid
+                name: producer-invalid
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"

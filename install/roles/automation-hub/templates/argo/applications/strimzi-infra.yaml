@@ -163,7 +163,7 @@ spec:
                   value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
       syncPolicy:
         automated:
-          prune: true
+          prune: false
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
