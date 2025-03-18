@@ -55,6 +55,35 @@ spec:
                 - op: replace
                   path: "/stringData/token"
                   value: "{{ vault_kroxy_token }}"
+            # Clients
+            - target:
+                kind: Deployment
+                name: kroxy-oauth-consumer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: kroxy-oauth-consumer-direct
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: kroxy-oauth-producer
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
+            - target:
+                kind: Deployment
+                name: kroxy-oauth-producer-invalid
+              patch: |-
+                - op: replace
+                  path: "/spec/template/spec/containers/0/env/2/value"
+                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
       syncPolicy:
         automated:
           prune: true
