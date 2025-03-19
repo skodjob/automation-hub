@@ -55,31 +55,10 @@ spec:
                 - op: replace
                   path: "/stringData/token"
                   value: "{{ vault_kroxy_token }}"
-            # Clients
+            # Clients with labelSelector: kroxy=filters
             - target:
                 kind: Deployment
-                name: consumer
-              patch: |-
-                - op: replace
-                  path: "/spec/template/spec/containers/0/env/2/value"
-                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
-            - target:
-                kind: Deployment
-                name: consumer-direct
-              patch: |-
-                - op: replace
-                  path: "/spec/template/spec/containers/0/env/2/value"
-                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
-            - target:
-                kind: Deployment
-                name: producer
-              patch: |-
-                - op: replace
-                  path: "/spec/template/spec/containers/0/env/2/value"
-                  value: "https://skodjob-keycloak-ingress-skodjob-keycloak.apps.skodjob-infra.{{ cluster_domain }}/realms/{{ rhbk_realm_name }}/protocol/openid-connect/token"
-            - target:
-                kind: Deployment
-                name: producer-invalid
+                labelSelector: "kroxy=filters"
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"
