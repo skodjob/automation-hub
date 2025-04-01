@@ -55,10 +55,10 @@ spec:
                 - op: replace
                   path: "/stringData/token"
                   value: "{{ vault_kroxy_token }}"
-            # Clients with labelSelector: kroxy=filters
+            # Clients with labelSelector: kroxy=oauth
             - target:
                 kind: Deployment
-                labelSelector: "kroxy=filters"
+                labelSelector: "kroxy=oauth"
               patch: |-
                 - op: replace
                   path: "/spec/template/spec/containers/0/env/2/value"
