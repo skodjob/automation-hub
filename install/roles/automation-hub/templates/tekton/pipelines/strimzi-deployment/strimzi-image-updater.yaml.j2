@@ -25,7 +25,6 @@ spec:
               git clone https://github.com/skodjob/automation-hub.git $CURRENT_DIR
           # This is needed to be sure that all images are pushed, because the webhook pointing to the operator image
           - name: wait-for-push
-            # TODO Use skodjob-ee from different org
             image: quay.io/skodjob/skodjob-ee:latest
             script: |
               sleep 5m
@@ -55,7 +54,6 @@ spec:
                   secretKeyRef:
                     name: github-secret
                     key: TOKEN
-            # TODO Use skodjob-ee from different org
             image: quay.io/skodjob/skodjob-ee:latest
             script: |
               $(workspaces.pipeline-ws.path)/automation-hub/image-update/strimzi-image-update.sh

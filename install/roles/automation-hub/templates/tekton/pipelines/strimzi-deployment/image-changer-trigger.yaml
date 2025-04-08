@@ -22,7 +22,6 @@ spec:
                 name: strimzi-image-changer
           containers:
             - name: trigger
-              # TODO Use skodjob-ee from different org
               image: quay.io/skodjob/skodjob-ee:latest
               command:
                 - /workspace/entrypoint.sh

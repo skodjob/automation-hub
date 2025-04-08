@@ -22,7 +22,6 @@ spec:
           - name: pipeline-ws
         steps:
           - name: execute-tests
-            # TODO Use skodjob-ee from different org
             image: quay.io/skodjob/skodjob-ee:latest
             env:
               - name: OC_TOKEN
@@ -167,7 +166,6 @@ spec:
         spec:
           containers:
             - name: notify
-              # TODO Use skodjob-ee from different org
               image: quay.io/skodjob/skodjob-ee:latest
               args:
                 - curl
