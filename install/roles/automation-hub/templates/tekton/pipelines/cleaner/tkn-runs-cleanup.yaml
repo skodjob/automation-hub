@@ -23,7 +23,6 @@ spec:
           restartPolicy: Never
           containers:
             - name: kubectl
-              # TODO Use skodjob-ee from different org
               image: 'quay.io/skodjob/k8s:latest'
               command:
                 - /bin/bash
