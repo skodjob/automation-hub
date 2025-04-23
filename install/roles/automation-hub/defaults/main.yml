@@ -14,18 +14,18 @@ access_token: empty
 htpasswd_file: /tmp/htpasswd
 
 # GitOps
-gitops_channel_version: 1.15
-gitops_version: 1.15.0
+gitops_channel_version: 1.16
+gitops_version: 1.16.0
 
 # ACM
-acm_version: 2.12
-loki_version: 6.1
-openshift_logging_version: 6.1
+acm_version: 2.13
+loki_version: 6.2
+openshift_logging_version: 6.2
 acm_namespace: skodjob-rhacm
 acm_observability_namespace: open-cluster-management-observability
 
 # ACS
-acs_version: 4.6
+acs_version: 4.7
 acs_namespace: skodjob-rhacs
 acs_stackrox_namespace: stackrox
 acs_api_token_file: "{{ playbook_dir }}/acs_api_token"
@@ -38,7 +38,7 @@ cm_route53_credentials: route53-le-credentials
 cm_route53_secret_key_ref: secret-key
 cm_route53_access_key_ref: access-key
 cm_certificate_secret: skodjob-signed-certificate
-cm_version: 1.14.1
+cm_version: 1.15.1
 
 # Keycloak
 rhbk_namespace: skodjob-keycloak
