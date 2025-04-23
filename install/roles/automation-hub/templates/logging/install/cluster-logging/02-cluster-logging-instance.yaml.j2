@@ -107,9 +107,15 @@ spec:
           - namespace: skodjob*
           - namespace: streams*
         excludes:
+          # Skip all clients namespaces
           - namespace: strimzi-clients
           - namespace: strimzi-clients-kraft
           - namespace: strimzi-clients-mirror
+          # Skip producers and consumers in streams-kroxy, streams-kroxy-filters, streams-kroxy-oauth
+          - namespace: streams-kroxy*
+            container: producer
+          - namespace: streams-kroxy*
+            container: consumer
   outputs:
     - name: default-lokistack
       type: lokiStack
@@ -129,5 +135,5 @@ spec:
       outputRefs:
         - default-lokistack
       inputRefs:
-        - application
+        - application-logs
         - infrastructure
