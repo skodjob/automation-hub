@@ -62,7 +62,7 @@ git clone "$CURRENT_DEPLOYMENT_REPO" "$TARGET_DIR" -b "${BRANCH}"
 # Load yaml paths
 IFS=',' read -r -a YAML_BUNDLE_PATH_ARRAY <<<"$YAML_BUNDLE_PATHS"
 echo "YAML_BUNDLE_PATHS: $YAML_BUNDLE_PATHS"
-echo "YAML_BUNDLE_PATH_ARRAY: ${YAML_BUNDLE_PATH_ARRAY[0]}"
+echo "YAML_BUNDLE_PATH_ARRAY: ${YAML_BUNDLE_PATH_ARRAY}"
 
 echo "[INFO] Cloning target CRD repo for sync: ${SYNC_CRD_REPO}"
 SYNC_CRD_DIR="${WORKING_DIR}/sync_repo"
@@ -75,6 +75,14 @@ for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"; do
     DEPLOYMENT_FILE_NAME=$(ls "$TARGET_DIR/$YAML_BUNDLE_PATH" | $GREP Deployment)
     echo "[INFO] Deployment filename: ${DEPLOYMENT_FILE_NAME}"
     echo "================================================"
+
+    # Check if the operator image contains 'rc'
+    OPERATOR_IMAGE=$(yq e '.spec.template.spec.containers[0].image' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+
+    if [[ "$OPERATOR_IMAGE" == *"rc"* ]]; then
+        echo "[INFO] Skipping image files sync  as the operator image contains 'rc' for testing: $OPERATOR_IMAGE"
+        continue
+    fi
 
     # Storing must have values
     export ENV_NAMESPACE=$(yq e '.spec.template.spec.containers[0].env[] | select(.name == "STRIMZI_NAMESPACE")' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
@@ -181,6 +189,14 @@ for ELEMENT_O in "${IMGS[@]}"; do
     NEW_DIGEST="$IMAGE_NAME@sha:$T"
     T=$((T + 1))
 
+    # Check if the operator image contains 'rc'
+    OPERATOR_IMAGE=$(yq e '.spec.template.spec.containers[0].image' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+
+    if [[ "$OPERATOR_IMAGE" == *"rc"* ]]; then
+        echo "[INFO] Skipping image replacement as the operator image contains 'rc' for testing: $OPERATOR_IMAGE"
+        continue
+    fi
+
     for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"; do
         if [[ "$IMAGE_NAME" == *"bridge"* ]]; then
             # Skip bridge image as we want to update it manually
@@ -236,6 +252,14 @@ for ELEMENT in "${IMAGES[@]}"; do
     if [[ "$CURRENT_DIGEST" != "$LATEST_DIGEST" ]]; then
         echo "[INFO] Found outdated digest for image $IMAGE: $CURRENT_DIGEST vs $LATEST_DIGEST"
         for YAML_BUNDLE_PATH in "${YAML_BUNDLE_PATH_ARRAY[@]}"; do
+            # Check if the operator image contains 'rc'
+            OPERATOR_IMAGE=$(yq e '.spec.template.spec.containers[0].image' "$TARGET_DIR/$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME")
+
+            if [[ "$OPERATOR_IMAGE" == *"rc"* ]]; then
+                echo "[INFO] Skipping image ${ELEMENT} replacement as the operator image contains 'rc' for testing: $OPERATOR_IMAGE"
+                continue
+            fi
+
             $SED -i 's#'"$CURRENT_DIGEST"'#'"$LATEST_DIGEST"'#g' "$YAML_BUNDLE_PATH/$DEPLOYMENT_FILE_NAME"
         done
     fi
