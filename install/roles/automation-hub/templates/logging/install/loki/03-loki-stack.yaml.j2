@@ -5,9 +5,7 @@ metadata:
   namespace: openshift-logging
 spec:
   managementState: Managed
-  replicationFactor: 1
-  # This is unsupported configuration, but we want to have lower requirements for pods, it should work fine, if not, pelase use 1x.small
-  size: 1x.extra-small
+  size: 1x.pico
   storage:
     schemas:
       - effectiveDate: '2022-06-01'
@@ -22,7 +20,6 @@ spec:
     mode: openshift-logging
   template:
     ingester:
-      replicas: 1
       nodeSelector:
         nodetype: logging
       tolerations:
@@ -31,7 +28,6 @@ spec:
           operator: Equal
           value: logging
     compactor:
-      replicas: 3
       nodeSelector:
         nodetype: logging
       tolerations:
@@ -40,7 +36,6 @@ spec:
           operator: Equal
           value: logging
     distributor:
-      replicas: 3
       nodeSelector:
         nodetype: logging
       tolerations:
