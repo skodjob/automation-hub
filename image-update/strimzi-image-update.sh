@@ -226,6 +226,11 @@ for ELEMENT in "${IMAGES[@]}"; do
     CURRENT_DIGEST=$(echo "$ELEMENT" | cut -d '@' -f2)
     IMAGE=$(echo "$ELEMENT" | rev | cut -d '@' -f2 | cut -d '/' -f1 | rev)
 
+    if [[ "$ELEMENT" == *"rc"* ]]; then
+        echo "[INFO] Skipping image ${ELEMENT} replacement as it contains 'rc' for testing: $ELEMENT"
+        continue
+    fi
+
     # Parse image with prefix = kafka
     if [[ "$ELEMENT" == *"="* ]]; then
         PREFIX=$(echo "$ELEMENT" | cut -d '=' -f1)
