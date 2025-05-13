@@ -113,6 +113,9 @@
   tags: [infra, console-link, links, never]
 
 # Scenarios - Has to be migrated to the new format!!!
+- import_tasks: scenario-deployment/infra/secrets.yaml
+  tags: [secrets, strimzi-secrets, strimzi-infra, never]
+
 - import_tasks: scenario-deployment/infra/argo-deploy-strimzi-infra.yaml
   tags: [argo-apps, argo-strimzi-infra, strimzi-infra, never]
 
